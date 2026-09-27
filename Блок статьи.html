@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>База знаний — Bento статьи, видео и изображения</title>
+  
+  <!-- Шрифт Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            primary: '#2563EB',
+            accent: '#FACC15',
+          },
+          boxShadow: {
+            'micro': '0 4px 20px -2px rgba(0,0,0,0.04)',
+            'card-hover': '0 12px 30px -4px rgba(37,99,235,0.12)',
+            'soft': '0 4px 20px -2px rgba(0,0,0,0.04)',
+            'float': '0 10px 30px -5px rgba(37,99,235,0.15)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    #video-modal .custom-scrollbar::-webkit-scrollbar-thumb,
+    #image-modal .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 4px;
+    }
+    #video-modal .custom-scrollbar::-webkit-scrollbar-thumb:hover,
+    #image-modal .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #3f3f46;
+    }
+    .wrap {
+      width: 100%;
+      max-width: 1780px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+    @media (min-width: 640px) {
+      .wrap { padding-left: 1.5rem; padding-right: 1.5rem; }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-100/70 text-slate-900 font-sans antialiased selection:bg-yellow-400 selection:text-slate-900">
+
+  <!-- ОСНОВНОЙ BENTO-БЛОК КОНТЕНТА -->
+  <main class="p-2 sm:p-6 lg:p-8">
+    <div class="max-w-[1780px] mx-auto bg-slate-50 border border-slate-200/90 shadow-2xl shadow-slate-300/50 rounded-[28px] sm:rounded-[44px] overflow-hidden relative">
+      
+      <!-- Верхний фирменный градиент -->
+      <div class="h-1.5 w-full bg-gradient-to-r from-blue-600 via-indigo-500 to-yellow-400"></div>
+
+      <div class="p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
+        
+        <!-- ВЕРХНЯЯ СТРОКА: СЧЕТЧИК (СЛЕВА), ВЫБОР ИГРЫ И ПОИСК (СПРАВА) -->
+        <div id="catalog-top" class="scroll-mt-24 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white border border-slate-200 rounded-[24px] sm:rounded-[32px] p-3 sm:p-4 shadow-micro">
+          
+          <!-- Счетчик материалов -->
+          <div class="text-[11px] sm:text-xs font-semibold text-slate-500 select-none px-1 leading-snug" id="items-counter">
+            Найдено публикаций:<br class="sm:hidden"><span class="font-bold text-slate-700"> 24 // Страница 1 из 2</span>
+          </div>
+          
+          <!-- Элементы управления справа -->
+          <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 w-full sm:w-auto">
+            
+            <!-- Кнопка «Выбор игры» -->
+            <div class="relative w-full sm:w-auto">
+              <button 
+                onclick="toggleTopGameDropdown(event)" 
+                id="top-game-dropdown-btn" 
+                class="w-full sm:w-auto bg-slate-50 border border-slate-200 hover:border-slate-300 text-[11px] sm:text-xs font-semibold text-slate-600 hover:text-blue-600 px-3.5 py-2 rounded-full transition-all flex items-center justify-between gap-2 outline-none select-none shadow-sm"
+              >
+                <span class="flex items-center gap-1.5">
+                  <i data-lucide="gamepad-2" class="h-3.5 w-3.5 text-slate-400"></i>
+                  <span id="top-game-btn-text">Выберите игру</span>
+                </span>
+                <i data-lucide="chevron-down" class="h-3.5 w-3.5 text-slate-400"></i>
+              </button>
+              
+              <!-- Выпадающее меню выбора игры -->
+              <div id="top-game-dropdown-content" class="hidden absolute top-full left-0 sm:right-0 sm:left-auto mt-2 w-56 sm:w-64 bg-white border border-slate-200 rounded-2xl p-2 z-50 shadow-xl">
+                <div class="relative mb-2 px-1">
+                  <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400"></i>
+                  <input
+                    type="text"
+                    id="top-dropdown-search-input"
+                    placeholder="Поиск игры..."
+                    class="w-full bg-slate-50 border border-slate-200 rounded-full pl-8 pr-3 py-1 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div id="top-dropdown-games-list" class="space-y-0.5 max-h-40 overflow-y-auto pr-1 custom-scrollbar"></div>
+              </div>
+            </div>
+
+            <!-- Поисковая строка -->
+            <div class="flex items-center bg-slate-50 border border-slate-200 rounded-full pl-3.5 pr-1 py-1 focus-within:border-blue-500 focus-within:bg-white transition-all shadow-inner w-full sm:w-64 lg:w-72">
+              <i data-lucide="search" class="h-3.5 w-3.5 text-slate-400 shrink-0 mr-2"></i>
+              <input 
+                type="text" 
+                id="top-search-input" 
+                placeholder="Поиск по базе..." 
+                class="bg-transparent font-medium text-xs text-slate-900 outline-none w-full placeholder-slate-400" 
+              />
+              <button onclick="triggerFadeUpAnimation(false)" class="bg-yellow-400 hover:bg-yellow-500 text-slate-900 text-[11px] sm:text-xs font-bold px-3.5 py-1.5 rounded-full shadow-sm transition-transform active:scale-95 shrink-0 ml-1">
+                Найти
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- BENTO СЕТКА КАРТОЧЕК -->
+        <div 
+          id="articles-grid" 
+          class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-5 lg:gap-6 transition-all duration-300 ease-out opacity-100 translate-y-0"
+        ></div>
+
+        <!-- ПАГИНАЦИЯ -->
+        <div id="pagination-block" class="mt-8 flex items-center justify-center gap-2 pt-4"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- МОДАЛЬНОЕ ОКНО ВИДЕОПЛЕЕРА (АДАПТИРОВАНО ДЛЯ ПК И ВЕРСИИ ДЛЯ ПК НА СМАРТФОНЕ) -->
+  <div id="video-modal" class="fixed inset-0 z-[100] bg-zinc-950/95 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 p-0 sm:p-4 md:p-6 lg:p-8 overflow-y-auto">
+    
+    <!-- Кнопка закрытия -->
+    <button onclick="closeVideoModal()" class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 md:p-3 bg-black/50 md:bg-zinc-900/80 hover:bg-zinc-800 text-white rounded-full transition-colors z-50 shadow-lg">
+      <i data-lucide="x" class="h-5 w-5 md:h-6 md:w-6"></i>
+    </button>
+    
+    <!-- Контейнер модалки -->
+    <div class="relative w-full max-w-[420px] md:max-w-[1000px] xl:max-w-[1200px] h-[100dvh] sm:h-[90vh] md:h-[85vh] sm:rounded-2xl bg-black md:bg-zinc-950 overflow-hidden shadow-2xl flex flex-col md:flex-row scale-95 transition-transform duration-300 ease-out border border-transparent md:border-zinc-800 m-auto shrink-0" id="video-modal-content">
+      
+      <!-- ЛЕВАЯ ЧАСТЬ: Видеоплеер -->
+      <div class="relative flex-1 h-full bg-black flex items-center justify-center overflow-hidden group">
+        
+        <video id="modal-video-player" class="absolute inset-0 w-full h-full object-cover md:object-contain" loop playsinline></video>
+
+        <!-- Оверлей управления (Play/Pause) -->
+        <div class="absolute inset-0 z-10 cursor-pointer" onclick="togglePlayPause()"></div>
+        <div id="play-indicator" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none opacity-0 transition-opacity duration-300">
+           <div class="w-16 h-16 sm:w-20 sm:h-20 bg-black/50 rounded-full flex items-center justify-center backdrop-blur-md">
+             <i data-lucide="play" class="h-8 w-8 sm:h-10 sm:w-10 text-white fill-white ml-2"></i>
+           </div>
+        </div>
+        
+        <!-- МОБИЛЬНЫЙ ИНТЕРФЕЙС (Скрывается на экранах от md: 768px и в режиме ПК) -->
+        <div class="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10 pointer-events-none md:hidden"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-4 pb-6 sm:pb-4 z-30 flex items-end justify-between pointer-events-auto md:hidden">
+           <div class="flex-1 pr-10">
+             <div class="flex items-center gap-2 mb-3">
+               <div class="w-9 h-9 rounded-full bg-emerald-500 border border-emerald-400 flex items-center justify-center text-zinc-950 font-bold text-sm shadow-md overflow-hidden">
+                 <i data-lucide="gamepad-2" class="h-5 w-5"></i>
+               </div>
+               <div class="flex flex-col">
+                 <span class="text-white font-bold text-sm leading-tight hover:underline cursor-pointer drop-shadow-md" id="modal-video-author-mobile">GGHUB_Official</span>
+                 <span class="text-emerald-400 text-[11px] font-mono drop-shadow-md" id="modal-video-tags-mobile">#cyberpunk</span>
+               </div>
+             </div>
+             <h2 class="text-white font-bold text-base leading-tight mb-1 drop-shadow-md" id="modal-video-title-mobile">Название</h2>
+             <p class="text-zinc-200 text-xs line-clamp-2 drop-shadow-md leading-relaxed" id="modal-video-desc-mobile">Описание видео...</p>
+           </div>
+           
+           <div class="flex flex-col items-center gap-5 pb-2">
+             <button class="flex flex-col items-center gap-1.5 group">
+               <div class="p-3 bg-zinc-900/60 backdrop-blur-md rounded-full border border-zinc-700/50">
+                 <i data-lucide="heart" class="h-6 w-6 text-white group-hover:text-emerald-400 group-hover:fill-emerald-400 transition-all"></i>
+               </div>
+               <span class="text-white text-xs font-bold drop-shadow-md" id="modal-video-likes-mobile">12K</span>
+             </button>
+             <button class="flex flex-col items-center gap-1.5 group">
+               <div class="p-3 bg-zinc-900/60 backdrop-blur-md rounded-full border border-zinc-700/50">
+                 <i data-lucide="message-circle" class="h-6 w-6 text-white transition-all"></i>
+               </div>
+               <span class="text-white text-xs font-bold drop-shadow-md" id="modal-video-comments-mobile">428</span>
+             </button>
+           </div>
+        </div>
+      </div>
+
+      <!-- ПРАВАЯ ЧАСТЬ: ДЕСКТОПНЫЙ ИНТЕРФЕЙС (Отображается на ПК, планшетах и смартфонах в режиме ПК) -->
+      <div class="hidden md:flex w-[380px] xl:w-[420px] bg-zinc-950 border-l border-zinc-800 flex-col shrink-0">
+        
+        <!-- Шапка: Автор -->
+        <div class="p-5 border-b border-zinc-800/60 flex items-center justify-between bg-zinc-900/20">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-full bg-emerald-500 border border-emerald-400 flex items-center justify-center text-zinc-950 font-bold shadow-md overflow-hidden shrink-0">
+              <i data-lucide="gamepad-2" class="h-5 w-5"></i>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-zinc-100 font-bold text-sm hover:text-emerald-400 transition-colors cursor-pointer" id="modal-video-author-desktop">GGHUB_Official</span>
+              <span class="text-zinc-500 text-xs">Автор клипа</span>
+            </div>
+          </div>
+          <button class="px-4 py-1.5 text-xs font-bold text-zinc-950 bg-emerald-500 hover:bg-emerald-400 rounded-full transition-all active:scale-95 shadow-lg shadow-emerald-500/20">Профиль</button>
+        </div>
+
+        <!-- Тело: Скроллируемое описание и таймкоды -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
+          <div class="mb-4">
+            <span class="inline-block px-2 py-1 bg-zinc-900 border border-zinc-800 rounded-md text-emerald-400 text-[10px] font-mono mb-3 uppercase tracking-wider" id="modal-video-tags-desktop">#cyberpunk</span>
+            <h2 class="text-zinc-100 font-extrabold text-lg leading-snug mb-3" id="modal-video-title-desktop">Название видео</h2>
+            <p class="text-zinc-400 text-sm leading-relaxed" id="modal-video-desc-desktop">Подробное описание ролика будет здесь.</p>
+          </div>
+
+          <!-- Блок с таймкодами -->
+          <div class="mt-8">
+            <h3 class="text-zinc-100 font-bold text-xs uppercase tracking-wider mb-4 flex items-center gap-2">
+              <i data-lucide="list-video" class="h-4 w-4 text-emerald-500"></i>
+              Таймкоды видео
+            </h3>
+            <div id="modal-timestamps-desktop" class="space-y-1"></div>
+          </div>
+        </div>
+
+        <!-- Подвал: Кнопки действий -->
+        <div class="p-4 border-t border-zinc-800/60 bg-zinc-900/20 flex items-center justify-around">
+          <button class="flex items-center gap-2.5 text-zinc-400 hover:text-emerald-400 transition-colors group">
+            <i data-lucide="heart" class="h-6 w-6 group-hover:fill-emerald-400 transition-all"></i>
+            <span class="font-bold text-sm" id="modal-video-likes-desktop">12K</span>
+          </button>
+          <button class="flex items-center gap-2.5 text-zinc-400 hover:text-white transition-colors group">
+            <i data-lucide="message-circle" class="h-6 w-6 group-hover:fill-white transition-all"></i>
+            <span class="font-bold text-sm" id="modal-video-comments-desktop">428</span>
+          </button>
+          <button class="flex items-center gap-2.5 text-zinc-400 hover:text-emerald-400 transition-colors group">
+            <i data-lucide="share-2" class="h-6 w-6 group-hover:-translate-y-1 transition-transform"></i>
+            <span class="font-bold text-sm">Поделиться</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО АРТА (БЕЗ ТАЙМКОДОВ) -->
+  <div id="image-modal" class="fixed inset-0 z-[100] bg-zinc-950/95 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 p-0 sm:p-4 md:p-6 lg:p-8 overflow-y-auto">
+    
+    <!-- Кнопка закрытия -->
+    <button onclick="closeImageModal()" class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 md:p-3 bg-black/50 md:bg-zinc-900/80 hover:bg-zinc-800 text-white rounded-full transition-colors z-50 shadow-lg">
+      <i data-lucide="x" class="h-5 w-5 md:h-6 md:w-6"></i>
+    </button>
+    
+    <!-- Контейнер модалки -->
+    <div class="relative w-full max-w-[420px] md:max-w-[1000px] xl:max-w-[1200px] h-[100dvh] sm:h-[90vh] md:h-[85vh] sm:rounded-2xl bg-black md:bg-zinc-950 overflow-hidden shadow-2xl flex flex-col md:flex-row scale-95 transition-transform duration-300 ease-out border border-transparent md:border-zinc-800 m-auto shrink-0" id="image-modal-content">
+      
+      <!-- ЛЕВАЯ ЧАСТЬ: Изображение -->
+      <div class="relative flex-1 h-full bg-black flex items-center justify-center overflow-hidden p-3 sm:p-6 select-none group">
+        <img 
+          id="modal-image-display" 
+          src="" 
+          alt="Изображение" 
+          class="max-w-full max-h-full object-contain drop-shadow-2xl transition-transform duration-300 pointer-events-auto"
+        />
+        
+        <!-- МОБИЛЬНЫЙ ИНТЕРФЕЙС -->
+        <div class="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10 pointer-events-none md:hidden"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-4 pb-6 sm:pb-4 z-30 flex items-end justify-between pointer-events-auto md:hidden">
+           <div class="flex-1 pr-10">
+             <div class="flex items-center gap-2 mb-3">
+               <div class="w-9 h-9 rounded-full bg-emerald-500 border border-emerald-400 flex items-center justify-center text-zinc-950 font-bold text-sm shadow-md overflow-hidden">
+                 <i data-lucide="image" class="h-5 w-5"></i>
+               </div>
+               <div class="flex flex-col">
+                 <span class="text-white font-bold text-sm leading-tight hover:underline cursor-pointer drop-shadow-md" id="modal-image-author-mobile"></span>
+                 <span class="text-emerald-400 text-[11px] font-mono drop-shadow-md" id="modal-image-tags-mobile"></span>
+               </div>
+             </div>
+             <h2 class="text-white font-bold text-base leading-tight mb-1 drop-shadow-md" id="modal-image-title-mobile"></h2>
+             <p class="text-zinc-200 text-xs line-clamp-2 drop-shadow-md leading-relaxed" id="modal-image-desc-mobile"></p>
+           </div>
+           
+           <div class="flex flex-col items-center gap-5 pb-2">
+             <button class="flex flex-col items-center gap-1.5 group">
+               <div class="p-3 bg-zinc-900/60 backdrop-blur-md rounded-full border border-zinc-700/50">
+                 <i data-lucide="heart" class="h-6 w-6 text-white group-hover:text-emerald-400 group-hover:fill-emerald-400 transition-all"></i>
+               </div>
+               <span class="text-white text-xs font-bold drop-shadow-md" id="modal-image-likes-mobile"></span>
+             </button>
+             <button class="flex flex-col items-center gap-1.5 group">
+               <div class="p-3 bg-zinc-900/60 backdrop-blur-md rounded-full border border-zinc-700/50">
+                 <i data-lucide="message-circle" class="h-6 w-6 text-white transition-all"></i>
+               </div>
+               <span class="text-white text-xs font-bold drop-shadow-md" id="modal-image-comments-mobile"></span>
+             </button>
+           </div>
+        </div>
+      </div>
+
+      <!-- ПРАВАЯ ЧАСТЬ: ДЕСКТОПНЫЙ ИНТЕРФЕЙС -->
+      <div class="hidden md:flex w-[380px] xl:w-[420px] bg-zinc-950 border-l border-zinc-800 flex-col shrink-0">
+        
+        <!-- Шапка: Автор -->
+        <div class="p-5 border-b border-zinc-800/60 flex items-center justify-between bg-zinc-900/20">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-full bg-emerald-500 border border-emerald-400 flex items-center justify-center text-zinc-950 font-bold shadow-md overflow-hidden shrink-0">
+              <i data-lucide="image" class="h-5 w-5"></i>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-zinc-100 font-bold text-sm hover:text-emerald-400 transition-colors cursor-pointer" id="modal-image-author-desktop"></span>
+              <span class="text-zinc-500 text-xs">Автор иллюстрации</span>
+            </div>
+          </div>
+          <button class="px-4 py-1.5 text-xs font-bold text-zinc-950 bg-emerald-500 hover:bg-emerald-400 rounded-full transition-all active:scale-95 shadow-lg shadow-emerald-500/20">Подписаться</button>
+        </div>
+
+        <!-- Тело: Скроллируемое описание (без таймкодов) -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
+          <div class="mb-4">
+            <span class="inline-block px-2 py-1 bg-zinc-900 border border-zinc-800 rounded-md text-emerald-400 text-[10px] font-mono mb-3 uppercase tracking-wider" id="modal-image-tags-desktop"></span>
+            <h2 class="text-zinc-100 font-extrabold text-lg leading-snug mb-3" id="modal-image-title-desktop"></h2>
+            <p class="text-zinc-400 text-sm leading-relaxed" id="modal-image-desc-desktop"></p>
+          </div>
+        </div>
+
+        <!-- Подвал: Кнопки действий -->
+        <div class="p-4 border-t border-zinc-800/60 bg-zinc-900/20 flex items-center justify-around">
+          <button class="flex items-center gap-2.5 text-zinc-400 hover:text-emerald-400 transition-colors group">
+            <i data-lucide="heart" class="h-6 w-6 group-hover:fill-emerald-400 transition-all"></i>
+            <span class="font-bold text-sm" id="modal-image-likes-desktop">12K</span>
+          </button>
+          <button class="flex items-center gap-2.5 text-zinc-400 hover:text-white transition-colors group">
+            <i data-lucide="message-circle" class="h-6 w-6 group-hover:fill-white transition-all"></i>
+            <span class="font-bold text-sm" id="modal-image-comments-desktop">428</span>
+          </button>
+          <button class="flex items-center gap-2.5 text-zinc-400 hover:text-emerald-400 transition-colors group">
+            <i data-lucide="share-2" class="h-6 w-6 group-hover:-translate-y-1 transition-transform"></i>
+            <span class="font-bold text-sm">Поделиться</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const STEAM_FALLBACK = 'https://cdn.cloudflare.steamstatic.com/steam/apps/271590/capsule_616x353.jpg';
+
+    // Публикации
+    const BASE_ARTICLES = [
+      { 
+        title: 'Grand Theft Auto V: 15 скрытых механик, трюков с физикой и секретных локаций', 
+        category: 'tutorials', 
+        game: { id: 'gta5', name: 'GTA 5' }, 
+        patch_version: 'v1.68 Online', 
+        is_fresh: true, 
+        author: { username: 'RockstarPRO' }, 
+        views_count: 67300, 
+        read_time_minutes: 14, 
+        date: 'July 10, 2026', 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/271590/capsule_616x353.jpg', 
+        icon_key: 'video', 
+        contentType: 'video',
+        video_duration: '14:25',
+        video_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        excerpt: 'Большой эксклюзивный видеогайд по Лос-Сантосу. Разбираем скрытый потенциал кастомизации транспорта, прыжки на суперкарах и глитчи с физикой вертолетов.' 
+      },
+      { 
+        title: 'Elden Ring: Интерактивная карта Междуземья и художественный панорамный арт всех реликвий', 
+        category: 'knowledge_base', 
+        game: { id: 'elden_ring', name: 'Elden Ring' }, 
+        patch_version: 'v1.14 DLC', 
+        is_fresh: true, 
+        author: { username: 'VaatiGG' }, 
+        views_count: 94200, 
+        read_time_minutes: 5, 
+        date: 'July 11, 2026', 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/capsule_616x353.jpg', 
+        icon_key: 'image', 
+        contentType: 'image',
+        excerpt: 'Высокодетализированный арт-постер и наглядная инфографика карты Земли Теней. Обозначены все скрытые подземелья, обелиски и ключевые боссы.' 
+      },
+      { 
+        title: 'Baldur\'s Gate 3: Аналитическая статья о влиянии решений на сюжетные концовки ваших спутников', 
+        category: 'tutorials', 
+        game: { id: 'bg3', name: 'Baldurs Gate 3' }, 
+        patch_version: 'v5.0 Patch', 
+        is_fresh: true, 
+        author: { username: 'Astarion_X' }, 
+        views_count: 22400, 
+        read_time_minutes: 18, 
+        date: 'June 28, 2026', 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/capsule_616x353.jpg', 
+        icon_key: 'book-open', 
+        contentType: 'articles',
+        excerpt: 'Разбираем неявные триггеры одобрения в диалогах 1-го и 2-го актов, которые фатально предопределяют судьбу Шедоухарт и Астариона в финале.' 
+      },
+      { 
+        title: 'Cyberpunk 2077: Видеосравнение фотореалистичных графических модов и трассировки путей в 4K', 
+        category: 'technical', 
+        game: { id: 'cp2077', name: 'Cyberpunk 2077' }, 
+        patch_version: 'v2.12', 
+        is_fresh: true, 
+        author: { username: 'DigitalDreams' }, 
+        views_count: 89400, 
+        read_time_minutes: 11, 
+        date: 'July 8, 2026', 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/capsule_616x353.jpg', 
+        icon_key: 'video', 
+        contentType: 'video',
+        video_duration: '18:50',
+        video_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        excerpt: 'Смотрите кинематографичное сравнение ночного Найт-Сити. Демонстрируем влияние фотореалистичных текстур, улучшенных погодных условий и Overdrive Mode.' 
+      },
+      { 
+        title: 'Red Dead Redemption 2: Высокодетализированная инфографика и карта редких животных', 
+        category: 'knowledge_base', 
+        game: { id: 'rdr2', name: 'RDR 2' }, 
+        patch_version: 'v1.31', 
+        is_fresh: true, 
+        author: { username: 'Morgan_A' }, 
+        views_count: 78500, 
+        read_time_minutes: 4, 
+        date: 'July 10, 2026', 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/capsule_616x353.jpg', 
+        icon_key: 'image', 
+        contentType: 'image',
+        excerpt: 'Коллекционный арт-плакат диких лесов Нью-Остина в 4K. На карте вручную отмечены ареалы обитания легендарных зверей, пасхалки и забытые хижины.' 
+      },
+      { 
+        title: 'CS2: Топ-10 скрытых раскидок гранат и Lineups на карте Mirage для идеальной атаки', 
+        category: 'tutorials', 
+        game: { id: 'cs2', name: 'CS2' }, 
+        patch_version: 'v1.42 Patch', 
+        is_fresh: true, 
+        author: { username: 'DonHaci' }, 
+        views_count: 31200, 
+        read_time_minutes: 6, 
+        date: 'July 9, 2026', 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/730/capsule_616x353.jpg', 
+        icon_key: 'crosshair', 
+        contentType: 'articles',
+        excerpt: 'Подробный визуальный разбор геометрии карты. Пошагово показываем позиции, точки прицеливания и jumpthrow тайминги для дымовых завес.' 
+      },
+      { 
+        title: 'Path of Exile: Видеогайд по скоростному прохождению Атласа и быстрому фарму Т16 карт', 
+        category: 'updates', 
+        game: { id: 'poe', name: 'Path of Exile' }, 
+        patch_version: 'Лига 3.29', 
+        is_fresh: true, 
+        author: { username: 'cptngarbage' }, 
+        views_count: 18200, 
+        read_time_minutes: 12, 
+        date: 'July 6, 2026', 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/238960/capsule_616x353.jpg', 
+        icon_key: 'video', 
+        contentType: 'video',
+        video_duration: '22:15',
+        video_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        excerpt: 'Подробный разбор глобального обновления лиги. Как правильно распределять поинты обновленного древа Атласа для максимизации валюты.' 
+      },
+      { 
+        title: 'Diablo IV: Интерактивная Wiki-база уникальных предметов, аффиксов и механик Спиритборна', 
+        category: 'knowledge_base', 
+        game: { id: 'diablo4', name: 'Diablo IV' }, 
+        patch_version: 'Season 14', 
+        is_fresh: true, 
+        author: { username: 'Ava' }, 
+        views_count: 54500, 
+        read_time_minutes: 25, 
+        date: 'July 8, 2026', 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2344520/capsule_616x353.jpg', 
+        icon_key: 'swords', 
+        contentType: 'articles',
+        excerpt: 'Официальный запуск энциклопедии GGHUB по новому классу. Свойства экипировки, таблицы урона, синергия рун и полное дерево парагона.' 
+      },
+      { 
+        title: 'Dota 2: Видеоурок по идеальному вардингу и таймингам контроля рун для саппортов 4-й и 5-й позиций', 
+        category: 'tutorials', 
+        game: { id: 'dota2', name: 'Dota 2' }, 
+        patch_version: '7.36c', 
+        is_fresh: false, 
+        author: { username: 'SoloMid' }, 
+        views_count: 38700, 
+        read_time_minutes: 9, 
+        date: 'June 20, 2026', 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/570/capsule_616x353.jpg', 
+        icon_key: 'video', 
+        contentType: 'video',
+        video_duration: '09:30',
+        video_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        excerpt: 'Наглядные маршруты перемещения по обновленной карте. Как ставить глубокие скрытые варды на вражеской половине и выигрывать вижн-битву.' 
+      },
+      { 
+        title: 'Ведьмак 3: Анализ глобальной переработки боевой системы модами нового поколения', 
+        category: 'technical', 
+        game: { id: 'witcher3', name: 'The Witcher 3' }, 
+        patch_version: 'Next-Gen v4.04', 
+        is_fresh: true, 
+        author: { username: 'WhiteWolf' }, 
+        views_count: 45100, 
+        read_time_minutes: 16, 
+        date: 'June 14, 2026', 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/292030/capsule_616x353.jpg', 
+        icon_key: 'book-open', 
+        contentType: 'articles',
+        excerpt: 'Подробный анализ оригинального фехтования и хардкорных модов на парирование, динамическую камеру и ручное прицеливание знаков.' 
+      },
+      { 
+        title: 'Cyberpunk 2077: Карта тайных имплантов и легендарного снаряжения в Пёсьем городе', 
+        category: 'knowledge_base', 
+        game: { id: 'cp2077', name: 'Cyberpunk 2077' }, 
+        patch_version: 'v2.12', 
+        is_fresh: true, 
+        author: { username: 'V_NightCity' }, 
+        views_count: 61300, 
+        read_time_minutes: 5, 
+        date: 'June 12, 2026', 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/capsule_616x353.jpg', 
+        icon_key: 'image', 
+        contentType: 'image',
+        excerpt: 'Инфографика расположения военных тайников «Калаверас», айрдропов и редких киберимплантов на карте района Догтаун.' 
+      },
+      { 
+        title: 'CS2: Аналитическая статья об экономике раундов и стратегиях форс-баев в новом соревновательном сезоне', 
+        category: 'tutorials', 
+        game: { id: 'cs2', name: 'CS2' }, 
+        patch_version: 'v1.42 Patch', 
+        is_fresh: true, 
+        author: { username: 'ProCoach' }, 
+        views_count: 27900, 
+        read_time_minutes: 13, 
+        date: 'June 8, 2026', 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/730/capsule_616x353.jpg', 
+        icon_key: 'book-open', 
+        contentType: 'articles',
+        excerpt: 'Математический расчёт закупки оружия при системе MR12. Когда стоит делать полный эко, а когда рисковать ради перелома инициативы матча.' 
+      }
+    ];
+
+    const MOCK_ARTICLES = [];
+    for (let i = 0; i < 24; i++) {
+      const base = BASE_ARTICLES[i % BASE_ARTICLES.length];
+      MOCK_ARTICLES.push({
+        ...base,
+        id: String(i + 1)
+      });
+    }
+
+    const GAMES = [
+      { id: 'all', name: 'Все игры' },
+      { id: 'gta5', name: 'GTA 5' },
+      { id: 'elden_ring', name: 'Elden Ring' },
+      { id: 'bg3', name: 'Baldurs Gate 3' },
+      { id: 'cp2077', name: 'Cyberpunk 2077' },
+      { id: 'rdr2', name: 'RDR 2' },
+      { id: 'cs2', name: 'CS2' },
+      { id: 'poe', name: 'Path of Exile' },
+      { id: 'diablo4', name: 'Diablo IV' },
+      { id: 'dota2', name: 'Dota 2' },
+      { id: 'witcher3', name: 'The Witcher 3' }
+    ];
+
+    let currentGame = 'all';
+    let currentSearch = '';
+    let topDropdownSearchQuery = ''; 
+    let currentPage = 1;
+    const itemsPerPage = 12;
+
+    const gridContainer = document.getElementById('articles-grid');
+    const paginationContainer = document.getElementById('pagination-block');
+    const itemsCounter = document.getElementById('items-counter');
+    
+    const topSearchInput = document.getElementById('top-search-input');
+    const topDropdownSearchInput = document.getElementById('top-dropdown-search-input');
+    const topDropdownGamesList = document.getElementById('top-dropdown-games-list');
+
+    // Модальные окна
+    const videoModal = document.getElementById('video-modal');
+    const videoModalContent = document.getElementById('video-modal-content');
+    const modalVideoPlayer = document.getElementById('modal-video-player');
+    const playIndicator = document.getElementById('play-indicator');
+
+    const imageModal = document.getElementById('image-modal');
+    const imageModalContent = document.getElementById('image-modal-content');
+    const modalImageDisplay = document.getElementById('modal-image-display');
+
+    // === 1. ВИДЕО МОДАЛКА ===
+    window.openVideoModal = function(articleId) {
+      const article = MOCK_ARTICLES.find(a => a.id === articleId);
+      if (!article) return;
+
+      const fullTitle = article.title;
+      const tags = `#${article.game.name.replace(/\s+/g, '').toLowerCase()} #${article.category} #video`;
+      const likes = article.views_count >= 1000 ? (article.views_count * 0.12 / 1000).toFixed(1) + 'K' : Math.floor(article.views_count * 0.12);
+      const comments = Math.floor(article.views_count * 0.01) + 18;
+
+      document.getElementById('modal-video-title-desktop').innerText = fullTitle;
+      document.getElementById('modal-video-author-desktop').innerText = article.author.username;
+      document.getElementById('modal-video-desc-desktop').innerText = article.excerpt + " В этом видео мы собрали самые эпичные и полезные моменты. Обязательно смотрите до конца и делитесь с друзьями!";
+      document.getElementById('modal-video-tags-desktop').innerText = tags;
+      document.getElementById('modal-video-likes-desktop').innerText = likes;
+      document.getElementById('modal-video-comments-desktop').innerText = comments;
+
+      document.getElementById('modal-video-title-mobile').innerText = fullTitle;
+      document.getElementById('modal-video-author-mobile').innerText = article.author.username;
+      document.getElementById('modal-video-desc-mobile').innerText = article.excerpt;
+      document.getElementById('modal-video-tags-mobile').innerText = tags;
+      document.getElementById('modal-video-likes-mobile').innerText = likes;
+      document.getElementById('modal-video-comments-mobile').innerText = comments;
+
+      const mockTimestamps = [
+        { time: '0:00', label: 'Вступление и основы' },
+        { time: '1:45', label: 'Ключевые приемы' },
+        { time: '4:10', label: 'Демонстрация' },
+        { time: '8:30', label: 'Советы и ошибки' }
+      ];
+
+      document.getElementById('modal-timestamps-desktop').innerHTML = mockTimestamps.map(ts => `
+        <button class="flex items-center gap-3 text-left group hover:bg-zinc-800/60 p-2 -ml-2 rounded-xl transition-colors w-full">
+          <span class="text-emerald-400 font-mono text-xs bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded">${ts.time}</span>
+          <span class="text-zinc-300 group-hover:text-white text-sm transition-colors">${ts.label}</span>
+        </button>
+      `).join('');
+
+      modalVideoPlayer.src = article.video_url || 'https://www.w3schools.com/html/mov_bbb.mp4';
+      
+      // Показываем контейнер с гарантированным flex-центрированием
+      videoModal.classList.remove('hidden');
+      videoModal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+
+      void videoModal.offsetWidth;
+      videoModal.classList.remove('opacity-0');
+      videoModalContent.classList.remove('scale-95');
+      videoModalContent.classList.add('scale-100');
+      
+      modalVideoPlayer.play().catch(() => {});
+      playIndicator.classList.add('opacity-0');
+      lucide.createIcons();
+    };
+
+    window.closeVideoModal = function() {
+      videoModal.classList.add('opacity-0');
+      videoModalContent.classList.remove('scale-100');
+      videoModalContent.classList.add('scale-95');
+      setTimeout(() => {
+        videoModal.classList.add('hidden');
+        videoModal.classList.remove('flex');
+        document.body.classList.remove('overflow-hidden');
+        modalVideoPlayer.pause();
+        modalVideoPlayer.src = '';
+      }, 300);
+    };
+
+    window.togglePlayPause = function() {
+      if (modalVideoPlayer.paused) {
+        modalVideoPlayer.play().catch(() => {});
+        playIndicator.classList.add('opacity-0');
+      } else {
+        modalVideoPlayer.pause();
+        playIndicator.classList.remove('opacity-0');
+      }
+    };
+
+    // === 2. АРТ МОДАЛКА ===
+    window.openImageModal = function(articleId) {
+      const article = MOCK_ARTICLES.find(a => a.id === articleId);
+      if (!article) return;
+
+      const fullTitle = article.title;
+      const tags = `#${article.game.name.replace(/\s+/g, '').toLowerCase()} #${article.category} #art`;
+      const likes = article.views_count >= 1000 ? (article.views_count * 0.12 / 1000).toFixed(1) + 'K' : Math.floor(article.views_count * 0.12);
+      const comments = Math.floor(article.views_count * 0.01) + 18;
+
+      document.getElementById('modal-image-title-desktop').innerText = fullTitle;
+      document.getElementById('modal-image-author-desktop').innerText = article.author.username;
+      document.getElementById('modal-image-desc-desktop').innerText = article.excerpt;
+      document.getElementById('modal-image-tags-desktop').innerText = tags;
+      document.getElementById('modal-image-likes-desktop').innerText = likes;
+      document.getElementById('modal-image-comments-desktop').innerText = comments;
+
+      document.getElementById('modal-image-title-mobile').innerText = fullTitle;
+      document.getElementById('modal-image-author-mobile').innerText = article.author.username;
+      document.getElementById('modal-image-desc-mobile').innerText = article.excerpt;
+      document.getElementById('modal-image-tags-mobile').innerText = tags;
+      document.getElementById('modal-image-likes-mobile').innerText = likes;
+      document.getElementById('modal-image-comments-mobile').innerText = comments;
+
+      modalImageDisplay.src = article.image_url;
+      
+      imageModal.classList.remove('hidden');
+      imageModal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+
+      void imageModal.offsetWidth;
+      imageModal.classList.remove('opacity-0');
+      imageModalContent.classList.remove('scale-95');
+      imageModalContent.classList.add('scale-100');
+      lucide.createIcons();
+    };
+
+    window.closeImageModal = function() {
+      imageModal.classList.add('opacity-0');
+      imageModalContent.classList.remove('scale-100');
+      imageModalContent.classList.add('scale-95');
+      setTimeout(() => {
+        imageModal.classList.add('hidden');
+        imageModal.classList.remove('flex');
+        document.body.classList.remove('overflow-hidden');
+        modalImageDisplay.src = '';
+      }, 300);
+    };
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (videoModal && !videoModal.classList.contains('hidden')) closeVideoModal();
+        if (imageModal && !imageModal.classList.contains('hidden')) closeImageModal();
+      }
+    });
+
+    window.toggleTopGameDropdown = function(event) {
+      event.stopPropagation();
+      const content = document.getElementById('top-game-dropdown-content');
+      content.classList.toggle('hidden');
+      topDropdownSearchQuery = '';
+      topDropdownSearchInput.value = '';
+      renderTopDropdownGamesList();
+    };
+
+    function renderTopDropdownGamesList() {
+      const filtered = GAMES.filter(g => 
+        g.name.toLowerCase().includes(topDropdownSearchQuery.toLowerCase())
+      );
+
+      if (filtered.length === 0) {
+        topDropdownGamesList.innerHTML = `<div class="text-[11px] text-slate-500 p-2 text-center">Не найдено</div>`;
+        return;
+      }
+
+      topDropdownGamesList.innerHTML = filtered.map(g => {
+        const isActive = currentGame === g.id;
+        return `
+          <button 
+            onclick="setGame('${g.id}'); document.getElementById('top-game-dropdown-content').classList.add('hidden');"
+            class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-colors text-left ${
+              isActive ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+            }"
+          >
+            <span>${g.name}</span>
+            ${isActive ? `<i data-lucide="check" class="h-3.5 w-3.5 text-blue-600"></i>` : ''}
+          </button>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    document.addEventListener('click', (e) => {
+      const container = document.getElementById('top-game-dropdown-content');
+      const btn = document.getElementById('top-game-dropdown-btn');
+      if (container && !container.contains(e.target) && !btn.contains(e.target)) {
+        container.classList.add('hidden');
+      }
+    });
+
+    topDropdownSearchInput.addEventListener('input', (e) => {
+      topDropdownSearchQuery = e.target.value;
+      renderTopDropdownGamesList();
+    });
+
+    window.setGame = function(id) {
+      currentGame = id;
+      const topGameBtnText = document.getElementById('top-game-btn-text');
+      if (currentGame === 'all') {
+        topGameBtnText.innerText = "Выберите игру";
+        topGameBtnText.classList.replace('text-blue-600', 'text-slate-600');
+      } else {
+        const selectedGameObj = GAMES.find(g => g.id === currentGame);
+        topGameBtnText.innerText = selectedGameObj ? selectedGameObj.name : "Выберите игру";
+        topGameBtnText.classList.replace('text-slate-600', 'text-blue-600');
+      }
+      currentPage = 1;
+      triggerFadeUpAnimation(false);
+    };
+
+    function renderArticles() {
+      const filtered = MOCK_ARTICLES.filter(article => {
+        const matchesGame = currentGame === 'all' || article.game.id === currentGame;
+        const matchesSearch = article.title.toLowerCase().includes(currentSearch.toLowerCase()) || 
+                              article.excerpt.toLowerCase().includes(currentSearch.toLowerCase());
+        return matchesGame && matchesSearch;
+      });
+
+      const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      itemsCounter.innerHTML = `Найдено публикаций:<br class="sm:hidden"><span class="font-bold text-slate-700"> ${filtered.length} // Страница ${currentPage} из ${totalPages}</span>`;
+
+      if (filtered.length === 0) {
+        gridContainer.className = "block";
+        gridContainer.innerHTML = `
+          <div class="h-64 border border-dashed border-slate-300 rounded-[28px] flex flex-col items-center justify-center p-6 text-center bg-white shadow-sm">
+            <i data-lucide="file-search" class="h-8 w-8 mb-2 text-blue-500 animate-pulse"></i>
+            <p class="text-sm font-bold text-slate-900">Ничего не найдено</p>
+            <p class="text-xs font-medium text-slate-500 mt-1">Попробуйте изменить запрос</p>
+          </div>
+        `;
+        paginationContainer.innerHTML = '';
+        lucide.createIcons();
+        return;
+      }
+
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const paginatedItems = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+      gridContainer.className = "grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-5 lg:gap-6 transition-all duration-300 ease-out opacity-100 translate-y-0";
+      
+      gridContainer.innerHTML = paginatedItems.map(article => {
+        const formattedViews = article.views_count >= 1000 ? (article.views_count / 1000).toFixed(1) + 'k' : article.views_count;
+        const authorInitial = article.author.username.charAt(0).toUpperCase();
+        const isVideo = article.contentType === 'video';
+        const isImage = article.contentType === 'image';
+        
+        let clickAction = '';
+        if (isVideo) clickAction = `onclick="openVideoModal('${article.id}')"`;
+        else if (isImage) clickAction = `onclick="openImageModal('${article.id}')"`;
+
+        return `
+          <article 
+            ${clickAction}
+            class="group/card bg-white border border-slate-200 rounded-[22px] sm:rounded-[32px] shadow-micro overflow-hidden flex flex-col justify-between transition-all duration-300 hover:border-slate-300 hover:shadow-card-hover h-full ${isVideo || isImage ? 'cursor-pointer' : ''}"
+          >
+            <!-- Обложка -->
+            <div class="relative w-full aspect-[16/10] bg-slate-800 select-none shrink-0 overflow-hidden">
+              <img 
+                src="${article.image_url}" 
+                onerror="this.onerror=null; this.src='${STEAM_FALLBACK}';"
+                class="absolute inset-0 w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700 z-0" 
+                alt="${article.title}"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/20 z-10 pointer-events-none"></div>
+
+              ${isVideo ? `
+                <div class="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                  <div class="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-slate-900/65 backdrop-blur-md border border-white/30 text-white shadow-2xl group-hover/card:scale-110 group-hover/card:bg-blue-600 group-hover/card:border-transparent transition-all duration-300 flex items-center justify-center">
+                    <i data-lucide="play" class="w-4 h-4 sm:w-6 sm:h-6 fill-white translate-x-0.5 text-white"></i>
+                  </div>
+                </div>
+              ` : isImage ? `
+                <div class="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                  <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-slate-900/65 backdrop-blur-md border border-white/30 text-white shadow-2xl group-hover/card:scale-110 group-hover/card:bg-indigo-600 group-hover/card:border-transparent transition-all duration-300 flex items-center justify-center">
+                    <i data-lucide="maximize-2" class="w-4 h-4 sm:w-5 sm:h-5 text-white"></i>
+                  </div>
+                </div>
+              ` : `
+                <div class="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none group-hover/card:scale-110 transition-transform duration-500 z-10 text-white">
+                  <i data-lucide="${article.icon_key}" class="w-8 h-8 sm:w-12 sm:h-12"></i>
+                </div>
+              `}
+              
+              <div class="absolute inset-0 p-2 sm:p-3.5 flex flex-col justify-between z-20 pointer-events-none">
+                <div class="flex items-center justify-between w-full">
+                  <div class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full font-bold text-[8px] sm:text-[10px] bg-white/95 backdrop-blur-md shadow-sm text-blue-700 shrink-0">
+                    <span class="h-1.5 w-1.5 rounded-full ${article.is_fresh ? 'bg-blue-600' : 'bg-slate-400'}"></span>
+                    ${article.patch_version.split(' Patch')[0]}
+                  </div>
+
+                  ${isVideo ? `
+                    <span class="px-1.5 sm:px-2.5 py-0.5 rounded-full bg-red-600 text-white font-extrabold text-[8px] sm:text-[9px] tracking-wider uppercase shadow-md flex items-center gap-1">
+                      <i data-lucide="video" class="w-2.5 h-2.5 fill-white"></i> ВИДЕО
+                    </span>
+                  ` : isImage ? `
+                    <span class="px-1.5 sm:px-2.5 py-0.5 rounded-full bg-indigo-600 text-white font-extrabold text-[8px] sm:text-[9px] tracking-wider uppercase shadow-md flex items-center gap-1">
+                      <i data-lucide="image" class="w-2.5 h-2.5 fill-white"></i> АРТ
+                    </span>
+                  ` : `
+                    <span class="px-1.5 sm:px-2.5 py-0.5 rounded-full bg-blue-600 text-white font-extrabold text-[8px] sm:text-[9px] tracking-wider uppercase shadow-md flex items-center gap-1">
+                      <i data-lucide="file-text" class="w-2.5 h-2.5 fill-white"></i> СТАТЬЯ
+                    </span>
+                  `}
+                </div>
+                
+                <div class="flex items-end justify-between w-full">
+                  <div class="text-white text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider pl-0.5 select-none drop-shadow-md truncate max-w-[65%]">
+                    ${article.game.name}
+                  </div>
+
+                  ${isVideo && article.video_duration ? `
+                    <span class="px-1.5 py-0.5 rounded sm:rounded-md bg-black/75 backdrop-blur-md text-white text-[9px] sm:text-[10px] font-bold tracking-wide shadow-sm border border-white/10">
+                      ${article.video_duration}
+                    </span>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+            
+            <!-- Текстовый блок -->
+            <div class="p-2.5 sm:p-4 bg-white flex-1 flex flex-col justify-between gap-2">
+              <div class="w-full">
+                <h3 class="w-full text-[13px] sm:text-[16px] font-bold text-slate-900 leading-[1.24] tracking-[-0.015em] break-words line-clamp-2 sm:line-clamp-3 group-hover/card:text-blue-600 group-hover/card:underline transition-colors duration-200">
+                  ${article.title}
+                </h3>
+                
+                <p class="w-full text-[11px] sm:text-[13px] font-normal text-slate-500 leading-[1.35] line-clamp-2 mt-1 sm:mt-1.5 break-words">
+                  ${article.excerpt}
+                </p>
+              </div>
+              
+              <div class="flex items-center justify-between pt-2 border-t border-slate-100 w-full text-[10px] sm:text-[11px] text-slate-500 font-medium mt-auto">
+                <div class="flex items-center gap-1.5 min-w-0 pr-1">
+                  <div class="h-5 w-5 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400 shadow-sm flex items-center justify-center text-[9px] text-white font-extrabold shrink-0 border border-white">
+                    ${authorInitial}
+                  </div>
+                  <span class="truncate text-slate-700 font-semibold group-hover/card:text-slate-900 transition-colors max-w-[50px] sm:max-w-[70px]">${article.author.username}</span>
+                </div>
+                
+                <div class="flex items-center gap-2 shrink-0">
+                  <span class="flex items-center gap-0.5"><i data-lucide="eye" class="h-3 w-3 text-slate-400"></i> ${formattedViews}</span>
+                  <span class="flex items-center gap-0.5"><i data-lucide="${isVideo ? 'play-square' : isImage ? 'image' : 'clock'}" class="h-3 w-3 text-slate-400"></i> ${article.read_time_minutes} мин</span>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      renderPaginationDOM(totalPages);
+      lucide.createIcons();
+    }
+
+    function renderPaginationDOM(totalPages) {
+      if (totalPages <= 1) {
+        paginationContainer.innerHTML = '';
+        return;
+      }
+
+      let html = `
+        <button 
+          onclick="changePage(${currentPage - 1})"
+          ${currentPage === 1 ? 'disabled' : ''}
+          class="p-2 rounded-full bg-white border border-slate-200 text-slate-500 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
+        >
+          <i data-lucide="chevron-left" class="h-4 w-4"></i>
+        </button>
+      `;
+
+      for (let i = 1; i <= totalPages; i++) {
+        const isActive = i === currentPage;
+        html += `
+          <button 
+            onclick="changePage(${i})"
+            class="h-9 w-9 flex items-center justify-center rounded-full text-xs font-bold transition-all ${
+              isActive 
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' 
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm'
+            }"
+          >
+            ${i}
+          </button>
+        `;
+      }
+
+      html += `
+        <button 
+          onclick="changePage(${currentPage + 1})"
+          ${currentPage === totalPages ? 'disabled' : ''}
+          class="p-2 rounded-full bg-white border border-slate-200 text-slate-500 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
+        >
+          <i data-lucide="chevron-right" class="h-4 w-4"></i>
+        </button>
+      `;
+
+      paginationContainer.innerHTML = html;
+    }
+
+    function triggerFadeUpAnimation(shouldScroll = false) {
+      gridContainer.classList.remove('opacity-100', 'translate-y-0');
+      gridContainer.classList.add('opacity-0', 'translate-y-3');
+      
+      setTimeout(() => {
+        renderArticles();
+        gridContainer.classList.remove('opacity-0', 'translate-y-3');
+        gridContainer.classList.add('opacity-100', 'translate-y-0');
+        
+        if (shouldScroll) {
+          document.getElementById('catalog-top').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 150);
+    }
+
+    window.changePage = function(pageNumber) {
+      currentPage = pageNumber;
+      triggerFadeUpAnimation(true); 
+    };
+
+    topSearchInput.addEventListener('input', (e) => {
+      currentSearch = e.target.value;
+      currentPage = 1;
+      renderArticles(); 
+    });
+
+    renderArticles();
+  </script>
+</body>
+</html>

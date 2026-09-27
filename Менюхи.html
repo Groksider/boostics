@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>boostics.com - Header & Rail Navigation</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Plus Jakarta Sans Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            slate: {
+              50: '#F8FAFC',
+              100: '#F1F5F9',
+              500: '#64748B',
+              900: '#0F172A',
+            },
+            primary: '#2563EB',
+            accent: '#FACC15',
+          },
+          boxShadow: {
+            soft: '0 4px 20px -2px rgba(0,0,0,0.04)',
+            float: '0 10px 30px -5px rgba(37,99,235,0.15)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { 
+      font-family: 'Plus Jakarta Sans', sans-serif; 
+      transition: background-color .3s ease, color .3s ease; 
+    }
+    
+    .scroll-hide::-webkit-scrollbar { display: none; }
+    .scroll-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .wrap { width: 100%; max-width: 80rem; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+
+    /* Управление адаптивным отображением */
+    .d-flex, .d-block { display: none; }
+    .m-flex { display: flex; }
+    .m-block { display: block; }
+
+    /* Левое выдвижное меню (Rail) */
+    .rail { 
+      position: fixed; 
+      left: 0; 
+      top: 0; 
+      bottom: 0; 
+      z-index: 60; 
+      display: none; 
+      width: 4.5rem; 
+      overflow: hidden; 
+      transition: width .35s ease, box-shadow .35s ease, background-color .3s ease; 
+      background-color: #ffffff; 
+      border-right: 1px solid #E2E8F0;
+      transform: translateZ(0);
+    }
+    .rail:hover { width: 15rem; box-shadow: 24px 0 60px rgba(0,0,0,0.15); }
+    .rail-item { position: relative; display: flex; width: 100%; align-items: center; gap: .75rem; border-radius: 9999px; padding: .45rem .5rem; color: #64748B; white-space: nowrap; transition: all .2s ease; margin-bottom: 0.15rem; }
+    .rail-item:hover { background-color: #F1F5F9; color: #0F172A; }
+    .rail-item.on { background-color: #EFF6FF; color: #2563EB; font-weight: 600; }
+    .rail-item.on::before { content: ""; position: absolute; left: -0.5rem; top: 15%; bottom: 15%; width: 3px; border-radius: 9999px; background: #2563EB; }
+    .rail-ic { display: flex; height: 2.25rem; width: 2.25rem; flex: none; align-items: center; justify-content: center; }
+    .rail-lbl { opacity: 0; transform: translateX(10px); transition: opacity .25s ease .06s, transform .25s ease .06s; font-weight: 600; }
+    .rail:hover .rail-lbl { opacity: 1; transform: translateX(0); }
+    .rail-sec { margin: .5rem .25rem .25rem; border-top: 1px solid #F1F5F9; padding: .5rem .5rem 0; font-size: .65rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; color: #94A3B8; white-space: nowrap; }
+
+    /* Адаптив под режим ПК на мобильных устройствах и планшетах (768px+) */
+    @media (min-width: 640px) {
+      .rail { display: block; }
+      body.app-layout { padding-left: 4.5rem; }
+      .wrap { padding-left: 1.5rem; padding-right: 1.5rem; }
+    }
+
+    @media (min-width: 768px) {
+      .d-flex { display: flex !important; }
+      .d-block { display: block !important; }
+      .m-flex, .m-block { display: none !important; }
+      #mobile-menu { display: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-500 antialiased app-layout">
+
+  <!-- ================= ВЕРХНЕЕ МЕНЮ (HEADER) ================= -->
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-sm transition-colors duration-300">
+    <div class="wrap flex h-16 items-center gap-2 lg:gap-3.5">
+      
+      <!-- 1. boostics.com (Логотип) -->
+      <a href="/" class="flex items-center gap-2 shrink-0 mr-1">
+        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-md shadow-blue-500/20">
+          <i data-lucide="gamepad-2" class="h-5 w-5"></i>
+        </span>
+        <span class="text-xl font-extrabold tracking-tight text-slate-900">
+          boostics<span class="text-primary">.com</span>
+        </span>
+      </a>
+
+      <!-- 2. Поиск по сайту -->
+      <div class="d-block relative shrink-0">
+        <i data-lucide="search" class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+        <input type="text" placeholder="Поиск по сайту..." class="h-10 w-36 sm:w-44 lg:w-56 rounded-full border border-transparent bg-slate-100 pl-10 pr-4 text-xs lg:text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all shadow-inner" />
+      </div>
+
+      <!-- 3. Навигация: Идеи статей, Для разработчиков, Авторам -->
+      <nav class="d-flex items-center gap-0.5 lg:gap-1 shrink-0">
+        <a href="#" class="rounded-full px-2.5 lg:px-4 py-2 text-xs lg:text-sm font-semibold transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 whitespace-nowrap">Идеи статей</a>
+        <a href="#" class="rounded-full px-2.5 lg:px-4 py-2 text-xs lg:text-sm font-semibold transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 whitespace-nowrap">Для разработчиков</a>
+        <a href="#" class="rounded-full px-2.5 lg:px-4 py-2 text-xs lg:text-sm font-semibold transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 whitespace-nowrap">Авторам</a>
+      </nav>
+
+      <div class="flex-1"></div>
+
+      <!-- Уведомления -->
+      <button class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900">
+        <i data-lucide="bell" class="h-4 w-4"></i>
+        <span class="absolute right-2.5 top-2.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-primary"></span>
+      </button>
+
+      <!-- Кнопка «Написать» -->
+      <button class="d-flex items-center justify-center rounded-full px-4 lg:px-5 py-2 text-xs lg:text-sm bg-primary font-bold text-white hover:bg-blue-700 shadow-float transition-all h-10 shrink-0">
+        <i data-lucide="pen-line" class="mr-1.5 h-4 w-4"></i> Написать
+      </button>
+
+      <!-- Аватар пользователя -->
+      <div class="d-flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity shrink-0">
+        <div class="p-0.5 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400">
+          <div class="flex shrink-0 items-center justify-center rounded-full bg-white border-2 border-white font-extrabold text-slate-900 h-9 w-9 text-xs">K1</div>
+        </div>
+      </div>
+
+      <!-- Мобильный бургер -->
+      <button id="menu-toggle" class="m-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+        <i data-lucide="menu" class="h-5 w-5" id="menu-icon"></i>
+      </button>
+    </div>
+
+    <!-- Выпадающее мобильное меню -->
+    <div id="mobile-menu" class="hidden border-t border-slate-200 bg-white px-4 py-4 shadow-xl">
+      <div class="relative mb-3">
+        <i data-lucide="search" class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+        <input type="text" placeholder="Поиск по сайту..." class="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none" />
+      </div>
+      <a href="#" class="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 mb-1">Идеи статей</a>
+      <a href="#" class="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 mb-1">Для разработчиков</a>
+      <a href="#" class="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 mb-2">Авторам</a>
+    </div>
+  </header>
+
+  <!-- ================= ЛЕВОЕ БОКОВОЕ МЕНЮ (RAIL) ================= -->
+  <aside class="rail shadow-sm">
+    <div class="flex h-full flex-col justify-center gap-1 p-2 overflow-y-auto scroll-hide">
+      <!-- Активный пункт отмечается классом "on" -->
+      <a href="/" title="Главная" class="rail-item on">
+        <span class="rail-ic"><i data-lucide="home" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Главная</span>
+      </a>
+      <a href="#" title="Рейтинги" class="rail-item">
+        <span class="rail-ic"><i data-lucide="trophy" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Рейтинги</span>
+      </a>
+      <a href="#" title="Сообщества" class="rail-item">
+        <span class="rail-ic"><i data-lucide="users" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Сообщества</span>
+      </a>
+      <a href="#" title="Закладки" class="rail-item">
+        <span class="rail-ic"><i data-lucide="bookmark" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold flex-1">Закладки</span>
+        <span class="rail-lbl rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-slate-900 shadow-sm mr-2">3</span>
+      </a>
+      <a href="#" title="Ответы FAQ" class="rail-item">
+        <span class="rail-ic"><i data-lucide="help-circle" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Ответы FAQ</span>
+      </a>
+      <a href="#" title="Правила сайта" class="rail-item">
+        <span class="rail-ic"><i data-lucide="scroll-text" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Правила сайта</span>
+      </a>
+      
+      <div class="rail-sec"><span class="rail-lbl">Автор</span></div>
+      
+      <a href="#" title="Аналитика" class="rail-item">
+        <span class="rail-ic"><i data-lucide="line-chart" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Аналитика</span>
+      </a>
+      <a href="#" title="Идеи статей" class="rail-item">
+        <span class="rail-ic"><i data-lucide="lightbulb" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Идеи статей</span>
+      </a>
+      <a href="#" title="Мой GroupHub" class="rail-item">
+        <span class="rail-ic"><i data-lucide="folder-kanban" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Мой GroupHub</span>
+      </a>
+      <a href="#" title="Мой TeamHub" class="rail-item">
+        <span class="rail-ic"><i data-lucide="network" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Мой TeamHub</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ================= ОБЛАСТЬ ДЛЯ КОНТЕНТА ДРУГИХ СТРАНИЦ ================= -->
+  <main class="wrap py-8">
+    <!-- Сюда вставляется уникальный контент конкретной страницы -->
+  </main>
+
+  <!-- ================= СКРИПТ УПРАВЛЕНИЯ МЕНЮ ================= -->
+  <script>
+    // Мобильное бургер-меню
+    const menuToggle = document.getElementById('menu-toggle');
+    if (menuToggle) {
+      menuToggle.addEventListener('click', () => {
+        const menu = document.getElementById('mobile-menu');
+        if (menu) menu.classList.toggle('hidden');
+      });
+    }
+
+    // Инициализация иконок Lucide
+    lucide.createIcons();
+  </script>
+</body>
+</html>

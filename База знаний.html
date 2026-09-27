@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>База знаний — Bento статьи, видео, арт и калькулятор</title>
+
+  <!-- Шрифты -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#0a0d14',
+              surface: '#111625',
+              card: '#161d31',
+              border: '#232d4b',
+              purple: '#7c3aed',
+              cyan: '#06b6d4',
+              accent: '#6366f1',
+              green: '#10b981',
+              amber: '#f59e0b',
+              red: '#ef4444'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif']
+          },
+          boxShadow: {
+            'micro': '0 4px 20px -2px rgba(0,0,0,0.3)',
+            'card-hover': '0 14px 30px -4px rgba(124,58,237,0.25)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #232d4b;
+      border-radius: 9999px;
+    }
+    #video-modal .custom-scrollbar::-webkit-scrollbar-thumb,
+    #image-modal .custom-scrollbar::-webkit-scrollbar-thumb,
+    #calc-modal .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-[#0a0d14] text-slate-200 min-h-screen p-2 sm:p-6 lg:p-8 font-sans selection:bg-brand-purple selection:text-white">
+
+  <!-- ОСНОВНОЙ КОНТЕЙНЕР БАЗЫ ЗНАНИЙ -->
+  <main class="max-w-[1740px] mx-auto space-y-6">
+    
+    <!-- ЕДИНЫЙ ВЕРХНИЙ БЛОК: СТРОКА 1 (ЗАГОЛОВОК СЛЕВА + ПОИСК СПРАВА) / СТРОКА 2 (ФИЛЬТРЫ) -->
+    <div id="catalog-top" class="bg-brand-surface/95 border border-brand-border rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-micro backdrop-blur relative z-30 space-y-4">
+      
+      <!-- 1. СТРОКА: ЗАГОЛОВОК СЛЕВА И ПОИСК СПРАВА НА ОДНОЙ ЛИНИИ -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <!-- Слева к краю: Заголовок и подзаголовок -->
+        <div>
+          <h2 class="text-xl sm:text-2xl font-display font-bold text-white tracking-wide flex items-center gap-2">
+            <i data-lucide="sparkles" class="w-5 h-5 text-brand-purple"></i>
+            База знаний и Гайды
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1">Официальные тактики рейдов, видео-разборы, карты, софт гильдии и билды</p>
+        </div>
+
+        <!-- Справа с краю: Поисковая строка -->
+        <div class="w-full md:w-80 lg:w-96 shrink-0">
+          <div class="flex items-center bg-brand-card border border-brand-border rounded-xl pl-3.5 pr-1.5 py-1.5 focus-within:border-brand-cyan transition-all shadow-inner">
+            <i data-lucide="search" class="h-4 w-4 text-slate-500 shrink-0 mr-2"></i>
+            <input 
+              type="text" 
+              id="top-search-input" 
+              placeholder="Поиск гайда, видео, арта или софта..." 
+              class="bg-transparent font-medium text-xs text-white outline-none w-full placeholder-slate-500" 
+            />
+            <button onclick="triggerFadeUpAnimation(false)" class="bg-brand-purple hover:bg-brand-purple/90 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-md transition-transform active:scale-95 shrink-0 ml-1">
+              Найти
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. СТРОКА: ФИЛЬТРЫ НИЖЕ ЗАГОЛОВКА -->
+      <div class="pt-3.5 border-t border-brand-border/60 flex items-center justify-between gap-3 flex-wrap">
+        
+        <!-- Группа выпадающих списков фильтров -->
+        <div class="flex items-center gap-2 flex-wrap">
+          
+          <!-- Кнопка "Все" -->
+          <button onclick="resetAllFilters()" id="filter-all-btn" class="px-3.5 py-2 rounded-xl bg-brand-purple text-white font-semibold text-xs shadow-md shadow-brand-purple/20 hover:bg-brand-purple/90 transition-all flex items-center gap-1.5 shrink-0">
+            <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+            Все
+          </button>
+
+          <!-- Дропдаун: ТИП (Гайд, Видео, Арт, Калькулятор) -->
+          <div class="dropdown-wrapper relative">
+            <button class="dropdown-btn px-3.5 py-2 rounded-xl bg-brand-card border border-brand-border text-slate-300 hover:text-white hover:border-brand-purple text-xs font-semibold flex items-center gap-2 transition-all">
+              <i data-lucide="file-text" class="w-3.5 h-3.5 text-brand-purple"></i>
+              <span id="label-type">Тип</span>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200"></i>
+            </button>
+            
+            <div class="dropdown-menu hidden absolute left-0 top-full mt-2 w-52 bg-brand-surface border border-brand-border rounded-xl p-1.5 shadow-2xl shadow-black/80 backdrop-blur-xl z-50">
+              <button onclick="setFilter('type', 'all', 'Тип')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-white rounded-lg hover:bg-brand-purple/20 hover:text-brand-purple transition-colors text-left">
+                <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Все типы
+              </button>
+              <button onclick="setFilter('type', 'articles', 'Статьи')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-300 rounded-lg hover:bg-brand-purple/20 hover:text-white transition-colors text-left">
+                <i data-lucide="book-open" class="w-3.5 h-3.5 text-brand-accent"></i> Статьи (2)
+              </button>
+              <button onclick="setFilter('type', 'video', 'Видео')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-300 rounded-lg hover:bg-brand-purple/20 hover:text-white transition-colors text-left">
+                <i data-lucide="play-circle" class="w-3.5 h-3.5 text-brand-red"></i> Видео (2)
+              </button>
+              <button onclick="setFilter('type', 'image', 'Арты')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-300 rounded-lg hover:bg-brand-purple/20 hover:text-white transition-colors text-left">
+                <i data-lucide="palette" class="w-3.5 h-3.5 text-brand-purple"></i> Арты (2)
+              </button>
+              <button onclick="setFilter('type', 'calculator', 'Калькулятор')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-300 rounded-lg hover:bg-brand-purple/20 hover:text-white transition-colors text-left">
+                <i data-lucide="calculator" class="w-3.5 h-3.5 text-brand-cyan"></i> Калькулятор (1)
+              </button>
+            </div>
+          </div>
+
+          <!-- Дропдаун: СЛОЖНОСТЬ -->
+          <div class="dropdown-wrapper relative">
+            <button class="dropdown-btn px-3.5 py-2 rounded-xl bg-brand-card border border-brand-border text-slate-300 hover:text-white hover:border-brand-cyan text-xs font-semibold flex items-center gap-2 transition-all">
+              <i data-lucide="gauge" class="w-3.5 h-3.5 text-brand-cyan"></i>
+              <span id="label-difficulty">Сложность</span>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200"></i>
+            </button>
+
+            <div class="dropdown-menu hidden absolute left-0 top-full mt-2 w-52 bg-brand-surface border border-brand-border rounded-xl p-1.5 shadow-2xl shadow-black/80 backdrop-blur-xl z-50">
+              <button onclick="setFilter('difficulty', 'all', 'Сложность')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-white rounded-lg hover:bg-brand-card transition-colors text-left">
+                <span class="w-2 h-2 rounded-full bg-slate-500"></span> Любая сложность
+              </button>
+              <button onclick="setFilter('difficulty', 'beginner', 'Для новичка')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-emerald-400 rounded-lg hover:bg-emerald-500/10 transition-colors text-left">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Для новичка
+              </button>
+              <button onclick="setFilter('difficulty', 'intermediate', 'Опытный')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-amber-400 rounded-lg hover:bg-amber-500/10 transition-colors text-left">
+                <span class="w-2 h-2 rounded-full bg-amber-400"></span> Опытный игрок
+              </button>
+              <button onclick="setFilter('difficulty', 'pro', 'Профи')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-rose-400 rounded-lg hover:bg-rose-500/10 transition-colors text-left">
+                <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span> Профи / Хардкор
+              </button>
+            </div>
+          </div>
+
+          <!-- Дропдаун: СОФТ ГИЛЬДИИ -->
+          <div class="dropdown-wrapper relative">
+            <button class="dropdown-btn px-3.5 py-2 rounded-xl bg-brand-card border border-brand-border text-slate-300 hover:text-white hover:border-indigo-400 text-xs font-semibold flex items-center gap-2 transition-all">
+              <i data-lucide="cpu" class="w-3.5 h-3.5 text-indigo-400"></i>
+              <span id="label-soft">Софт гильдии</span>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200"></i>
+            </button>
+
+            <div class="dropdown-menu hidden absolute left-0 top-full mt-2 w-64 bg-brand-surface border border-brand-border rounded-xl p-1.5 shadow-2xl shadow-black/80 backdrop-blur-xl z-50">
+              <button onclick="setFilter('soft', 'all', 'Софт гильдии')" class="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-white rounded-lg hover:bg-indigo-500/20 hover:text-indigo-300 transition-colors text-left">
+                <i data-lucide="grid" class="w-3.5 h-3.5 text-slate-400"></i>
+                <span>Весь софт гильдии</span>
+              </button>
+              <button onclick="setFilter('soft', 'calculator', 'Калькуляторы')" class="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-300 rounded-lg hover:bg-indigo-500/20 hover:text-indigo-300 transition-colors text-left">
+                <i data-lucide="calculator" class="w-3.5 h-3.5 text-brand-cyan"></i>
+                <span>Калькуляторы билдов & статов</span>
+              </button>
+              <button onclick="setFilter('soft', 'map', 'Карты ресурсов')" class="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-300 rounded-lg hover:bg-indigo-500/20 hover:text-indigo-300 transition-colors text-left">
+                <i data-lucide="map" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>Интерактивные карты ресурсов</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Дропдаун: ОСОБЕННОСТИ -->
+          <div class="dropdown-wrapper relative">
+            <button class="dropdown-btn px-3.5 py-2 rounded-xl bg-brand-card border border-brand-border text-slate-300 hover:text-white hover:border-amber-400 text-xs font-semibold flex items-center gap-2 transition-all">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span id="label-feature">Особенности</span>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200"></i>
+            </button>
+
+            <div class="dropdown-menu hidden absolute left-0 top-full mt-2 w-56 bg-brand-surface border border-brand-border rounded-xl p-1.5 shadow-2xl shadow-black/80 backdrop-blur-xl z-50">
+              <button onclick="setFilter('feature', 'all', 'Особенности')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-white rounded-lg hover:bg-brand-card transition-colors text-left">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-slate-400"></i> Все особенности
+              </button>
+              <button onclick="setFilter('feature', 'guild_pick', 'Выбор гильдии')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-300 rounded-lg hover:bg-brand-card hover:text-brand-purple transition-colors text-left">
+                <i data-lucide="badge-check" class="w-3.5 h-3.5 text-brand-purple"></i> Выбор гильдии
+              </button>
+              <button onclick="setFilter('feature', 'quick', 'Экспресс (< 5 мин)')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-300 rounded-lg hover:bg-brand-card hover:text-amber-400 transition-colors text-left">
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> Экспресс (&lt; 5 минут)
+              </button>
+              <button onclick="setFilter('feature', 'fresh', 'Свежий патч')" class="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-300 rounded-lg hover:bg-brand-card hover:text-brand-cyan transition-colors text-left">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-brand-cyan"></i> Актуально под патч
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Зона выбранных фильтров с крестиками -->
+        <div id="active-filters-badges" class="flex items-center gap-2 flex-wrap"></div>
+
+      </div>
+
+    </div>
+
+    <!-- 3. BENTO СЕТКА КАРТОЧЕК -->
+    <div 
+      id="articles-grid" 
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5 lg:gap-6 transition-all duration-300 ease-out opacity-100 translate-y-0"
+    ></div>
+
+  </main>
+
+  <!-- МОДАЛЬНОЕ ОКНО 1: ВИДЕОПЛЕЕР С ТАЙМКОДАМИ -->
+  <div id="video-modal" class="fixed inset-0 z-[100] bg-zinc-950/95 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 p-0 sm:p-4 md:p-6 lg:p-8 overflow-y-auto">
+    <button onclick="closeVideoModal()" class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 md:p-3 bg-black/50 md:bg-zinc-900/80 hover:bg-zinc-800 text-white rounded-full transition-colors z-50 shadow-lg">
+      <i data-lucide="x" class="h-5 w-5 md:h-6 md:w-6"></i>
+    </button>
+    
+    <div class="relative w-full max-w-[420px] md:max-w-[1000px] xl:max-w-[1200px] h-[100dvh] sm:h-[90vh] md:h-[85vh] sm:rounded-2xl bg-black md:bg-zinc-950 overflow-hidden shadow-2xl flex flex-col md:flex-row scale-95 transition-transform duration-300 ease-out border border-transparent md:border-zinc-800 m-auto shrink-0" id="video-modal-content">
+      <div class="relative flex-1 h-full bg-black flex items-center justify-center overflow-hidden group">
+        <video id="modal-video-player" class="absolute inset-0 w-full h-full object-cover md:object-contain" loop playsinline></video>
+        <div class="absolute inset-0 z-10 cursor-pointer" onclick="togglePlayPause()"></div>
+        <div id="play-indicator" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none opacity-0 transition-opacity duration-300">
+           <div class="w-16 h-16 sm:w-20 sm:h-20 bg-black/50 rounded-full flex items-center justify-center backdrop-blur-md">
+             <i data-lucide="play" class="h-8 w-8 sm:h-10 sm:w-10 text-white fill-white ml-2"></i>
+           </div>
+        </div>
+        
+        <!-- Мобильный оверлей видео -->
+        <div class="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10 pointer-events-none md:hidden"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-4 pb-6 sm:pb-4 z-30 flex items-end justify-between pointer-events-auto md:hidden">
+           <div class="flex-1 pr-10">
+             <div class="flex items-center gap-2 mb-3">
+               <div class="w-9 h-9 rounded-full bg-emerald-500 border border-emerald-400 flex items-center justify-center text-zinc-950 font-bold text-sm shadow-md overflow-hidden">
+                 <i data-lucide="gamepad-2" class="h-5 w-5"></i>
+               </div>
+               <div class="flex flex-col">
+                 <span class="text-white font-bold text-sm leading-tight hover:underline cursor-pointer drop-shadow-md" id="modal-video-author-mobile">Автор</span>
+                 <span class="text-emerald-400 text-[11px] font-mono drop-shadow-md" id="modal-video-tags-mobile">#tag</span>
+               </div>
+             </div>
+             <h2 class="text-white font-bold text-base leading-tight mb-1 drop-shadow-md" id="modal-video-title-mobile">Название</h2>
+             <p class="text-zinc-200 text-xs line-clamp-2 drop-shadow-md leading-relaxed" id="modal-video-desc-mobile">Описание...</p>
+           </div>
+        </div>
+      </div>
+
+      <!-- Десктопный блок видео -->
+      <div class="hidden md:flex w-[380px] xl:w-[420px] bg-zinc-950 border-l border-zinc-800 flex-col shrink-0">
+        <div class="p-5 border-b border-zinc-800/60 flex items-center justify-between bg-zinc-900/20">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-full bg-emerald-500 border border-emerald-400 flex items-center justify-center text-zinc-950 font-bold shadow-md overflow-hidden shrink-0">
+              <i data-lucide="gamepad-2" class="h-5 w-5"></i>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-zinc-100 font-bold text-sm hover:text-emerald-400 transition-colors cursor-pointer" id="modal-video-author-desktop">Автор</span>
+              <span class="text-zinc-500 text-xs">Автор клипа</span>
+            </div>
+          </div>
+          <button class="px-4 py-1.5 text-xs font-bold text-zinc-950 bg-emerald-500 hover:bg-emerald-400 rounded-full transition-all active:scale-95 shadow-lg shadow-emerald-500/20">Профиль</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
+          <div class="mb-4">
+            <span class="inline-block px-2 py-1 bg-zinc-900 border border-zinc-800 rounded-md text-emerald-400 text-[10px] font-mono mb-3 uppercase tracking-wider" id="modal-video-tags-desktop">#tag</span>
+            <h2 class="text-zinc-100 font-extrabold text-lg leading-snug mb-3" id="modal-video-title-desktop">Название видео</h2>
+            <p class="text-zinc-400 text-sm leading-relaxed" id="modal-video-desc-desktop">Описание видео...</p>
+          </div>
+
+          <div class="mt-8">
+            <h3 class="text-zinc-100 font-bold text-xs uppercase tracking-wider mb-4 flex items-center gap-2">
+              <i data-lucide="list-video" class="h-4 w-4 text-emerald-500"></i>
+              Таймкоды видео
+            </h3>
+            <div id="modal-timestamps-desktop" class="space-y-1"></div>
+          </div>
+        </div>
+
+        <div class="p-4 border-t border-zinc-800/60 bg-zinc-900/20 flex items-center justify-around">
+          <button class="flex items-center gap-2.5 text-zinc-400 hover:text-emerald-400 transition-colors group">
+            <i data-lucide="heart" class="h-6 w-6 group-hover:fill-emerald-400 transition-all"></i>
+            <span class="font-bold text-sm" id="modal-video-likes-desktop">12K</span>
+          </button>
+          <button class="flex items-center gap-2.5 text-zinc-400 hover:text-white transition-colors group">
+            <i data-lucide="message-circle" class="h-6 w-6 group-hover:fill-white transition-all"></i>
+            <span class="font-bold text-sm" id="modal-video-comments-desktop">428</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО 2: АРТ / ИЗОБРАЖЕНИЕ -->
+  <div id="image-modal" class="fixed inset-0 z-[100] bg-zinc-950/95 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 p-0 sm:p-4 md:p-6 lg:p-8 overflow-y-auto">
+    <button onclick="closeImageModal()" class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 md:p-3 bg-black/50 md:bg-zinc-900/80 hover:bg-zinc-800 text-white rounded-full transition-colors z-50 shadow-lg">
+      <i data-lucide="x" class="h-5 w-5 md:h-6 md:w-6"></i>
+    </button>
+    
+    <div class="relative w-full max-w-[420px] md:max-w-[1000px] xl:max-w-[1200px] h-[100dvh] sm:h-[90vh] md:h-[85vh] sm:rounded-2xl bg-black md:bg-zinc-950 overflow-hidden shadow-2xl flex flex-col md:flex-row scale-95 transition-transform duration-300 ease-out border border-transparent md:border-zinc-800 m-auto shrink-0" id="image-modal-content">
+      <div class="relative flex-1 h-full bg-black flex items-center justify-center overflow-hidden p-3 sm:p-6 select-none group">
+        <img id="modal-image-display" src="" alt="Изображение" class="max-w-full max-h-full object-contain drop-shadow-2xl transition-transform duration-300 pointer-events-auto" />
+      </div>
+
+      <div class="hidden md:flex w-[380px] xl:w-[420px] bg-zinc-950 border-l border-zinc-800 flex-col shrink-0">
+        <div class="p-5 border-b border-zinc-800/60 flex items-center justify-between bg-zinc-900/20">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-full bg-brand-purple border border-brand-purple/40 flex items-center justify-center text-white font-bold shadow-md overflow-hidden shrink-0">
+              <i data-lucide="palette" class="h-5 w-5"></i>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-zinc-100 font-bold text-sm hover:text-brand-purple transition-colors cursor-pointer" id="modal-image-author-desktop">Автор</span>
+              <span class="text-zinc-500 text-xs">Арт и картография</span>
+            </div>
+          </div>
+          <button class="px-4 py-1.5 text-xs font-bold text-white bg-brand-purple hover:bg-brand-purple/90 rounded-full transition-all active:scale-95 shadow-lg shadow-brand-purple/20">В коллекцию</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
+          <span class="inline-block px-2 py-1 bg-zinc-900 border border-zinc-800 rounded-md text-brand-purple text-[10px] font-mono mb-3 uppercase tracking-wider" id="modal-image-tags-desktop">#art</span>
+          <h2 class="text-zinc-100 font-extrabold text-lg leading-snug mb-3" id="modal-image-title-desktop">Заголовок</h2>
+          <p class="text-zinc-400 text-sm leading-relaxed" id="modal-image-desc-desktop">Описание...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО 3: ИНТЕРАКТИВНЫЙ КАЛЬКУЛЯТОР БИЛДА И DPS -->
+  <div id="calc-modal" class="fixed inset-0 z-[100] bg-zinc-950/95 backdrop-blur-md hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 p-3 sm:p-6 overflow-y-auto">
+    <div class="relative w-full max-w-xl bg-brand-surface border border-brand-cyan/40 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-cyan-950/60 scale-95 transition-transform duration-300 m-auto" id="calc-modal-content">
+      <button onclick="closeCalcModal()" class="absolute top-4 right-4 p-2 bg-brand-card hover:bg-brand-border text-slate-300 hover:text-white rounded-full transition-colors">
+        <i data-lucide="x" class="h-5 w-5"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-12 h-12 rounded-2xl bg-brand-cyan/15 border border-brand-cyan/30 flex items-center justify-center text-brand-cyan">
+          <i data-lucide="calculator" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <span class="text-[10px] font-bold text-brand-cyan uppercase tracking-wider">Утилита гильдии v2.4</span>
+          <h3 class="text-lg sm:text-xl font-bold text-white">Калькулятор DPS и софт-капов</h3>
+        </div>
+      </div>
+
+      <!-- Ползунки параметров -->
+      <div class="space-y-4 text-xs font-semibold text-slate-300">
+        <div>
+          <div class="flex justify-between mb-1.5">
+            <span>Базовый урон оружия:</span>
+            <span id="calc-val-damage" class="text-brand-cyan font-bold">1850</span>
+          </div>
+          <input id="calc-input-damage" type="range" min="500" max="4500" value="1850" class="w-full accent-cyan-400 cursor-pointer" oninput="updateCalculator()">
+        </div>
+
+        <div>
+          <div class="flex justify-between mb-1.5">
+            <span>Шанс критического удара (%):</span>
+            <span id="calc-val-crit" class="text-amber-400 font-bold">42%</span>
+          </div>
+          <input id="calc-input-crit" type="range" min="5" max="100" value="42" class="w-full accent-amber-400 cursor-pointer" oninput="updateCalculator()">
+        </div>
+
+        <div>
+          <div class="flex justify-between mb-1.5">
+            <span>Критический урон (%):</span>
+            <span id="calc-val-critdmg" class="text-brand-purple font-bold">280%</span>
+          </div>
+          <input id="calc-input-critdmg" type="range" min="100" max="600" value="280" class="w-full accent-purple-400 cursor-pointer" oninput="updateCalculator()">
+        </div>
+
+        <div>
+          <div class="flex justify-between mb-1.5">
+            <span>Скорость атаки (ударов в сек):</span>
+            <span id="calc-val-speed" class="text-emerald-400 font-bold">1.65</span>
+          </div>
+          <input id="calc-input-speed" type="range" min="10" max="30" value="16" class="w-full accent-emerald-400 cursor-pointer" oninput="updateCalculator()">
+        </div>
+      </div>
+
+      <!-- Итог расчета -->
+      <div class="mt-6 p-4 rounded-2xl bg-brand-card/90 border border-brand-border flex items-center justify-between">
+        <div>
+          <span class="text-[11px] text-slate-400 block font-medium">Расчётный эффективный DPS:</span>
+          <span id="calc-result-dps" class="text-2xl sm:text-3xl font-extrabold text-white font-display tracking-wide">6,523</span>
+        </div>
+        <button onclick="closeCalcModal()" class="px-4 py-2 rounded-xl bg-brand-cyan text-zinc-950 font-bold text-xs hover:bg-brand-cyan/90 transition-all">
+          Готово
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS ЛОГИКА: ФИЛЬТРАЦИЯ, ДРОПДАУНЫ, КАРТОЧКИ -->
+  <script>
+    const STEAM_FALLBACK = 'https://cdn.cloudflare.steamstatic.com/steam/apps/271590/capsule_616x353.jpg';
+
+    // РОВНО 7 КАРТОЧЕК: 2 ВИДЕО, 2 АРТА, 2 СТАТЬИ И 1 КАЛЬКУЛЯТОР
+    const MOCK_ARTICLES = [
+      // 1. ВИДЕО 1
+      { 
+        id: '1',
+        title: 'GTA 5: 15 скрытых механик, трюков с физикой и секретных локаций', 
+        category: 'tutorials', 
+        game: { id: 'gta5', name: 'GTA 5' }, 
+        patch_version: 'v1.68 Online', 
+        is_fresh: true, 
+        author: { username: 'RockstarPRO' }, 
+        views_count: 67300, 
+        read_time_minutes: 14, 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/271590/capsule_616x353.jpg', 
+        icon_key: 'video', 
+        contentType: 'video',
+        video_duration: '14:25',
+        video_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        difficulty: 'intermediate',
+        softType: null,
+        isGuildPick: true,
+        excerpt: 'Большой эксклюзивный видеогайд по Лос-Сантосу. Разбираем скрытый потенциал кастомизации транспорта, прыжки на суперкарах и глитчи.' 
+      },
+      // 2. ВИДЕО 2
+      { 
+        id: '2',
+        title: 'Cyberpunk 2077: Сравнение графических модов и трассировки путей в 4K', 
+        category: 'technical', 
+        game: { id: 'cp2077', name: 'Cyberpunk 2077' }, 
+        patch_version: 'v2.12', 
+        is_fresh: true, 
+        author: { username: 'DigitalDreams' }, 
+        views_count: 89400, 
+        read_time_minutes: 11, 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/capsule_616x353.jpg', 
+        icon_key: 'video', 
+        contentType: 'video',
+        video_duration: '18:50',
+        video_url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        difficulty: 'intermediate',
+        softType: null,
+        isGuildPick: true,
+        excerpt: 'Смотрите кинематографичное сравнение ночного Найт-Сити с фотореалистичными текстурами и максимальным овердрайвом.' 
+      },
+      // 3. АРТ 1
+      { 
+        id: '3',
+        title: 'Elden Ring: Интерактивная карта Междуземья и художественный арт всех реликвий', 
+        category: 'knowledge_base', 
+        game: { id: 'elden_ring', name: 'Elden Ring' }, 
+        patch_version: 'v1.14 DLC', 
+        is_fresh: true, 
+        author: { username: 'VaatiGG' }, 
+        views_count: 94200, 
+        read_time_minutes: 5, 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/capsule_616x353.jpg', 
+        icon_key: 'image', 
+        contentType: 'image',
+        difficulty: 'beginner',
+        softType: 'map',
+        isGuildPick: true,
+        excerpt: 'Высокодетализированный арт-постер и наглядная инфографика Земли Теней со всеми ключевыми точками и обелисками.' 
+      },
+      // 4. АРТ 2
+      { 
+        id: '4',
+        title: 'Red Dead Redemption 2: Высокодетализированная карта редких животных и зон охоты', 
+        category: 'knowledge_base', 
+        game: { id: 'rdr2', name: 'RDR 2' }, 
+        patch_version: 'v1.31', 
+        is_fresh: true, 
+        author: { username: 'Morgan_A' }, 
+        views_count: 78500, 
+        read_time_minutes: 4, 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/capsule_616x353.jpg', 
+        icon_key: 'image', 
+        contentType: 'image',
+        difficulty: 'beginner',
+        softType: 'map',
+        isGuildPick: false,
+        excerpt: 'Коллекционный арт-плакат лесов Нью-Остина в 4K. На карте вручную отмечены ареалы обитания легендарных зверей и тайники.' 
+      },
+      // 5. СТАТЬЯ 1
+      { 
+        id: '5',
+        title: 'Baldur\'s Gate 3: Аналитическая статья о скрытых концовках спутников', 
+        category: 'tutorials', 
+        game: { id: 'bg3', name: 'Baldurs Gate 3' }, 
+        patch_version: 'v5.0 Patch', 
+        is_fresh: true, 
+        author: { username: 'Astarion_X' }, 
+        views_count: 22400, 
+        read_time_minutes: 18, 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/capsule_616x353.jpg', 
+        icon_key: 'book-open', 
+        contentType: 'articles',
+        difficulty: 'pro',
+        softType: null,
+        isGuildPick: false,
+        excerpt: 'Разбираем неочевидные триггеры одобрения в 1-м и 2-м актах, которые фатально предопределяют судьбу Шедоухарт и Астариона.' 
+      },
+      // 6. СТАТЬЯ 2
+      { 
+        id: '6',
+        title: 'CS2: Аналитическая статья об экономике раундов и форс-баях нового сезона', 
+        category: 'tutorials', 
+        game: { id: 'cs2', name: 'CS2' }, 
+        patch_version: 'v1.42 Patch', 
+        is_fresh: true, 
+        author: { username: 'ProCoach' }, 
+        views_count: 27900, 
+        read_time_minutes: 13, 
+        image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/730/capsule_616x353.jpg', 
+        icon_key: 'book-open', 
+        contentType: 'articles',
+        difficulty: 'pro',
+        softType: null,
+        isGuildPick: true,
+        excerpt: 'Математический расчёт закупки оружия при системе MR12. Когда стоит делать полный эко, а когда рисковать ради перелома инициативы.' 
+      },
+      // 7. КАЛЬКУЛЯТОР (СОФТ ГИЛЬДИИ)
+      { 
+        id: '7',
+        title: 'Калькулятор билда: Оптимизатор DPS, критов и характеристик экипировки', 
+        category: 'tools', 
+        game: { id: 'mmo_tool', name: 'MMO Tool' }, 
+        patch_version: 'v2.4 Софт', 
+        is_fresh: true, 
+        author: { username: 'GuildDev' }, 
+        views_count: 98100, 
+        read_time_minutes: 3, 
+        image_url: 'https://images.unsplash.com/photo-1542751110-97427bbecf20?w=600&auto=format&fit=crop', 
+        icon_key: 'calculator', 
+        contentType: 'calculator',
+        difficulty: 'intermediate',
+        softType: 'calculator',
+        isGuildPick: true,
+        excerpt: 'Интерактивная утилита для расчета софт-капов, крит-множителей и симуляции урона рейдовых умений.' 
+      }
+    ];
+
+    // Активные фильтры
+    const activeFilters = {
+      type: 'all',
+      difficulty: 'all',
+      soft: 'all',
+      feature: 'all',
+      search: ''
+    };
+
+    const filterLabels = {
+      type: { articles: 'Статьи', video: 'Видео', image: 'Арты', calculator: 'Калькулятор' },
+      difficulty: { beginner: 'Новичок', intermediate: 'Опытный', pro: 'Профи' },
+      soft: { calculator: 'Калькуляторы', map: 'Карты ресурсов' },
+      feature: { guild_pick: 'Выбор гильдии', quick: 'Экспресс (< 5 мин)', fresh: 'Свежий патч' }
+    };
+
+    const gridContainer = document.getElementById('articles-grid');
+    const activeFiltersContainer = document.getElementById('active-filters-badges');
+    const topSearchInput = document.getElementById('top-search-input');
+
+    // Модальные элементы
+    const videoModal = document.getElementById('video-modal');
+    const videoModalContent = document.getElementById('video-modal-content');
+    const modalVideoPlayer = document.getElementById('modal-video-player');
+    const playIndicator = document.getElementById('play-indicator');
+    const imageModal = document.getElementById('image-modal');
+    const imageModalContent = document.getElementById('image-modal-content');
+    const modalImageDisplay = document.getElementById('modal-image-display');
+    const calcModal = document.getElementById('calc-modal');
+    const calcModalContent = document.getElementById('calc-modal-content');
+
+    // Выпадающие списки
+    document.querySelectorAll('.dropdown-wrapper').forEach(wrapper => {
+      const btn = wrapper.querySelector('.dropdown-btn');
+      const menu = wrapper.querySelector('.dropdown-menu');
+      const arrow = btn.querySelector('[data-lucide="chevron-down"]');
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = !menu.classList.contains('hidden');
+
+        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
+        document.querySelectorAll('.dropdown-btn [data-lucide="chevron-down"]').forEach(a => a.classList.remove('rotate-180'));
+
+        if (!isOpen) {
+          menu.classList.remove('hidden');
+          if (arrow) arrow.classList.add('rotate-180');
+        }
+      });
+    });
+
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
+      document.querySelectorAll('.dropdown-btn [data-lucide="chevron-down"]').forEach(a => a.classList.remove('rotate-180'));
+    });
+
+    // Установка фильтра
+    window.setFilter = function(filterKey, value, labelText) {
+      activeFilters[filterKey] = value;
+      const labelElem = document.getElementById(`label-${filterKey}`);
+      if (labelElem) labelElem.innerText = value === 'all' ? getDefaultLabel(filterKey) : labelText;
+
+      document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
+      document.querySelectorAll('.dropdown-btn [data-lucide="chevron-down"]').forEach(a => a.classList.remove('rotate-180'));
+
+      renderActiveBadges();
+      triggerFadeUpAnimation(false);
+    };
+
+    // Удаление фильтра по крестику
+    window.removeFilter = function(filterKey) {
+      if (filterKey === 'search') {
+        activeFilters.search = '';
+        topSearchInput.value = '';
+      } else {
+        activeFilters[filterKey] = 'all';
+        const labelElem = document.getElementById(`label-${filterKey}`);
+        if (labelElem) labelElem.innerText = getDefaultLabel(filterKey);
+      }
+
+      renderActiveBadges();
+      triggerFadeUpAnimation(false);
+    };
+
+    // Полный сброс
+    window.resetAllFilters = function() {
+      activeFilters.type = 'all';
+      activeFilters.difficulty = 'all';
+      activeFilters.soft = 'all';
+      activeFilters.feature = 'all';
+      activeFilters.search = '';
+
+      topSearchInput.value = '';
+      document.getElementById('label-type').innerText = 'Тип';
+      document.getElementById('label-difficulty').innerText = 'Сложность';
+      document.getElementById('label-soft').innerText = 'Софт гильдии';
+      document.getElementById('label-feature').innerText = 'Особенности';
+
+      renderActiveBadges();
+      triggerFadeUpAnimation(false);
+    };
+
+    function getDefaultLabel(key) {
+      switch(key) {
+        case 'type': return 'Тип';
+        case 'difficulty': return 'Сложность';
+        case 'soft': return 'Софт гильдии';
+        case 'feature': return 'Особенности';
+        default: return '';
+      }
+    }
+
+    // Отрисовка бейджей с крестиками
+    function renderActiveBadges() {
+      let badgesHtml = '';
+
+      if (activeFilters.type !== 'all') {
+        const title = filterLabels.type[activeFilters.type] || activeFilters.type;
+        badgesHtml += createBadgeHtml('type', 'Тип: ' + title);
+      }
+      if (activeFilters.difficulty !== 'all') {
+        const title = filterLabels.difficulty[activeFilters.difficulty] || activeFilters.difficulty;
+        badgesHtml += createBadgeHtml('difficulty', 'Уровень: ' + title);
+      }
+      if (activeFilters.soft !== 'all') {
+        const title = filterLabels.soft[activeFilters.soft] || activeFilters.soft;
+        badgesHtml += createBadgeHtml('soft', 'Софт: ' + title);
+      }
+      if (activeFilters.feature !== 'all') {
+        const title = filterLabels.feature[activeFilters.feature] || activeFilters.feature;
+        badgesHtml += createBadgeHtml('feature', title);
+      }
+      if (activeFilters.search.trim() !== '') {
+        badgesHtml += createBadgeHtml('search', 'Поиск: "' + activeFilters.search + '"');
+      }
+
+      activeFiltersContainer.innerHTML = badgesHtml;
+      lucide.createIcons();
+    }
+
+    function createBadgeHtml(key, text) {
+      return `
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-brand-purple/15 border border-brand-purple/40 text-brand-purple hover:bg-brand-purple/20 transition-all select-none shadow-sm">
+          <span>${text}</span>
+          <button onclick="removeFilter('${key}')" class="p-0.5 rounded-full hover:bg-brand-purple/30 text-brand-purple/80 hover:text-white transition-colors" title="Сбросить фильтр">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      `;
+    }
+
+    // Отрисовка Bento-карточек
+    function renderArticles() {
+      const filtered = MOCK_ARTICLES.filter(article => {
+        if (activeFilters.type !== 'all' && article.contentType !== activeFilters.type) return false;
+        if (activeFilters.difficulty !== 'all' && article.difficulty !== activeFilters.difficulty) return false;
+        if (activeFilters.soft !== 'all' && article.softType !== activeFilters.soft) return false;
+        if (activeFilters.feature === 'guild_pick' && !article.isGuildPick) return false;
+        if (activeFilters.feature === 'quick' && article.read_time_minutes > 5) return false;
+        if (activeFilters.feature === 'fresh' && !article.is_fresh) return false;
+        if (activeFilters.search) {
+          const matchTitle = article.title.toLowerCase().includes(activeFilters.search.toLowerCase());
+          const matchDesc = article.excerpt.toLowerCase().includes(activeFilters.search.toLowerCase());
+          if (!matchTitle && !matchDesc) return false;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        gridContainer.className = "block";
+        gridContainer.innerHTML = `
+          <div class="h-64 border border-dashed border-brand-border rounded-[28px] flex flex-col items-center justify-center p-6 text-center bg-brand-surface shadow-sm">
+            <i data-lucide="file-search" class="h-8 w-8 mb-2 text-brand-cyan animate-pulse"></i>
+            <p class="text-sm font-bold text-white">Ничего не найдено</p>
+            <p class="text-xs font-medium text-slate-400 mt-1">Попробуйте изменить параметры выбранных фильтров или запрос поиска</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      gridContainer.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5 lg:gap-6 transition-all duration-300 ease-out opacity-100 translate-y-0";
+
+      gridContainer.innerHTML = filtered.map(article => {
+        const formattedViews = article.views_count >= 1000 ? (article.views_count / 1000).toFixed(1) + 'k' : article.views_count;
+        const authorInitial = article.author.username.charAt(0).toUpperCase();
+        const isVideo = article.contentType === 'video';
+        const isImage = article.contentType === 'image';
+        const isCalc = article.contentType === 'calculator';
+
+        let clickAction = '';
+        if (isVideo) clickAction = `onclick="openVideoModal('${article.id}')"`;
+        else if (isImage) clickAction = `onclick="openImageModal('${article.id}')"`;
+        else if (isCalc) clickAction = `onclick="openCalcModal()"`;
+
+        return `
+          <article 
+            ${clickAction}
+            class="group/card bg-brand-surface border border-brand-border rounded-[22px] sm:rounded-[32px] shadow-micro overflow-hidden flex flex-col justify-between transition-all duration-300 hover:border-brand-purple/60 hover:shadow-card-hover h-full cursor-pointer"
+          >
+            <!-- Обложка -->
+            <div class="relative w-full aspect-[16/10] bg-slate-900 select-none shrink-0 overflow-hidden">
+              <img 
+                src="${article.image_url}" 
+                onerror="this.onerror=null; this.src='${STEAM_FALLBACK}';"
+                class="absolute inset-0 w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700 z-0 opacity-80 group-hover/card:opacity-95" 
+                alt="${article.title}"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-brand-dark/95 via-transparent to-black/30 z-10 pointer-events-none"></div>
+
+              ${isVideo ? `
+                <div class="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                  <div class="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-slate-900/75 backdrop-blur-md border border-white/20 text-white shadow-2xl group-hover/card:scale-110 group-hover/card:bg-brand-red group-hover/card:border-transparent transition-all duration-300 flex items-center justify-center">
+                    <i data-lucide="play" class="w-4 h-4 sm:w-5 sm:h-5 fill-white translate-x-0.5 text-white"></i>
+                  </div>
+                </div>
+              ` : isImage ? `
+                <div class="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                  <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-slate-900/75 backdrop-blur-md border border-white/20 text-white shadow-2xl group-hover/card:scale-110 group-hover/card:bg-brand-purple group-hover/card:border-transparent transition-all duration-300 flex items-center justify-center">
+                    <i data-lucide="maximize-2" class="w-4 h-4 sm:w-5 sm:h-5 text-white"></i>
+                  </div>
+                </div>
+              ` : isCalc ? `
+                <div class="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                  <div class="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-slate-900/75 backdrop-blur-md border border-brand-cyan/40 text-brand-cyan shadow-2xl group-hover/card:scale-110 group-hover/card:bg-brand-cyan group-hover/card:text-zinc-950 transition-all duration-300 flex items-center justify-center">
+                    <i data-lucide="calculator" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                  </div>
+                </div>
+              ` : `
+                <div class="absolute inset-0 flex items-center justify-center opacity-25 pointer-events-none group-hover/card:scale-110 transition-transform duration-500 z-10 text-white">
+                  <i data-lucide="${article.icon_key}" class="w-8 h-8 sm:w-12 sm:h-12"></i>
+                </div>
+              `}
+              
+              <div class="absolute inset-0 p-2.5 sm:p-3.5 flex flex-col justify-between z-20 pointer-events-none">
+                <div class="flex items-center justify-between w-full">
+                  <div class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full font-bold text-[8px] sm:text-[10px] bg-black/60 backdrop-blur-md border border-white/10 text-brand-cyan shrink-0">
+                    <span class="h-1.5 w-1.5 rounded-full ${article.is_fresh ? 'bg-brand-cyan' : 'bg-slate-500'}"></span>
+                    ${article.patch_version.split(' Patch')[0]}
+                  </div>
+
+                  ${isVideo ? `
+                    <span class="px-2 sm:px-2.5 py-0.5 rounded-full bg-brand-red text-white font-extrabold text-[8px] sm:text-[9px] tracking-wider uppercase shadow-md flex items-center gap-1">
+                      <i data-lucide="video" class="w-2.5 h-2.5 fill-white"></i> ВИДЕО
+                    </span>
+                  ` : isImage ? `
+                    <span class="px-2 sm:px-2.5 py-0.5 rounded-full bg-brand-purple text-white font-extrabold text-[8px] sm:text-[9px] tracking-wider uppercase shadow-md flex items-center gap-1">
+                      <i data-lucide="palette" class="w-2.5 h-2.5 fill-white"></i> АРТ
+                    </span>
+                  ` : isCalc ? `
+                    <span class="px-2 sm:px-2.5 py-0.5 rounded-full bg-brand-cyan text-zinc-950 font-extrabold text-[8px] sm:text-[9px] tracking-wider uppercase shadow-md flex items-center gap-1">
+                      <i data-lucide="cpu" class="w-2.5 h-2.5 fill-current"></i> КАЛЬКУЛЯТОР
+                    </span>
+                  ` : `
+                    <span class="px-2 sm:px-2.5 py-0.5 rounded-full bg-brand-accent text-white font-extrabold text-[8px] sm:text-[9px] tracking-wider uppercase shadow-md flex items-center gap-1">
+                      <i data-lucide="file-text" class="w-2.5 h-2.5 fill-white"></i> СТАТЬЯ
+                    </span>
+                  `}
+                </div>
+                
+                <div class="flex items-end justify-between w-full">
+                  <div class="text-white text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider pl-0.5 select-none drop-shadow-md truncate max-w-[65%]">
+                    ${article.game.name}
+                  </div>
+
+                  ${isVideo && article.video_duration ? `
+                    <span class="px-1.5 py-0.5 rounded sm:rounded-md bg-black/80 backdrop-blur-md text-white text-[9px] sm:text-[10px] font-bold tracking-wide shadow-sm border border-white/10">
+                      ${article.video_duration}
+                    </span>
+                  ` : isCalc ? `
+                    <span class="px-1.5 py-0.5 rounded sm:rounded-md bg-brand-cyan/20 backdrop-blur-md text-brand-cyan text-[9px] sm:text-[10px] font-bold tracking-wide border border-brand-cyan/30">
+                      Интерактив
+                    </span>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+            
+            <!-- Текстовый блок карточки -->
+            <div class="p-3 sm:p-4 bg-brand-surface flex-1 flex flex-col justify-between gap-2">
+              <div class="w-full">
+                <h3 class="w-full text-[13px] sm:text-[15px] font-bold text-white leading-snug tracking-tight break-words line-clamp-2 sm:line-clamp-3 group-hover/card:text-brand-purple transition-colors duration-200">
+                  ${article.title}
+                </h3>
+                
+                <p class="w-full text-[11px] sm:text-[12px] font-normal text-slate-400 leading-relaxed line-clamp-2 mt-1 sm:mt-1.5 break-words">
+                  ${article.excerpt}
+                </p>
+              </div>
+              
+              <div class="flex items-center justify-between pt-2.5 border-t border-brand-border/60 w-full text-[10px] sm:text-[11px] text-slate-400 font-medium mt-auto">
+                <div class="flex items-center gap-1.5 min-w-0 pr-1">
+                  <div class="h-5 w-5 rounded-full bg-gradient-to-tr from-brand-purple to-brand-cyan shadow-sm flex items-center justify-center text-[9px] text-white font-extrabold shrink-0">
+                    ${authorInitial}
+                  </div>
+                  <span class="truncate text-slate-300 font-semibold group-hover/card:text-white transition-colors max-w-[60px] sm:max-w-[85px]">${article.author.username}</span>
+                </div>
+                
+                <div class="flex items-center gap-2 shrink-0">
+                  <span class="flex items-center gap-0.5"><i data-lucide="eye" class="h-3 w-3 text-slate-500"></i> ${formattedViews}</span>
+                  <span class="flex items-center gap-0.5"><i data-lucide="${isVideo ? 'play-square' : isImage ? 'image' : isCalc ? 'sliders' : 'clock'}" class="h-3 w-3 text-slate-500"></i> ${article.read_time_minutes} мин</span>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function triggerFadeUpAnimation(shouldScroll = false) {
+      gridContainer.classList.remove('opacity-100', 'translate-y-0');
+      gridContainer.classList.add('opacity-0', 'translate-y-3');
+      
+      setTimeout(() => {
+        renderArticles();
+        gridContainer.classList.remove('opacity-0', 'translate-y-3');
+        gridContainer.classList.add('opacity-100', 'translate-y-0');
+        
+        if (shouldScroll) {
+          document.getElementById('catalog-top').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 150);
+    }
+
+    topSearchInput.addEventListener('input', (e) => {
+      activeFilters.search = e.target.value;
+      renderActiveBadges();
+      renderArticles();
+    });
+
+    // 1. Модальное окно Видео
+    window.openVideoModal = function(articleId) {
+      const article = MOCK_ARTICLES.find(a => a.id === articleId);
+      if (!article) return;
+
+      document.getElementById('modal-video-title-desktop').innerText = article.title;
+      document.getElementById('modal-video-author-desktop').innerText = article.author.username;
+      document.getElementById('modal-video-desc-desktop').innerText = article.excerpt + " В видео представлен детальный разбор и тактика.";
+      document.getElementById('modal-video-tags-desktop').innerText = `#${article.game.name.replace(/\s+/g, '')} #video`;
+      document.getElementById('modal-video-likes-desktop').innerText = (article.views_count * 0.12 / 1000).toFixed(1) + 'K';
+
+      document.getElementById('modal-video-title-mobile').innerText = article.title;
+      document.getElementById('modal-video-author-mobile').innerText = article.author.username;
+      document.getElementById('modal-video-desc-mobile').innerText = article.excerpt;
+      document.getElementById('modal-video-tags-mobile').innerText = `#${article.game.name.replace(/\s+/g, '')}`;
+
+      const mockTimestamps = [
+        { time: '0:00', label: 'Вступление и механики' },
+        { time: '2:15', label: 'Трюки и ключевые точки' },
+        { time: '6:40', label: 'Наглядная демонстрация' }
+      ];
+
+      document.getElementById('modal-timestamps-desktop').innerHTML = mockTimestamps.map(ts => `
+        <button class="flex items-center gap-3 text-left group hover:bg-zinc-800/60 p-2 -ml-2 rounded-xl transition-colors w-full">
+          <span class="text-emerald-400 font-mono text-xs bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded">${ts.time}</span>
+          <span class="text-zinc-300 group-hover:text-white text-sm transition-colors">${ts.label}</span>
+        </button>
+      `).join('');
+
+      modalVideoPlayer.src = article.video_url || 'https://www.w3schools.com/html/mov_bbb.mp4';
+      
+      videoModal.classList.remove('hidden');
+      videoModal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+
+      void videoModal.offsetWidth;
+      videoModal.classList.remove('opacity-0');
+      videoModalContent.classList.remove('scale-95');
+      videoModalContent.classList.add('scale-100');
+      
+      modalVideoPlayer.play().catch(() => {});
+      lucide.createIcons();
+    };
+
+    window.closeVideoModal = function() {
+      videoModal.classList.add('opacity-0');
+      videoModalContent.classList.remove('scale-100');
+      videoModalContent.classList.add('scale-95');
+      setTimeout(() => {
+        videoModal.classList.add('hidden');
+        videoModal.classList.remove('flex');
+        document.body.classList.remove('overflow-hidden');
+        modalVideoPlayer.pause();
+        modalVideoPlayer.src = '';
+      }, 300);
+    };
+
+    window.togglePlayPause = function() {
+      if (modalVideoPlayer.paused) {
+        modalVideoPlayer.play().catch(() => {});
+        playIndicator.classList.add('opacity-0');
+      } else {
+        modalVideoPlayer.pause();
+        playIndicator.classList.remove('opacity-0');
+      }
+    };
+
+    // 2. Модальное окно Арта
+    window.openImageModal = function(articleId) {
+      const article = MOCK_ARTICLES.find(a => a.id === articleId);
+      if (!article) return;
+
+      document.getElementById('modal-image-title-desktop').innerText = article.title;
+      document.getElementById('modal-image-author-desktop').innerText = article.author.username;
+      document.getElementById('modal-image-desc-desktop').innerText = article.excerpt;
+      document.getElementById('modal-image-tags-desktop').innerText = `#${article.game.name.replace(/\s+/g, '')} #art`;
+
+      modalImageDisplay.src = article.image_url;
+      
+      imageModal.classList.remove('hidden');
+      imageModal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+
+      void imageModal.offsetWidth;
+      imageModal.classList.remove('opacity-0');
+      imageModalContent.classList.remove('scale-95');
+      imageModalContent.classList.add('scale-100');
+      lucide.createIcons();
+    };
+
+    window.closeImageModal = function() {
+      imageModal.classList.add('opacity-0');
+      imageModalContent.classList.remove('scale-100');
+      imageModalContent.classList.add('scale-95');
+      setTimeout(() => {
+        imageModal.classList.add('hidden');
+        imageModal.classList.remove('flex');
+        document.body.classList.remove('overflow-hidden');
+        modalImageDisplay.src = '';
+      }, 300);
+    };
+
+    // 3. Модальное окно Калькулятора
+    window.openCalcModal = function() {
+      calcModal.classList.remove('hidden');
+      calcModal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+
+      void calcModal.offsetWidth;
+      calcModal.classList.remove('opacity-0');
+      calcModalContent.classList.remove('scale-95');
+      calcModalContent.classList.add('scale-100');
+      lucide.createIcons();
+    };
+
+    window.closeCalcModal = function() {
+      calcModal.classList.add('opacity-0');
+      calcModalContent.classList.remove('scale-100');
+      calcModalContent.classList.add('scale-95');
+      setTimeout(() => {
+        calcModal.classList.add('hidden');
+        calcModal.classList.remove('flex');
+        document.body.classList.remove('overflow-hidden');
+      }, 300);
+    };
+
+    window.updateCalculator = function() {
+      const dmg = parseFloat(document.getElementById('calc-input-damage').value);
+      const crit = parseFloat(document.getElementById('calc-input-crit').value);
+      const critDmg = parseFloat(document.getElementById('calc-input-critdmg').value);
+      const speed = parseFloat(document.getElementById('calc-input-speed').value) / 10;
+
+      document.getElementById('calc-val-damage').innerText = dmg;
+      document.getElementById('calc-val-crit').innerText = crit + '%';
+      document.getElementById('calc-val-critdmg').innerText = critDmg + '%';
+      document.getElementById('calc-val-speed').innerText = speed.toFixed(2);
+
+      const avgMultiplier = 1 + ((crit * (critDmg - 100)) / 10000);
+      const dps = Math.round(dmg * speed * avgMultiplier);
+
+      document.getElementById('calc-result-dps').innerText = dps.toLocaleString('ru-RU');
+    };
+
+    // Закрытие окон по Esc
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (videoModal && !videoModal.classList.contains('hidden')) closeVideoModal();
+        if (imageModal && !imageModal.classList.contains('hidden')) closeImageModal();
+        if (calcModal && !calcModal.classList.contains('hidden')) closeCalcModal();
+      }
+    });
+
+    // Инициализация при старте
+    renderActiveBadges();
+    renderArticles();
+  </script>
+</body>
+</html>
