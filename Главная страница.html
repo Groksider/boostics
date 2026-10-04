@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>boostics.com - Игровой портал</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Plus Jakarta Sans Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            slate: {
+              50: '#F8FAFC',
+              100: '#F1F5F9',
+              500: '#64748B',
+              900: '#0F172A',
+            },
+            primary: '#2563EB',
+            accent: '#FACC15',
+          },
+          boxShadow: {
+            soft: '0 4px 20px -2px rgba(0,0,0,0.04)',
+            float: '0 10px 30px -5px rgba(37,99,235,0.15)',
+            'card-hover': '0 12px 30px -4px rgba(37,99,235,0.12)',
+            'micro': '0 4px 20px -2px rgba(0,0,0,0.04)',
+          },
+          borderRadius: {
+            '2.5xl': '20px',
+            '3xl': '24px',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color .3s ease, color .3s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
+    .anim-fade { animation: fadeUp .35s ease both; }
+    @keyframes growIn { from { opacity: 0; transform: scale(.965) } to { opacity: 1; transform: scale(1) } }
+    .anim-grow { animation: growIn .55s ease both; }
+    @keyframes slowZoom { from { transform: scale(1) } to { transform: scale(1.07) } }
+    .anim-zoom { animation: slowZoom 7s linear both; }
+    @media (prefers-reduced-motion: reduce) { .anim-fade, .anim-grow, .anim-zoom { animation: none } .side-item { transition: none } }
+    .scroll-hide::-webkit-scrollbar { display: none }
+    .scroll-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .wrap { width: 100%; max-width: 80rem; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+
+    /* Базовый адаптив */
+    .d-flex, .d-block { display: none }
+    .m-flex { display: flex }
+    .m-block { display: block }
+    .t-flex, .t-block { display: none }
+
+    .hero-grid { display: grid; gap: .75rem }
+    .hero-main { position: relative; height: 23rem; border-radius: 24px; overflow: hidden; }
+    .hero-side { display: none }
+    .hero-title { font-size: 1.7rem; line-height: 1.15; color: #fff; }
+    .side-item { flex: 1 1 0; min-height: 0; transition: flex-grow .45s ease, background-color .25s ease, box-shadow .25s ease; cursor: pointer; border-radius: 20px; }
+    .side-item.on { flex-grow: 1.7; background-color: #fff; box-shadow: 0 10px 30px -5px rgba(37,99,235,0.1); border-color: transparent; }
+    .side-item:not(.on):hover { background-color: #F8FAFC; border-color: #E2E8F0; }
+
+    .adv-grid { display: grid; gap: 0.85rem }
+    .adv-tab { transition: border-color .25s ease, background-color .25s ease, box-shadow .25s ease; cursor: pointer; border-radius: 16px; }
+    .adv-tab:not(.adv-tab-active):hover { border-color: #CBD5E1; background-color: #F8FAFC; }
+
+    /* Боковое меню */
+    .rail { 
+      position: fixed; 
+      left: 0; 
+      top: 0; 
+      bottom: 0; 
+      z-index: 60; 
+      display: none; 
+      width: 4.5rem; 
+      overflow: hidden; 
+      transition: width .35s ease, box-shadow .35s ease, background-color .3s ease; 
+      background-color: #ffffff; 
+      border-right: 1px solid #E2E8F0;
+      transform: translateZ(0);
+    }
+    .rail:hover { width: 15rem; box-shadow: 24px 0 60px rgba(0,0,0,0.15); }
+    .rail-item { position: relative; display: flex; width: 100%; align-items: center; gap: .75rem; border-radius: 9999px; padding: .45rem .5rem; color: #64748B; white-space: nowrap; transition: all .2s ease; margin-bottom: 0.15rem; }
+    .rail-item:hover { background-color: #F1F5F9; color: #0F172A; }
+    .rail-item.on { background-color: #EFF6FF; color: #2563EB; font-weight: 600; }
+    .rail-item.on::before { content: ""; position: absolute; left: -0.5rem; top: 15%; bottom: 15%; width: 3px; border-radius: 9999px; background: #2563EB; }
+    .rail-ic { display: flex; height: 2.25rem; width: 2.25rem; flex: none; align-items: center; justify-content: center; }
+    .rail-lbl { opacity: 0; transform: translateX(10px); transition: opacity .25s ease .06s, transform .25s ease .06s; font-weight: 600; }
+    .rail:hover .rail-lbl { opacity: 1; transform: translateX(0); }
+    .rail-sec { margin: .5rem .25rem .25rem; border-top: 1px solid #F1F5F9; padding: .5rem .5rem 0; font-size: .65rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; color: #94A3B8; white-space: nowrap; }
+
+    .games-grid { display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)) }
+    .poster { height: 9.5rem; border-radius: 18px 18px 0 0; }
+    .gcard { transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease; border-radius: 20px; background-color: #fff; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.04); border: 1px solid #F1F5F9; }
+    .gcard:hover { transform: translateY(-4px); box-shadow: 0 12px 24px -8px rgba(37,99,235,0.15); border-color: #BFDBFE; }
+
+    .foot-grid { display: grid; gap: 2rem; grid-template-columns: 1fr; padding: 3rem 0; }
+    .bot-row { display: flex; flex-direction: column; gap: 1rem; align-items: center; justify-content: space-between; padding-top: 1.5rem; padding-bottom: 1.5rem; }
+    .sec-title { font-size: 1.4rem; color: #0F172A; }
+
+    /* ========================================================
+       ⚡ СТИЛИ ТЁМНОЙ ТЕМЫ (OLED & DEEP SLATE)
+       ======================================================== */
+    body.dark { 
+      background-color: #080C14; 
+      color: #94A3B8; 
+      background-image: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.08) 0%, transparent 50%);
+    }
+
+    body.dark header { 
+      background-color: rgba(11, 17, 29, 0.88) !important; 
+      border-color: #172238 !important; 
+      box-shadow: 0 4px 25px rgba(0,0,0,0.4);
+    }
+    body.dark header input { 
+      background-color: #131D31 !important; 
+      border-color: #1E2D4A !important; 
+      color: #F1F5F9 !important; 
+    }
+    body.dark header input::placeholder { color: #64748B !important; }
+    body.dark header .text-slate-900 { color: #F8FAFC !important; }
+    body.dark header .text-slate-600 { color: #94A3B8 !important; }
+    body.dark header .text-slate-600:hover { background-color: #162238 !important; color: #FFFFFF !important; }
+    body.dark header button.border-slate-200 { border-color: #1E2D4A !important; color: #94A3B8 !important; }
+    body.dark header button.border-slate-200:hover { background-color: #162238 !important; color: #FFFFFF !important; }
+    body.dark #mobile-menu { background-color: #0D1527 !important; border-color: #1A2640 !important; }
+    body.dark #mobile-menu a { color: #CBD5E1 !important; }
+    body.dark #mobile-menu a:hover { background-color: #162238 !important; color: #FFFFFF !important; }
+
+    body.dark .rail { 
+      background-color: #0A101E !important; 
+      border-color: #162238 !important; 
+    }
+    body.dark .rail-item { color: #8A99AD !important; }
+    body.dark .rail-item:hover { background-color: #131E33 !important; color: #FFFFFF !important; }
+    body.dark .rail-item.on { 
+      background-color: rgba(37, 99, 235, 0.2) !important; 
+      color: #60A5FA !important; 
+      box-shadow: 0 0 15px rgba(37, 99, 235, 0.2); 
+    }
+    body.dark .rail-item.on::before { 
+      background: #3B82F6 !important; 
+      box-shadow: 0 0 8px #3B82F6; 
+    }
+    body.dark .rail-sec { border-color: #162238 !important; color: #475569 !important; }
+
+    body.dark section > div.bg-white,
+    body.dark .hero-side,
+    body.dark footer { 
+      background-color: #0E1626 !important; 
+      border-color: #1A2640 !important; 
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5) !important; 
+    }
+    body.dark .sec-title, body.dark h1, body.dark h2, body.dark h3, body.dark .text-slate-900 { 
+      color: #F8FAFC !important; 
+    }
+    body.dark .text-slate-800, body.dark .text-slate-700 { color: #E2E8F0 !important; }
+
+    /* Сайдбар слайдера в темной теме */
+    body.dark .side-item:not(.on) { background-color: #111A2E !important; border-color: #1C2B48 !important; }
+    body.dark .side-item:not(.on):hover { background-color: #16233B !important; }
+    body.dark .side-item.on { 
+      background-color: #172540 !important; 
+      border: 1px solid rgba(59, 130, 246, 0.4) !important; 
+      box-shadow: 0 0 20px rgba(37, 99, 235, 0.25) !important; 
+    }
+    body.dark .side-item .text-slate-900 { color: #FFFFFF !important; }
+    body.dark #pause-btn { background-color: #162238 !important; color: #94A3B8 !important; }
+
+    /* Табы преимуществ в темной теме */
+    body.dark .adv-tab:not(.adv-tab-active):hover { background-color: #141F36 !important; border-color: #1E2D4A !important; }
+    body.dark .adv-tab.adv-tab-active {
+      background-color: rgba(37, 99, 235, 0.15) !important;
+      border-color: rgba(59, 130, 246, 0.4) !important;
+    }
+    body.dark .adv-panel { 
+      background-color: #0B1120 !important; 
+      border-color: #1B2844 !important; 
+    }
+    body.dark .adv-panel .bg-white { 
+      background-color: #121C30 !important; 
+      border-color: #1C2A48 !important; 
+    }
+
+    /* Игры в темной теме */
+    body.dark .gcard { 
+      background-color: #121B2F !important; 
+      border-color: #1B2945 !important; 
+    }
+    body.dark .gcard:hover { 
+      border-color: #3B82F6 !important; 
+      box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.3) !important; 
+    }
+    body.dark .gcard .bg-white { background-color: #121B2F !important; }
+    body.dark .gcard span.bg-white\/95 { 
+      background-color: rgba(15, 23, 42, 0.85) !important; 
+      color: #F8FAFC !important; 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+    }
+
+    /* Карточки статей в темной теме */
+    body.dark article.bg-white { 
+      background-color: #111A2E !important; 
+      border-color: #1C2B48 !important; 
+    }
+    body.dark article .bg-white { background-color: #111A2E !important; }
+    body.dark article .border-slate-100 { border-color: #1B2945 !important; }
+    body.dark article .text-slate-900 { color: #F8FAFC !important; }
+    body.dark article .text-slate-700 { color: #CBD5E1 !important; }
+    body.dark article span.bg-white\/95 { 
+      background-color: rgba(15, 23, 42, 0.85) !important; 
+      color: #93C5FD !important; 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+    }
+
+    /* Сообщества в темной теме */
+    body.dark .group.rounded-\[22px\] { 
+      background-color: #111A2E !important; 
+      border-color: #1C2B48 !important; 
+    }
+    body.dark .group.rounded-\[22px\]:hover { 
+      background-color: #142038 !important; 
+      border-color: rgba(59, 130, 246, 0.4) !important; 
+    }
+    body.dark .group .rounded-xl.bg-white { 
+      background-color: #0A101C !important; 
+      border-color: #1A2640 !important; 
+    }
+    body.dark .group .rounded-xl.bg-white p { color: #CBD5E1 !important; }
+    body.dark .group .bg-slate-100 { 
+      background-color: #18243C !important; 
+      color: #94A3B8 !important; 
+    }
+    body.dark .group a.rounded-full.bg-slate-100 { 
+      background-color: #18253E !important; 
+      border-color: #243555 !important; 
+      color: #93C5FD !important; 
+    }
+    body.dark .group a.rounded-full.bg-slate-100:hover { 
+      background-color: #2563EB !important; 
+      border-color: transparent !important; 
+      color: #FFFFFF !important; 
+      box-shadow: 0 0 15px rgba(37, 99, 235, 0.4) !important; 
+    }
+
+    /* Подвал */
+    body.dark footer .border-t { border-color: #162238 !important; }
+
+    /* ========================================================
+       АДАПТИВ (РЕЖИМ ПК НА МОБИЛЬНЫХ 768px+)
+       ======================================================== */
+    @media (min-width: 640px) {
+      .wrap { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .t-flex { display: flex }
+      .t-block { display: block }
+      .hero-main { height: 26rem; }
+      .hero-title { font-size: 2.3rem; }
+      .games-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+      .poster { height: 11rem; }
+      .foot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .bot-row { flex-direction: row; }
+      .sec-title { font-size: 1.75rem; }
+      .rail { display: block; }
+      .page { padding-left: 4.5rem; }
+    }
+
+    @media (min-width: 768px) {
+      .d-flex { display: flex !important; }
+      .d-block { display: block !important; }
+      .m-flex, .m-block { display: none !important; }
+      #mobile-menu { display: none !important; }
+
+      .hero-grid { grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr); align-items: stretch; gap: 1.25rem; }
+      .hero-main { height: 30rem; }
+      .hero-side { display: flex; flex-direction: column; gap: .75rem; min-height: 0; }
+      .hero-title { font-size: 2.4rem; line-height: 1.1; }
+      .adv-grid { grid-template-columns: minmax(0, 1.8fr) minmax(0, 2.5fr); align-items: stretch; gap: 1.25rem; }
+      .foot-grid { grid-template-columns: 2fr 1fr 1fr 1fr; }
+    }
+
+    @media (min-width: 1024px) {
+      .hero-main { height: 32rem; }
+      .hero-title { font-size: 2.8rem; }
+      .adv-grid { gap: 1.25rem; }
+      .games-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-500 antialiased page">
+
+  <!-- Шапка -->
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-sm transition-colors duration-300">
+    <div class="wrap flex h-16 items-center gap-2 lg:gap-3.5">
+      
+      <!-- 1. boostics.com -->
+      <a href="#" class="flex items-center gap-2 shrink-0 mr-1">
+        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-md shadow-blue-500/20">
+          <i data-lucide="gamepad-2" class="h-5 w-5"></i>
+        </span>
+        <span class="text-xl font-extrabold tracking-tight text-slate-900">
+          boostics<span class="text-primary">.ru</span>
+        </span>
+      </a>
+
+      <!-- 2. Поиск по сайту -->
+      <div class="d-block relative shrink-0">
+        <i data-lucide="search" class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+        <input type="text" placeholder="Поиск по сайту..." class="h-10 w-36 sm:w-44 lg:w-56 rounded-full border border-transparent bg-slate-100 pl-10 pr-4 text-xs lg:text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all shadow-inner" />
+      </div>
+
+      <!-- 3. Меню навигации -->
+      <nav class="d-flex items-center gap-0.5 lg:gap-1 shrink-0">
+        <a href="#" class="rounded-full px-2.5 lg:px-4 py-2 text-xs lg:text-sm font-semibold transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 whitespace-nowrap">Идеи статей</a>
+        <a href="#" class="rounded-full px-2.5 lg:px-4 py-2 text-xs lg:text-sm font-semibold transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 whitespace-nowrap">Для разработчиков</a>
+        <a href="#" class="rounded-full px-2.5 lg:px-4 py-2 text-xs lg:text-sm font-semibold transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 whitespace-nowrap">Авторам</a>
+      </nav>
+
+      <!-- 4. Переключатель темы (Десктоп) -->
+      <div class="d-flex items-center shrink-0">
+        <button id="theme-toggle" type="button" class="relative flex h-9 w-[74px] shrink-0 cursor-pointer items-center justify-between rounded-full bg-slate-100 p-1 border border-slate-200/90 text-slate-500 transition-all hover:border-slate-300 focus:outline-none select-none group" aria-label="Переключить тему">
+          <span class="flex h-7 w-7 items-center justify-center text-amber-500">
+            <i data-lucide="sun" class="h-4 w-4"></i>
+          </span>
+          <span class="flex h-7 w-7 items-center justify-center text-slate-400 group-hover:text-indigo-400 transition-colors">
+            <i data-lucide="moon" class="h-4 w-4"></i>
+          </span>
+          <span id="theme-thumb" class="absolute left-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md text-amber-500 transition-transform duration-300 ease-in-out border border-slate-200/60">
+            <i data-lucide="sun" id="theme-thumb-icon" class="h-3.5 w-3.5"></i>
+          </span>
+        </button>
+      </div>
+
+      <div class="flex-1"></div>
+
+      <!-- Уведомления -->
+      <button class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900">
+        <i data-lucide="bell" class="h-4 w-4"></i>
+        <span class="absolute right-2.5 top-2.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-primary"></span>
+      </button>
+
+      <!-- Написать -->
+      <button class="d-flex items-center justify-center rounded-full px-4 lg:px-5 py-2 text-xs lg:text-sm bg-primary font-bold text-white hover:bg-blue-700 shadow-float transition-all h-10 shrink-0">
+        <i data-lucide="pen-line" class="mr-1.5 h-4 w-4"></i> Написать
+      </button>
+
+      <!-- Аватар -->
+      <div class="d-flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity shrink-0">
+        <div class="p-0.5 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400">
+          <div class="flex shrink-0 items-center justify-center rounded-full bg-white border-2 border-white font-extrabold text-slate-900 h-9 w-9 text-xs">K1</div>
+        </div>
+      </div>
+
+      <!-- Меню бургер для смартфонов -->
+      <button id="menu-toggle" class="m-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+        <i data-lucide="menu" class="h-5 w-5" id="menu-icon"></i>
+      </button>
+    </div>
+
+    <!-- Мобильное меню -->
+    <div id="mobile-menu" class="hidden border-t border-slate-200 bg-white px-4 py-4 shadow-xl">
+      <div class="relative mb-3">
+        <i data-lucide="search" class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+        <input type="text" placeholder="Поиск по сайту..." class="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none" />
+      </div>
+      <a href="#" class="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 mb-1">Идеи статей</a>
+      <a href="#" class="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 mb-1">Для разработчиков</a>
+      <a href="#" class="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 mb-2">Авторам</a>
+      
+      <div class="flex items-center justify-between pt-3 border-t border-slate-100 px-1">
+        <span class="text-sm font-bold text-slate-700">Тёмная тема</span>
+        <button id="theme-toggle-mobile" class="relative inline-flex h-8 w-14 items-center rounded-full bg-slate-200 p-1 transition-colors">
+          <span id="theme-thumb-mobile" class="flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-sm transition-transform text-amber-500">
+            <i data-lucide="sun" id="theme-icon-mobile" class="h-3.5 w-3.5"></i>
+          </span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Боковое меню (Rail) -->
+  <aside class="rail shadow-sm">
+    <div class="flex h-full flex-col justify-center gap-1 p-2 overflow-y-auto scroll-hide">
+      <a href="#" title="Главная" class="rail-item on">
+        <span class="rail-ic"><i data-lucide="home" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Главная</span>
+      </a>
+      <a href="#" title="Рейтинги" class="rail-item">
+        <span class="rail-ic"><i data-lucide="trophy" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Рейтинги</span>
+      </a>
+      <a href="#" title="Сообщества" class="rail-item">
+        <span class="rail-ic"><i data-lucide="users" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Сообщества</span>
+      </a>
+      <a href="#" title="Закладки" class="rail-item">
+        <span class="rail-ic"><i data-lucide="bookmark" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold flex-1">Закладки</span>
+        <span class="rail-lbl rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-slate-900 shadow-sm mr-2">3</span>
+      </a>
+      <a href="#" title="Ответы FAQ" class="rail-item">
+        <span class="rail-ic"><i data-lucide="help-circle" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Ответы FAQ</span>
+      </a>
+      <a href="#" title="Правила сайта" class="rail-item">
+        <span class="rail-ic"><i data-lucide="scroll-text" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Правила сайта</span>
+      </a>
+      <div class="rail-sec"><span class="rail-lbl">Автор</span></div>
+      <a href="#" title="Аналитика" class="rail-item">
+        <span class="rail-ic"><i data-lucide="line-chart" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Аналитика</span>
+      </a>
+      <a href="#" title="Идеи статей" class="rail-item">
+        <span class="rail-ic"><i data-lucide="lightbulb" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Идеи статей</span>
+      </a>
+      <a href="#" title="Мой GroupHub" class="rail-item">
+        <span class="rail-ic"><i data-lucide="folder-kanban" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Мой GroupHub</span>
+      </a>
+      <a href="#" title="Мой TeamHub" class="rail-item">
+        <span class="rail-ic"><i data-lucide="network" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Мой TeamHub</span>
+      </a>
+    </div>
+  </aside>
+
+  <main>
+    <!-- ================= БЛОК 1: СЛАЙДЕР СТАТЕЙ ================= -->
+    <section class="wrap pt-8">
+      <div id="slider-wrap" class="hero-grid">
+        <div class="hero-main group relative border-4 border-white/20 bg-slate-950">
+          <div id="hero-content" class="w-full h-full"></div>
+
+          <div id="hero-counter" class="absolute left-8 top-6 z-20 font-bold text-sm text-white drop-shadow-md">
+            01 <span class="text-white/60">/ 05</span>
+          </div>
+          <div class="absolute right-6 top-6 z-20 flex gap-2">
+            <button onclick="goSlide(-1)" class="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 transition-all hover:bg-white hover:text-slate-900 shadow-lg">
+              <i data-lucide="chevron-left" class="h-5 w-5"></i>
+            </button>
+            <button onclick="goSlide(1)" class="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 transition-all hover:bg-white hover:text-slate-900 shadow-lg">
+              <i data-lucide="chevron-right" class="h-5 w-5"></i>
+            </button>
+          </div>
+
+          <!-- Нижняя полоса таймера слайдера -->
+          <div class="absolute inset-x-0 bottom-0 z-20 h-1.5 bg-white/20 backdrop-blur-sm">
+            <div id="main-progress" class="h-full bg-accent transition-[width] duration-150 ease-linear" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Боковой слайд-бар с таймером -->
+        <div class="hero-side bg-white rounded-[28px] p-3 shadow-soft border border-slate-100">
+          <div class="flex items-center justify-between px-3 pb-2 pt-1">
+            <span class="text-xs uppercase tracking-widest font-extrabold text-slate-400">Топ за неделю</span>
+            <button id="pause-btn" class="flex items-center gap-1.5 text-xs font-bold text-slate-400 transition-colors hover:text-primary bg-slate-50 px-3 py-1.5 rounded-full">
+              <i id="pause-icon" data-lucide="pause" class="h-3 w-3"></i>
+              <span id="pause-text">Пауза</span>
+            </button>
+          </div>
+          <div id="side-items-container" class="flex flex-col gap-1.5 h-full flex-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= БЛОК 2: ПРЕИМУЩЕСТВА (ЗАГОЛОВОК ВНУТРИ И СБАЛАНСИРОВАННЫЕ ОТСТУПЫ) ================= -->
+    <section class="wrap py-4 sm:py-5">
+      <div class="relative overflow-hidden rounded-2xl bg-white shadow-soft border border-slate-200/90 p-4 sm:p-5">
+        <!-- Заголовок перенесен внутрь блока -->
+        <div class="mb-3.5 flex items-center gap-2">
+          <span class="w-3.5 h-0.5 bg-primary rounded-full"></span>
+          <p class="font-bold text-xs tracking-wider text-primary uppercase">Почему мы</p>
+        </div>
+
+        <div class="adv-grid relative z-10">
+          <div class="flex flex-col gap-2">
+            <!-- Таб 0 -->
+            <button onclick="setAdv(0)" id="tab-0" class="adv-tab adv-tab-active relative flex-1 border border-blue-200 bg-blue-50/80 p-3 sm:p-3.5 text-left shadow-sm">
+              <span class="flex items-start gap-3">
+                <span id="tab-ic-0" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm text-primary border border-blue-100">
+                  <i data-lucide="refresh-cw" class="h-4 w-4"></i>
+                </span>
+                <div>
+                  <span class="flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-slate-900" id="tab-title-0">
+                    Актуальность 100%
+                    <span id="tab-pulse-0" class="h-1.5 w-1.5 animate-pulse rounded-full bg-primary"></span>
+                  </span>
+                  <span id="tab-desc-0" class="mt-0.5 block text-xs leading-snug text-slate-600 font-medium">Гайды и статьи обновляются под каждый свежий патч. Забудь про неактуальные билды.</span>
+                </div>
+              </span>
+            </button>
+
+            <!-- Таб 1 -->
+            <button onclick="setAdv(1)" id="tab-1" class="adv-tab relative flex-1 border border-transparent bg-transparent hover:bg-slate-50 p-3 sm:p-3.5 text-left">
+              <span class="flex items-start gap-3">
+                <span id="tab-ic-1" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-400 border border-slate-200">
+                  <i data-lucide="coins" class="h-4 w-4"></i>
+                </span>
+                <div>
+                  <span class="flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-slate-400" id="tab-title-1">
+                    Ценим авторов
+                    <span id="tab-pulse-1" class="hidden h-1.5 w-1.5 animate-pulse rounded-full bg-primary"></span>
+                  </span>
+                  <span id="tab-desc-1" class="mt-0.5 block text-xs leading-snug text-slate-500 font-medium">Платим реальные деньги за качественный контент. Пиши статьи и зарабатывай.</span>
+                </div>
+              </span>
+            </button>
+
+            <!-- Таб 2 -->
+            <button onclick="setAdv(2)" id="tab-2" class="adv-tab relative flex-1 border border-transparent bg-transparent hover:bg-slate-50 p-3 sm:p-3.5 text-left">
+              <span class="flex items-start gap-3">
+                <span id="tab-ic-2" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-400 border border-slate-200">
+                  <i data-lucide="send" class="h-4 w-4"></i>
+                </span>
+                <div>
+                  <span class="flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-slate-400" id="tab-title-2">
+                    Единая экосистема
+                    <span id="tab-pulse-2" class="hidden h-1.5 w-1.5 animate-pulse rounded-full bg-primary"></span>
+                  </span>
+                  <span id="tab-desc-2" class="mt-0.5 block text-xs leading-snug text-slate-500 font-medium">Мгновенные уведомления и интеграция с Discord и Telegram каналами.</span>
+                </div>
+              </span>
+            </button>
+          </div>
+
+          <!-- Панель 0: Актуальность -->
+          <div id="adv-panel-0" class="adv-panel anim-fade relative flex flex-col justify-between overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3.5 sm:p-4 shadow-inner">
+            <div class="relative z-10 flex flex-col gap-2.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-0.5 text-[10px] font-bold text-primary shadow-sm border border-blue-100 tracking-wider">
+                  <span class="h-1.5 w-1.5 rounded-full bg-primary"></span> PATCH 1.4.2 — ОБНОВЛЕНО
+                </span>
+                <p class="font-medium text-[10px] text-slate-400 flex items-center gap-1">
+                  <i data-lucide="clock" class="h-3 w-3"></i> 2 ч назад · KIRA
+                </p>
+              </div>
+              
+              <div>
+                <h3 class="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 leading-snug">Билд «Полный маг» пересобран под баф урона</h3>
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <div class="flex items-start gap-2.5 rounded-lg border border-white bg-white p-2.5 shadow-sm">
+                  <div class="rounded-full bg-blue-50 p-0.5 shrink-0 mt-0.5"><i data-lucide="check" class="h-3 w-3 text-primary font-bold"></i></div>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-xs font-bold text-slate-800 leading-tight">Ротация скиллов пересчитана под новый множитель</p>
+                    <p class="text-[9px] font-semibold text-slate-400 uppercase mt-0.5">v1.4.2</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-2.5 rounded-lg border border-white bg-white p-2.5 shadow-sm">
+                  <div class="rounded-full bg-blue-50 p-0.5 shrink-0 mt-0.5"><i data-lucide="check" class="h-3 w-3 text-primary font-bold"></i></div>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-xs font-bold text-slate-800 leading-tight">Талант «Ледяная жила» заменён на «Грозовой резонанс»</p>
+                    <p class="text-[9px] font-semibold text-slate-400 uppercase mt-0.5">v1.4.2</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2 pt-1">
+                <div class="flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 shadow-sm border border-slate-100">
+                  <i data-lucide="trending-up" class="h-3 w-3 text-emerald-500"></i>
+                  <p class="text-[10px] font-extrabold text-emerald-600">+18%</p>
+                </div>
+                <div class="flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 shadow-sm border border-slate-100">
+                  <i data-lucide="trending-down" class="h-3 w-3 text-rose-500"></i>
+                  <p class="text-[10px] font-extrabold text-rose-600">−4%</p>
+                </div>
+                
+                <button class="ml-auto inline-flex items-center justify-center rounded-full text-[10px] font-bold transition-colors bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 h-7 px-3.5 shadow-sm">
+                  Изменения <i data-lucide="arrow-right" class="ml-1 h-3 w-3"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Панель 1: Выплаты -->
+          <div id="adv-panel-1" class="adv-panel hidden anim-fade relative flex flex-col justify-between overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3.5 sm:p-4 shadow-inner">
+            <div class="relative z-10 flex flex-col gap-2.5">
+              <span class="inline-flex items-center gap-1.5 self-start rounded-full bg-white px-2.5 py-0.5 text-[10px] font-bold text-primary shadow-sm border border-blue-100 tracking-wider">
+                <span class="h-1.5 w-1.5 rounded-full bg-accent"></span> СЕЗОН 07 · ВЫПЛАТЫ
+              </span>
+
+              <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-3 text-white shadow-float relative overflow-hidden">
+                <p class="text-[10px] font-bold text-blue-100 uppercase tracking-widest">Выплачено за 30 дней</p>
+                <p class="text-2xl font-extrabold tracking-tight">₽184 500</p>
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <div class="flex items-center gap-2 rounded-lg border border-white bg-white p-2 shadow-sm">
+                  <span class="flex items-center justify-center w-5 h-5 rounded-full bg-accent text-slate-900 font-extrabold text-[10px]">1</span>
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate text-xs font-extrabold text-slate-900">KIRA</p>
+                    <p class="truncate text-[9px] font-semibold text-slate-500">12 статей · Genshin</p>
+                  </div>
+                  <span class="font-extrabold text-xs text-primary bg-blue-50 px-2.5 py-0.5 rounded-full">₽42 300</span>
+                </div>
+              </div>
+
+              <div class="flex gap-2 pt-1">
+                <button class="inline-flex items-center justify-center rounded-full text-[11px] transition-all bg-primary font-bold text-white hover:bg-blue-700 h-7 px-3.5 shadow-float">
+                  <i data-lucide="pen-line" class="mr-1 h-3 w-3"></i> Стать автором
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Панель 2: Экосистема -->
+          <div id="adv-panel-2" class="adv-panel hidden anim-fade relative flex flex-col justify-between overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3.5 sm:p-4 shadow-inner">
+            <div class="relative z-10 flex flex-col gap-2.5">
+              <span class="inline-flex items-center gap-1.5 self-start rounded-full bg-white px-2.5 py-0.5 text-[10px] font-bold text-primary shadow-sm border border-blue-100 tracking-wider">
+                <span class="h-1.5 w-1.5 rounded-full bg-primary"></span> ЭКОСИСТЕМА · ONLINE
+              </span>
+              <h3 class="text-sm sm:text-base font-extrabold tracking-tight text-slate-900">Портал живёт и за пределами сайта</h3>
+              <div class="grid grid-cols-2 gap-2 mt-0.5">
+                <div class="rounded-lg border border-white bg-white p-2.5 shadow-sm">
+                  <p class="text-[9px] font-bold text-slate-400 uppercase">Discord</p>
+                  <p class="text-xs sm:text-sm font-extrabold text-slate-800 mt-0.5">12 402 онлайн</p>
+                </div>
+                <div class="rounded-lg border border-white bg-white p-2.5 shadow-sm">
+                  <p class="text-[9px] font-bold text-slate-400 uppercase">Telegram</p>
+                  <p class="text-xs sm:text-sm font-extrabold text-slate-800 mt-0.5">38 917 подписчиков</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= БЛОК 3: ПОПУЛЯРНЫЕ ИГРЫ ================= -->
+    <section class="wrap pb-10">
+      <div class="rounded-[28px] bg-white border border-slate-200/90 p-5 sm:p-6 shadow-soft">
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <div>
+            <p class="font-bold text-xs tracking-wider text-primary uppercase mb-1 flex items-center gap-1.5">
+              <span class="w-4 h-0.5 bg-primary rounded-full"></span> Каталог
+            </p>
+            <h2 class="sec-title font-extrabold tracking-tight text-slate-900">Популярные игры</h2>
+          </div>
+          <button class="inline-flex items-center justify-center rounded-full text-xs font-bold transition-colors bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-slate-700 h-9 px-4">
+            Все игры <i data-lucide="arrow-right" class="ml-1.5 h-3.5 w-3.5"></i>
+          </button>
+        </div>
+
+        <div class="games-grid" id="games-container"></div>
+      </div>
+    </section>
+
+    <!-- ================= БЛОК 4: ПОПУЛЯРНЫЕ СТАТЬИ И МАТЕРИАЛЫ ================= -->
+    <section class="wrap pb-10">
+      <div class="rounded-[28px] bg-white border border-slate-200/90 p-5 sm:p-6 shadow-soft">
+        
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <div>
+            <p class="font-bold text-xs tracking-wider text-primary uppercase mb-1 flex items-center gap-1.5">
+              <span class="w-4 h-0.5 bg-primary rounded-full"></span> База знаний
+            </p>
+            <h2 class="sec-title font-extrabold tracking-tight text-slate-900">Популярные статьи и материалы</h2>
+          </div>
+          <a href="#" class="inline-flex items-center justify-center rounded-full text-xs font-bold transition-colors bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-slate-700 h-9 px-4">
+            Вся база знаний <i data-lucide="arrow-up-right" class="ml-1.5 h-3.5 w-3.5"></i>
+          </a>
+        </div>
+
+        <!-- Кнопки фильтрации -->
+        <div class="mb-5 flex items-center justify-between border-b border-slate-100 pb-3 gap-3 overflow-x-auto scroll-hide">
+          <div class="flex items-center gap-2" id="article-filters-nav"></div>
+          
+          <div class="hidden sm:flex items-center gap-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0">
+            <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-blue-600 shadow-sm"></span>Актуальный патч</span>
+            <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-slate-400 shadow-sm"></span>Архив</span>
+          </div>
+        </div>
+
+        <!-- Сетка карточек статей -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 anim-fade" id="articles-showcase-grid"></div>
+
+      </div>
+    </section>
+
+    <!-- ================= БЛОК 5: ИНТЕГРИРОВАННЫЕ СООБЩЕСТВА ================= -->
+    <section class="wrap pb-16">
+      <div class="rounded-[28px] bg-white border border-slate-200/90 p-5 sm:p-7 shadow-soft">
+        <div class="mb-5 flex items-end justify-between gap-4">
+          <div>
+            <p class="font-bold text-xs tracking-wider text-primary uppercase mb-1 flex items-center gap-1.5">
+              <span class="w-4 h-0.5 bg-primary rounded-full"></span> Сообщества
+            </p>
+            <h2 class="sec-title font-extrabold tracking-tight text-slate-900">Интегрированные каналы и серверы</h2>
+          </div>
+          <button class="inline-flex items-center justify-center rounded-full text-xs font-bold transition-colors bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-slate-700 h-9 px-4">
+            Все сообщества <i data-lucide="arrow-right" class="ml-1.5 h-3.5 w-3.5"></i>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Карточка 1: Dota 2 Telegram -->
+          <div class="group flex flex-col justify-between rounded-[22px] border border-slate-200/80 bg-slate-50/40 p-4 transition-all hover:shadow-card-hover">
+            <div>
+              <div class="flex items-start justify-between gap-2 mb-3">
+                <div class="relative">
+                  <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-500 to-cyan-400 text-white font-extrabold text-sm shadow-sm">D2</div>
+                  <span class="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-white ring-2 ring-white">
+                    <i data-lucide="send" class="h-2.5 w-2.5"></i>
+                  </span>
+                </div>
+                <div class="text-right">
+                  <span class="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-100 px-2 py-0.5 text-xs font-extrabold text-blue-600">84.3K <span class="font-semibold text-blue-500 text-[10px]">подп.</span></span>
+                  <span class="block text-[10px] text-slate-400 font-semibold mt-0.5">~14.2K охват</span>
+                </div>
+              </div>
+              <div class="mb-2.5">
+                <div class="flex items-center gap-1">
+                  <h3 class="text-sm font-extrabold text-slate-900 group-hover:text-blue-500 transition-colors truncate">Dota 2: Meta & Patches</h3>
+                  <i data-lucide="badge-check" class="h-3.5 w-3.5 text-blue-500 shrink-0"></i>
+                </div>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">Dota 2 · Telegram</p>
+              </div>
+              <div class="rounded-xl bg-white border border-slate-100 p-2.5 mb-3 shadow-sm">
+                <p class="text-xs font-medium text-slate-700 leading-snug">«Свежие фишки патчей и скрытые баги меты раньше, чем их понерфят Valve»</p>
+              </div>
+              <div class="flex flex-wrap gap-1 mb-1">
+                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">#патчи</span>
+                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">#тирлисты</span>
+              </div>
+            </div>
+            <a href="#" class="mt-3 flex w-full items-center justify-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 py-2 px-3 text-xs font-bold text-slate-700 transition-all">
+              <i data-lucide="layout-list" class="h-3.5 w-3.5"></i> Читать ленту
+            </a>
+          </div>
+
+          <!-- Карточка 2: Discord -->
+          <div class="group flex flex-col justify-between rounded-[22px] border border-slate-200/80 bg-slate-50/40 p-4 transition-all hover:shadow-card-hover">
+            <div>
+              <div class="flex items-start justify-between gap-2 mb-3">
+                <div class="relative">
+                  <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 text-white font-extrabold text-sm shadow-sm">TS</div>
+                  <span class="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#5865F2] text-white ring-2 ring-white">
+                    <i data-lucide="message-circle" class="h-2.5 w-2.5"></i>
+                  </span>
+                </div>
+                <div class="text-right">
+                  <span class="inline-flex items-center gap-1 rounded-full bg-indigo-50 border border-indigo-100 px-2 py-0.5 text-xs font-extrabold text-indigo-600">56.8K <span class="font-semibold text-indigo-500 text-[10px]">участников</span></span>
+                  <span class="flex items-center justify-end gap-1 text-[10px] text-emerald-500 font-bold mt-0.5">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> 11 402 онлайн
+                  </span>
+                </div>
+              </div>
+              <div class="mb-2.5">
+                <div class="flex items-center gap-1">
+                  <h3 class="text-sm font-extrabold text-slate-900 group-hover:text-indigo-400 transition-colors truncate">Teyvat Sanctuary</h3>
+                  <i data-lucide="badge-check" class="h-3.5 w-3.5 text-indigo-500 shrink-0"></i>
+                </div>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">Genshin & HSR · Discord</p>
+              </div>
+              <div class="rounded-xl bg-white border border-slate-100 p-2.5 mb-3 shadow-sm">
+                <p class="text-xs font-medium text-slate-700 leading-snug">«Сбор пати в Бездну и эхо-фарм за 30 секунд без духоты и с войс-румами»</p>
+              </div>
+              <div class="flex flex-wrap gap-1 mb-1">
+                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">#поиск_пати</span>
+                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">#билды</span>
+              </div>
+            </div>
+            <a href="#" class="mt-3 flex w-full items-center justify-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 py-2 px-3 text-xs font-bold text-slate-700 transition-all">
+              <i data-lucide="messages-square" class="h-3.5 w-3.5"></i> Открыть хаб
+            </a>
+          </div>
+
+          <!-- Карточка 3: YouTube -->
+          <div class="group flex flex-col justify-between rounded-[22px] border border-slate-200/80 bg-slate-50/40 p-4 transition-all hover:shadow-card-hover">
+            <div>
+              <div class="flex items-start justify-between gap-2 mb-3">
+                <div class="relative">
+                  <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-rose-500 to-red-600 text-white font-extrabold text-sm shadow-sm">PL</div>
+                  <span class="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-white ring-2 ring-white">
+                    <i data-lucide="youtube" class="h-2.5 w-2.5"></i>
+                  </span>
+                </div>
+                <div class="text-right">
+                  <span class="inline-flex items-center gap-1 rounded-full bg-red-50 border border-red-100 px-2 py-0.5 text-xs font-extrabold text-red-600">195K <span class="font-semibold text-red-500 text-[10px]">сабов</span></span>
+                  <span class="block text-[10px] text-slate-400 font-semibold mt-0.5">3 видео в неделю</span>
+                </div>
+              </div>
+              <div class="mb-2.5">
+                <div class="flex items-center gap-1">
+                  <h3 class="text-sm font-extrabold text-slate-900 group-hover:text-red-500 transition-colors truncate">PoE 2: Lab & Guides</h3>
+                  <i data-lucide="badge-check" class="h-4 w-4 text-red-500 shrink-0"></i>
+                </div>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">PoE 2 · YouTube</p>
+              </div>
+              <div class="rounded-xl bg-white border border-slate-100 p-2.5 mb-3 shadow-sm">
+                <p class="text-xs font-medium text-slate-700 leading-snug">«Сложные механики лиги простым языком. От старта до убер-боссов»</p>
+              </div>
+              <div class="flex flex-wrap gap-1 mb-1">
+                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">#видеогайды</span>
+                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">#крафт</span>
+              </div>
+            </div>
+            <a href="#" class="mt-3 flex w-full items-center justify-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 py-2 px-3 text-xs font-bold text-slate-700 transition-all">
+              <i data-lucide="play-circle" class="h-3.5 w-3.5"></i> Смотреть ленту
+            </a>
+          </div>
+
+          <!-- Карточка 4: CS2 Telegram -->
+          <div class="group flex flex-col justify-between rounded-[22px] border border-slate-200/80 bg-slate-50/40 p-4 transition-all hover:shadow-card-hover">
+            <div>
+              <div class="flex items-start justify-between gap-2 mb-3">
+                <div class="relative">
+                  <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white font-extrabold text-sm shadow-sm">CS</div>
+                  <span class="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-white ring-2 ring-white">
+                    <i data-lucide="send" class="h-2.5 w-2.5"></i>
+                  </span>
+                </div>
+                <div class="text-right">
+                  <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-xs font-extrabold text-amber-700">42.1K <span class="font-semibold text-amber-600 text-[10px]">подп.</span></span>
+                  <span class="block text-[10px] text-slate-400 font-semibold mt-0.5">Каждый день</span>
+                </div>
+              </div>
+              <div class="mb-2.5">
+                <div class="flex items-center gap-1">
+                  <h3 class="text-sm font-extrabold text-slate-900 group-hover:text-amber-500 transition-colors truncate">CS2 Lineups & Clips</h3>
+                  <i data-lucide="badge-check" class="h-3.5 w-3.5 text-amber-500 shrink-0"></i>
+                </div>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">Counter-Strike 2 · Telegram</p>
+              </div>
+              <div class="rounded-xl bg-white border border-slate-100 p-2.5 mb-3 shadow-sm">
+                <p class="text-xs font-medium text-slate-700 leading-snug">«Короткие 15-секундные раскидки смоков и флешек на каждую карту»</p>
+              </div>
+              <div class="flex flex-wrap gap-1 mb-1">
+                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">#lineups</span>
+                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">#клипы</span>
+              </div>
+            </div>
+            <a href="#" class="mt-3 flex w-full items-center justify-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 py-2 px-3 text-xs font-bold text-slate-700 transition-all">
+              <i data-lucide="layout-list" class="h-3.5 w-3.5"></i> Читать ленту
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= МОДАЛЬНОЕ ОКНО ВИДЕО ================= -->
+  <div id="video-modal" class="fixed inset-0 z-[100] bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center opacity-0 transition-opacity duration-300 p-2 sm:p-6">
+    <button onclick="closeVideoModal()" class="absolute top-4 right-4 p-2.5 bg-white/20 hover:bg-white text-white hover:text-slate-900 rounded-full transition-all z-50">
+      <i data-lucide="x" class="h-5 w-5"></i>
+    </button>
+    <div id="video-modal-content" class="relative w-full max-w-4xl bg-slate-900 rounded-3xl overflow-hidden shadow-2xl scale-95 transition-transform duration-300 border border-slate-800">
+      <div class="aspect-video w-full bg-slate-950 flex items-center justify-center relative">
+        <video id="modal-video-player" class="w-full h-full object-contain" controls playsinline></video>
+      </div>
+      <div class="p-5 bg-white dark:bg-[#0E1626] flex flex-col sm:flex-row justify-between gap-4">
+        <div>
+          <span id="modal-video-tag" class="px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase tracking-wider"></span>
+          <h2 id="modal-video-title" class="text-base font-bold text-slate-900 dark:text-white mt-1.5"></h2>
+          <p id="modal-video-desc" class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2"></p>
+        </div>
+        <div class="flex items-center gap-3 shrink-0 self-end sm:self-center">
+          <button class="px-4 py-2 bg-accent text-slate-900 font-bold text-xs rounded-full hover:bg-yellow-500 transition-colors">
+            Подписаться
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= МОДАЛЬНОЕ ОКНО АРТА ================= -->
+  <div id="image-modal" class="fixed inset-0 z-[100] bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center opacity-0 transition-opacity duration-300 p-2 sm:p-6">
+    <button onclick="closeImageModal()" class="absolute top-4 right-4 p-2.5 bg-white/20 hover:bg-white text-white hover:text-slate-900 rounded-full transition-all z-50">
+      <i data-lucide="x" class="h-5 w-5"></i>
+    </button>
+    <div id="image-modal-content" class="relative max-w-4xl max-h-[88vh] bg-white dark:bg-[#0E1626] rounded-3xl overflow-hidden shadow-2xl flex flex-col scale-95 transition-transform duration-300 border border-slate-800">
+      <div class="p-2 bg-slate-950 flex items-center justify-center overflow-hidden">
+        <img id="modal-image-display" src="" alt="" class="max-h-[65vh] object-contain rounded-xl" />
+      </div>
+      <div class="p-4 flex items-center justify-between gap-3">
+        <div>
+          <h2 id="modal-image-title" class="text-sm font-bold text-slate-900 dark:text-white"></h2>
+          <p id="modal-image-desc" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1"></p>
+        </div>
+        <span class="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-[11px] font-bold rounded-full">Ultra HD Art</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ПОДВАЛ ================= -->
+  <footer class="relative overflow-hidden border-t border-slate-200 bg-white">
+    <div class="wrap pt-12 pb-6">
+      <div class="foot-grid">
+        <div>
+          <a href="#" class="flex items-center gap-2 mb-6">
+            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-md shadow-blue-500/20">
+              <i data-lucide="gamepad-2" class="h-5 w-5"></i>
+            </span>
+            <span class="text-xl font-extrabold tracking-tight text-slate-900">
+              boostics<span class="text-primary">.com</span>
+            </span>
+          </a>
+          <p class="max-w-xs text-sm leading-relaxed text-slate-500 font-medium">
+            База гайдов, билдов и разборов, которая обновляется под каждый патч. Написано игроками — проверено редакцией.
+          </p>
+        </div>
+        <div>
+          <p class="text-base font-extrabold text-slate-900 mb-5">Портал</p>
+          <ul class="flex flex-col gap-3 text-sm font-semibold text-slate-500">
+            <li><a href="#" class="hover:text-primary transition-colors">Игры</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Гайды</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Тир-листы</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-base font-extrabold text-slate-900 mb-5">Авторам</p>
+          <ul class="flex flex-col gap-3 text-sm font-semibold text-slate-500">
+            <li><a href="#" class="hover:text-primary transition-colors">Стать автором</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Выплаты</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-base font-extrabold text-slate-900 mb-5">Поддержка</p>
+          <ul class="flex flex-col gap-3 text-sm font-semibold text-slate-500">
+            <li><a href="#" class="hover:text-primary transition-colors">FAQ</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Контакты</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= JS ЛОГИКА ================= -->
+  <script>
+    const STEAM_FALLBACK = 'https://cdn.cloudflare.steamstatic.com/steam/apps/570/capsule_616x353.jpg';
+
+    /* Переключение темной темы */
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+    const themeThumb = document.getElementById('theme-thumb');
+    const themeThumbIcon = document.getElementById('theme-thumb-icon');
+    const themeThumbMobile = document.getElementById('theme-thumb-mobile');
+    const themeIconMobile = document.getElementById('theme-icon-mobile');
+
+    let currentTheme = localStorage.getItem('theme') || 'dark';
+
+    function applyTheme(theme) {
+      currentTheme = theme;
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
+        if (themeThumb) {
+          themeThumb.style.transform = 'translateX(40px)';
+          themeThumb.classList.remove('text-amber-500', 'bg-white');
+          themeThumb.classList.add('text-indigo-400', 'bg-slate-900', 'border-slate-700');
+        }
+        if (themeThumbIcon) themeThumbIcon.setAttribute('data-lucide', 'moon');
+        
+        if (themeThumbMobile) {
+          themeThumbMobile.style.transform = 'translateX(24px)';
+          themeThumbMobile.classList.remove('text-amber-500', 'bg-white');
+          themeThumbMobile.classList.add('text-indigo-400', 'bg-slate-900');
+        }
+        if (themeIconMobile) themeIconMobile.setAttribute('data-lucide', 'moon');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
+        if (themeThumb) {
+          themeThumb.style.transform = 'translateX(0px)';
+          themeThumb.classList.remove('text-indigo-400', 'bg-slate-900', 'border-slate-700');
+          themeThumb.classList.add('text-amber-500', 'bg-white');
+        }
+        if (themeThumbIcon) themeThumbIcon.setAttribute('data-lucide', 'sun');
+
+        if (themeThumbMobile) {
+          themeThumbMobile.style.transform = 'translateX(0px)';
+          themeThumbMobile.classList.remove('text-indigo-400', 'bg-slate-900');
+          themeThumbMobile.classList.add('text-amber-500', 'bg-white');
+        }
+        if (themeIconMobile) themeIconMobile.setAttribute('data-lucide', 'sun');
+      }
+      localStorage.setItem('theme', theme);
+      lucide.createIcons();
+    }
+
+    if (themeToggle) themeToggle.addEventListener('click', () => applyTheme(currentTheme === 'light' ? 'dark' : 'light'));
+    if (themeToggleMobile) themeToggleMobile.addEventListener('click', () => applyTheme(currentTheme === 'light' ? 'dark' : 'light'));
+    applyTheme(currentTheme);
+
+    /* ДАННЫЕ СЛАЙДЕРА */
+    const heroSlides = [
+      { 
+        id: "dota2", 
+        author: "TopsonPRO", 
+        game: "Dota 2", 
+        cat: "Мета", 
+        title: "«Новая эра Доты: Разбор изменений карты и ротации мида»", 
+        text: "Все скрытые проходы через терзателей, контроль лотосов и тайминги рун мудрости.", 
+        image: "https://cdn.cloudflare.steamstatic.com/steam/apps/570/capsule_616x353.jpg" 
+      },
+      { 
+        id: "helldivers2", 
+        author: "EagleOne", 
+        game: "Helldivers 2", 
+        cat: "Тактика", 
+        title: "«Галактическая война: Лучшие стратагемы против автоматонов»", 
+        text: "Сборки снаряжения 9 уровня сложности, тактика разрушения фабрикаторов и соло-рейды.", 
+        image: "https://cdn.cloudflare.steamstatic.com/steam/apps/553850/capsule_616x353.jpg" 
+      },
+      { 
+        id: "hogwarts", 
+        author: "Ravenclaw_X", 
+        game: "Hogwarts Legacy", 
+        cat: "Гайд", 
+        title: "«Тайны Хогвартса: Все секретные заклинания и реликвии факультетов»", 
+        text: "Пошаговый поиск древних зеркал, испытаний Мерлина и редчайших ингредиентов зелий.", 
+        image: "https://cdn.cloudflare.steamstatic.com/steam/apps/990080/capsule_616x353.jpg" 
+      },
+      { 
+        id: "apex", 
+        author: "ImperialHal", 
+        game: "Apex Legends", 
+        cat: "Рейтинг", 
+        title: "«Сезонный тир-лист: Топ легенд для быстрого соло-ранкеда»", 
+        text: "Разбор мувмента на контроллере и клавиатуре, позиционирование и сканирование зон.", 
+        image: "https://cdn.cloudflare.steamstatic.com/steam/apps/1172470/capsule_616x353.jpg" 
+      },
+      { 
+        id: "mhw", 
+        author: "HunterMaster", 
+        game: "Monster Hunter", 
+        cat: "Билды", 
+        title: "«Охота на Древних Драконов: Сборки стихийного оружия»", 
+        text: "Полный разбор фреймов неуязвимости, комбо длинного меча и подбор брони под лейтгейм.", 
+        image: "https://cdn.cloudflare.steamstatic.com/steam/apps/582010/capsule_616x353.jpg" 
+      }
+    ];
+
+    /* ЛОГИКА ТАЙМЕРА И СЛАЙДЕРА */
+    let active = 0, progress = 0, paused = false;
+    const SLIDE_STEP = 2, SLIDE_TICK = 120;
+
+    function renderHeroUI() {
+      const slide = heroSlides[active];
+      document.getElementById('hero-content').innerHTML = `
+        <div class="anim-grow absolute inset-0 rounded-[20px] overflow-hidden bg-slate-900">
+          <img src="${slide.image}" onerror="this.onerror=null; this.src='${STEAM_FALLBACK}';" alt="${slide.game}" class="anim-zoom absolute inset-0 w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-black/20"></div>
+          <div class="anim-fade absolute inset-x-0 bottom-0 z-10 p-8 sm:p-10">
+            <div class="mb-3.5 flex flex-wrap items-center gap-2">
+              <span class="flex items-center gap-1.5 rounded-full border border-white/20 bg-white/20 backdrop-blur-md px-3.5 py-1 text-xs font-bold text-white shadow-sm">
+                <i data-lucide="gamepad-2" class="h-3.5 w-3.5"></i> ${slide.game}
+              </span>
+              <span class="rounded-full bg-white px-3.5 py-1 text-xs font-extrabold text-slate-900 shadow-sm">${slide.cat}</span>
+            </div>
+            <h1 class="hero-title max-w-2xl font-extrabold tracking-tight drop-shadow-md">${slide.title}</h1>
+            <p class="t-block mt-3 max-w-lg text-sm sm:text-base font-medium text-white/90 leading-relaxed drop-shadow-sm">${slide.text}</p>
+            
+            <div class="mt-5 flex items-center gap-3">
+              <div class="p-0.5 rounded-full bg-gradient-to-tr from-white to-white/40 shadow-sm">
+                <div class="flex shrink-0 items-center justify-center rounded-full bg-white font-extrabold text-slate-900 h-7 w-7 text-xs">${slide.author[0]}</div>
+              </div>
+              <span class="text-sm font-bold text-white drop-shadow-sm">${slide.author}</span>
+              <span class="text-xs font-semibold text-white/60">· Автор материала</span>
+            </div>
+            
+            <div class="mt-6 flex flex-wrap gap-3">
+              <button class="inline-flex items-center justify-center rounded-full text-xs font-bold transition-all bg-white text-slate-900 hover:bg-slate-100 h-10 px-6 shadow-float">
+                <i data-lucide="book-open" class="mr-2 h-4 w-4"></i> Читать материал
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('hero-counter').innerHTML = `0${active + 1} <span class="text-white/60">/ 0${heroSlides.length}</span>`;
+
+      let sideHtml = "";
+      heroSlides.forEach((s, i) => {
+        const on = i === active;
+        sideHtml += `
+          <button onclick="selectSlide(${i})" class="side-item relative flex items-center gap-3 overflow-hidden border p-2 text-left ${on ? "on" : ""}">
+            <span class="flex h-12 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-800 shadow-sm relative">
+              <img src="${s.image}" onerror="this.onerror=null; this.src='${STEAM_FALLBACK}';" alt="${s.game}" class="w-full h-full object-cover" />
+              <div class="absolute inset-0 bg-black/10"></div>
+            </span>
+            <span class="min-w-0 flex-1">
+              <span class="block truncate text-xs sm:text-sm font-extrabold ${on ? "text-slate-900" : "text-slate-600"}">${s.title}</span>
+              <span class="mt-0.5 block truncate text-[11px] font-semibold ${on ? "text-primary" : "text-slate-400"}">${s.game} · ${s.cat}</span>
+            </span>
+            ${on ? `<span class="absolute inset-x-0 bottom-0 h-1 bg-slate-100 dark:bg-slate-800"><span id="side-progress" class="block h-full bg-primary" style="width: ${progress}%"></span></span>` : ""}
+          </button>
+        `;
+      });
+      document.getElementById('side-items-container').innerHTML = sideHtml;
+      lucide.createIcons();
+    }
+
+    /* Таймер перебора статей */
+    setInterval(() => {
+      if (paused) return;
+      progress += SLIDE_STEP;
+      if (progress >= 100) {
+        active = (active + 1) % heroSlides.length;
+        progress = 0;
+        renderHeroUI();
+      } else {
+        const pMain = document.getElementById('main-progress');
+        const pSide = document.getElementById('side-progress');
+        if (pMain) pMain.style.width = `${progress}%`;
+        if (pSide) pSide.style.width = `${progress}%`;
+      }
+    }, SLIDE_TICK);
+
+    function selectSlide(i) { active = i; progress = 0; renderHeroUI(); }
+    function goSlide(d) { active = (active + d + heroSlides.length) % heroSlides.length; progress = 0; renderHeroUI(); }
+
+    const sliderWrap = document.getElementById('slider-wrap');
+    if (sliderWrap) {
+      sliderWrap.addEventListener('mouseenter', () => paused = true);
+      sliderWrap.addEventListener('mouseleave', () => paused = false);
+    }
+
+    const pauseBtn = document.getElementById('pause-btn');
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', () => {
+        paused = !paused;
+        const pIcon = document.getElementById('pause-icon');
+        const pText = document.getElementById('pause-text');
+        if (pIcon) pIcon.setAttribute('data-lucide', paused ? 'play' : 'pause');
+        if (pText) pText.innerText = paused ? 'Пуск' : 'Пауза';
+        lucide.createIcons();
+      });
+    }
+
+    /* ЛОГИКА БЛОКА «ПОЧЕМУ ВЫ» */
+    function setAdv(index) {
+      for (let i = 0; i < 3; i++) {
+        const tab = document.getElementById(`tab-${i}`);
+        const panel = document.getElementById(`adv-panel-${i}`);
+        const title = document.getElementById(`tab-title-${i}`);
+        const pulse = document.getElementById(`tab-pulse-${i}`);
+        const ic = document.getElementById(`tab-ic-${i}`);
+
+        if (!tab || !panel) continue;
+
+        if (i === index) {
+          tab.classList.add('adv-tab-active', 'border-blue-200', 'bg-blue-50/80', 'shadow-sm');
+          tab.classList.remove('border-transparent', 'bg-transparent');
+          if (title) {
+            title.classList.remove('text-slate-400');
+            title.classList.add('text-slate-900', 'dark:text-white');
+          }
+          if (pulse) pulse.classList.remove('hidden');
+          if (ic) {
+            ic.classList.add('bg-white', 'text-primary', 'border-blue-100');
+            ic.classList.remove('bg-slate-50', 'text-slate-400', 'border-slate-200');
+          }
+          panel.classList.remove('hidden');
+        } else {
+          tab.classList.remove('adv-tab-active', 'border-blue-200', 'bg-blue-50/80', 'shadow-sm');
+          tab.classList.add('border-transparent', 'bg-transparent');
+          if (title) {
+            title.classList.remove('text-slate-900', 'dark:text-white');
+            title.classList.add('text-slate-400');
+          }
+          if (pulse) pulse.classList.add('hidden');
+          if (ic) {
+            ic.classList.remove('bg-white', 'text-primary', 'border-blue-100');
+            ic.classList.add('bg-slate-50', 'text-slate-400', 'border-slate-200');
+          }
+          panel.classList.add('hidden');
+        }
+      }
+      lucide.createIcons();
+    }
+
+    /* КАТАЛОГ ИГР */
+    const games = [
+      { n: "Black Myth: Wukong", g: "312 гайдов", r: "4.9", image: "https://cdn.cloudflare.steamstatic.com/steam/apps/2358720/capsule_616x353.jpg" },
+      { n: "Rust", g: "428 гайдов", r: "4.7", image: "https://cdn.cloudflare.steamstatic.com/steam/apps/252490/capsule_616x353.jpg" },
+      { n: "Starfield", g: "195 гайдов", r: "4.5", image: "https://cdn.cloudflare.steamstatic.com/steam/apps/1716740/capsule_616x353.jpg" },
+      { n: "Warframe", g: "580 гайдов", r: "4.8", image: "https://cdn.cloudflare.steamstatic.com/steam/apps/230410/capsule_616x353.jpg" },
+      { n: "Forza Horizon 5", g: "140 гайдов", r: "4.8", image: "https://cdn.cloudflare.steamstatic.com/steam/apps/1551360/capsule_616x353.jpg" },
+      { n: "Dead by Daylight", g: "389 гайдов", r: "4.6", image: "https://cdn.cloudflare.steamstatic.com/steam/apps/381210/capsule_616x353.jpg" }
+    ];
+
+    let gamesHtml = "";
+    games.forEach((g, i) => {
+      gamesHtml += `
+        <a href="#" class="gcard group overflow-hidden flex flex-col justify-between">
+          <div class="relative overflow-hidden poster bg-slate-800">
+            <img src="${g.image}" onerror="this.onerror=null; this.src='${STEAM_FALLBACK}';" alt="${g.n}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-black/20 pointer-events-none"></div>
+            <span class="absolute left-2.5 top-2.5 rounded-full bg-white/95 backdrop-blur-sm px-2 py-0.5 font-extrabold text-[10px] text-slate-900 shadow-sm">#${i + 1}</span>
+          </div>
+          <div class="p-3 bg-white">
+            <p class="flex items-center gap-1 text-[11px] font-bold text-slate-400 uppercase tracking-wide">
+              ${g.g} <i data-lucide="star" class="ml-auto h-3 w-3 text-accent fill-accent"></i> <span class="text-slate-700">${g.r}</span>
+            </p>
+            <h3 class="g-t mt-0.5 truncate text-sm font-extrabold text-slate-900 transition-colors">${g.n}</h3>
+          </div>
+        </a>
+      `;
+    });
+    document.getElementById('games-container').innerHTML = gamesHtml;
+
+    /* БЛОК ПОПУЛЯРНЫЕ СТАТЬИ И МАТЕРИАЛЫ */
+    const showcaseArticles = [
+      { id: "art-1", title: "Grand Theft Auto V: 15 скрытых механик, трюков с физикой и секретных локаций", game: "GTA 5", patch: "v1.68 Online", is_fresh: true, author: "RockstarPRO", views: "67.3K", time: "14:25", image_url: "https://cdn.cloudflare.steamstatic.com/steam/apps/271590/capsule_616x353.jpg", contentType: "video", video_url: "https://www.w3schools.com/html/mov_bbb.mp4", excerpt: "Большой эксклюзивный видеогайд по Лос-Сантосу. Разбираем потенциал кастомизации и трюки с физикой." },
+      { id: "art-2", title: "Elden Ring: Интерактивная панорамная карта Междуземья и реликвий Земли Теней", game: "Elden Ring", patch: "v1.14 DLC", is_fresh: true, author: "VaatiGG", views: "94.2K", time: "5 мин", image_url: "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/capsule_616x353.jpg", contentType: "image", excerpt: "Высокодетализированный арт-постер и наглядная инфографика карты всех скрытых подземелий." },
+      { id: "art-3", title: "Baldur's Gate 3: Влияние ключевых решений на сюжетные концовки ваших спутников", game: "Baldurs Gate 3", patch: "v5.0 Patch", is_fresh: true, author: "Astarion_X", views: "22.4K", time: "18 мин", image_url: "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/capsule_616x353.jpg", contentType: "articles", excerpt: "Разбираем неявные триггеры одобрения в диалогах, которые предопределяют финал вашей группы." },
+      { id: "art-4", title: "Cyberpunk 2077: Сравнение графических модов и трассировки путей в 4K Ultra", game: "Cyberpunk 2077", patch: "v2.12", is_fresh: true, author: "DigitalDreams", views: "89.4K", time: "18:50", image_url: "https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/capsule_616x353.jpg", contentType: "video", video_url: "https://www.w3schools.com/html/mov_bbb.mp4", excerpt: "Кинематографичное сравнение ночного Найт-Сити с ультра-шейдерами и Overdrive Mode." },
+      { id: "art-5", title: "Red Dead Redemption 2: Инфографика ареалов обитания редких животных Нью-Остина", game: "RDR 2", patch: "v1.31", is_fresh: true, author: "Morgan_A", views: "78.5K", time: "4 мин", image_url: "https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/capsule_616x353.jpg", contentType: "image", excerpt: "Коллекционный арт-плакат диких лесов с точными ареалами обитания легендарных зверей." },
+      { id: "art-6", title: "CS2: Топ-10 скрытых раскидок гранат и Lineups на Mirage для быстрой атаки", game: "CS2", patch: "v1.42 Patch", is_fresh: true, author: "DonHaci", views: "31.2K", time: "6 мин", image_url: "https://cdn.cloudflare.steamstatic.com/steam/apps/730/capsule_616x353.jpg", contentType: "articles", excerpt: "Наглядные точки прицеливания и jumpthrow тайминги для идеальных дымовых завес." },
+      { id: "art-7", title: "Path of Exile 2: Скоростное закрытие Атласа и фарм валюты на старте лиги", game: "Path of Exile 2", patch: "v0.3.1", is_fresh: true, author: "Frostbite", views: "48.2K", time: "12:15", image_url: "https://cdn.cloudflare.steamstatic.com/steam/apps/238960/capsule_616x353.jpg", contentType: "video", video_url: "https://www.w3schools.com/html/mov_bbb.mp4", excerpt: "Пошаговое дерево Атласа, распределение поинтов и быстрый выход на Т16 карты." },
+      { id: "art-8", title: "Ведьмак 3: Анализ глобальной переработки боевой системы и парирования модами", game: "The Witcher 3", patch: "v4.04 Next-Gen", is_fresh: false, author: "WhiteWolf", views: "45.1K", time: "16 мин", image_url: "https://cdn.cloudflare.steamstatic.com/steam/apps/292030/capsule_616x353.jpg", contentType: "articles", excerpt: "Подробный разбор механик фехтования, улучшенного уклонения и динамической боевой камеры." }
+    ];
+
+    const contentFilters = [
+      { id: "all", label: "Все форматы" },
+      { id: "articles", label: "Статьи" },
+      { id: "video", label: "Видео / Шортс" },
+      { id: "image", label: "Арт" }
+    ];
+
+    let currentContentFilter = "all";
+
+    function renderContentFiltersNav() {
+      const nav = document.getElementById('article-filters-nav');
+      if(!nav) return;
+      nav.innerHTML = contentFilters.map(f => {
+        const isActive = currentContentFilter === f.id;
+        return `
+          <button onclick="setContentFilter('${f.id}')" class="shrink-0 rounded-full px-4 py-1.5 text-xs font-bold transition-all shadow-sm ${
+            isActive 
+              ? 'bg-primary text-white shadow-blue-500/20' 
+              : 'bg-slate-100 dark:bg-[#131D31] text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-[#1C2B48] hover:text-slate-900 dark:hover:text-white'
+          }">
+            ${f.label}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function setContentFilter(filterId) {
+      currentContentFilter = filterId;
+      renderContentFiltersNav();
+      renderArticlesShowcase();
+    }
+
+    function renderArticlesShowcase() {
+      const container = document.getElementById('articles-showcase-grid');
+      if(!container) return;
+      const filtered = currentContentFilter === "all" 
+        ? showcaseArticles 
+        : showcaseArticles.filter(a => a.contentType === currentContentFilter);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-4 p-8 text-center text-xs font-bold text-slate-400">В этой категории пока нет материалов</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(a => {
+        const isVideo = a.contentType === 'video';
+        const isImage = a.contentType === 'image';
+
+        let clickAction = '';
+        if (isVideo) clickAction = `onclick="openVideoModal('${a.id}')"`;
+        else if (isImage) clickAction = `onclick="openImageModal('${a.id}')"`;
+
+        return `
+          <article ${clickAction} class="group/card bg-white border border-slate-200/90 rounded-[22px] shadow-micro overflow-hidden flex flex-col justify-between transition-all duration-300 hover:border-slate-300 hover:shadow-card-hover h-full cursor-pointer">
+            <div class="relative w-full aspect-[16/10] bg-slate-900 overflow-hidden select-none">
+              <img 
+                src="${a.image_url}" 
+                onerror="this.onerror=null; this.src='${STEAM_FALLBACK}';"
+                class="absolute inset-0 w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500" 
+                alt="${a.title}"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-black/20 z-10 pointer-events-none"></div>
+
+              ${isVideo ? `
+                <div class="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                  <div class="w-11 h-11 rounded-full bg-slate-900/70 backdrop-blur-md border border-white/30 text-white shadow-xl group-hover/card:scale-110 group-hover/card:bg-blue-600 transition-all duration-300 flex items-center justify-center">
+                    <i data-lucide="play" class="w-5 h-5 fill-white translate-x-0.5"></i>
+                  </div>
+                </div>
+              ` : isImage ? `
+                <div class="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                  <div class="w-10 h-10 rounded-full bg-slate-900/70 backdrop-blur-md border border-white/30 text-white shadow-xl group-hover/card:scale-110 group-hover/card:bg-indigo-600 transition-all duration-300 flex items-center justify-center">
+                    <i data-lucide="maximize-2" class="w-4 h-4"></i>
+                  </div>
+                </div>
+              ` : `
+                <div class="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none group-hover/card:scale-110 transition-transform duration-500 z-10 text-white">
+                  <i data-lucide="file-text" class="w-10 h-10"></i>
+                </div>
+              `}
+
+              <div class="absolute inset-0 p-3 flex flex-col justify-between z-20 pointer-events-none">
+                <div class="flex items-center justify-between w-full">
+                  <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold text-[10px] bg-white/95 backdrop-blur-md text-blue-700 shadow-sm">
+                    <span class="h-1.5 w-1.5 rounded-full ${a.is_fresh ? 'bg-blue-600' : 'bg-slate-400'}"></span>
+                    ${a.patch}
+                  </span>
+
+                  ${isVideo ? `
+                    <span class="px-2 py-0.5 rounded-full bg-red-600 text-white font-extrabold text-[9px] tracking-wider uppercase shadow-md flex items-center gap-1">
+                      <i data-lucide="video" class="w-2.5 h-2.5 fill-white"></i> Видео
+                    </span>
+                  ` : isImage ? `
+                    <span class="px-2 py-0.5 rounded-full bg-indigo-600 text-white font-extrabold text-[9px] tracking-wider uppercase shadow-md flex items-center gap-1">
+                      <i data-lucide="image" class="w-2.5 h-2.5 fill-white"></i> Арт
+                    </span>
+                  ` : `
+                    <span class="px-2 py-0.5 rounded-full bg-blue-600 text-white font-extrabold text-[9px] tracking-wider uppercase shadow-md flex items-center gap-1">
+                      <i data-lucide="file-text" class="w-2.5 h-2.5 fill-white"></i> Статья
+                    </span>
+                  `}
+                </div>
+
+                <div class="flex items-end justify-between w-full">
+                  <span class="text-white text-[11px] font-extrabold uppercase tracking-wider drop-shadow-md">
+                    ${a.game}
+                  </span>
+                  ${isVideo ? `
+                    <span class="px-1.5 py-0.5 rounded bg-black/75 backdrop-blur-md text-white text-[10px] font-bold border border-white/10">
+                      ${a.time}
+                    </span>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+
+            <div class="p-3.5 bg-white flex-1 flex flex-col justify-between gap-2.5">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900 leading-snug group-hover/card:text-primary transition-colors line-clamp-2">
+                  ${a.title}
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-1 leading-relaxed">
+                  ${a.excerpt}
+                </p>
+              </div>
+
+              <div class="flex items-center justify-between pt-2.5 border-t border-slate-100 text-[11px] text-slate-500 font-medium">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <div class="h-5 w-5 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400 shadow-sm flex items-center justify-center text-[9px] text-white font-extrabold shrink-0 ring-1 ring-white">
+                    ${a.author[0]}
+                  </div>
+                  <span class="truncate text-slate-700 font-semibold">${a.author}</span>
+                </div>
+                
+                <div class="flex items-center gap-2.5 shrink-0 text-slate-400">
+                  <span class="flex items-center gap-1"><i data-lucide="eye" class="h-3 w-3"></i> ${a.views}</span>
+                  <span class="flex items-center gap-1"><i data-lucide="${isVideo ? 'play-square' : isImage ? 'image' : 'clock'}" class="h-3 w-3"></i> ${a.time}</span>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      container.classList.remove('anim-fade');
+      void container.offsetWidth;
+      container.classList.add('anim-fade');
+      lucide.createIcons();
+    }
+
+    /* МОДАЛЬНЫЕ ОКНА */
+    window.openVideoModal = function(id) {
+      const item = showcaseArticles.find(a => a.id === id);
+      if(!item) return;
+      document.getElementById('modal-video-title').innerText = item.title;
+      document.getElementById('modal-video-desc').innerText = item.excerpt;
+      document.getElementById('modal-video-tag').innerText = `${item.game} • ${item.patch}`;
+      const player = document.getElementById('modal-video-player');
+      player.src = item.video_url || "https://www.w3schools.com/html/mov_bbb.mp4";
+
+      const modal = document.getElementById('video-modal');
+      const modalContent = document.getElementById('video-modal-content');
+      modal.classList.remove('hidden');
+      void modal.offsetWidth;
+      modal.classList.remove('opacity-0');
+      modalContent.classList.remove('scale-95');
+      modalContent.classList.add('scale-100');
+      player.play();
+    };
+
+    window.closeVideoModal = function() {
+      const modal = document.getElementById('video-modal');
+      const modalContent = document.getElementById('video-modal-content');
+      const player = document.getElementById('modal-video-player');
+      modal.classList.add('opacity-0');
+      modalContent.classList.remove('scale-100');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        player.pause();
+        player.src = "";
+      }, 250);
+    };
+
+    window.openImageModal = function(id) {
+      const item = showcaseArticles.find(a => a.id === id);
+      if(!item) return;
+      document.getElementById('modal-image-title').innerText = item.title;
+      document.getElementById('modal-image-desc').innerText = item.excerpt;
+      document.getElementById('modal-image-display').src = item.image_url;
+
+      const modal = document.getElementById('image-modal');
+      const modalContent = document.getElementById('image-modal-content');
+      modal.classList.remove('hidden');
+      void modal.offsetWidth;
+      modal.classList.remove('opacity-0');
+      modalContent.classList.remove('scale-95');
+      modalContent.classList.add('scale-100');
+    };
+
+    window.closeImageModal = function() {
+      const modal = document.getElementById('image-modal');
+      const modalContent = document.getElementById('image-modal-content');
+      modal.classList.add('opacity-0');
+      modalContent.classList.remove('scale-100');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        document.getElementById('modal-image-display').src = "";
+      }, 250);
+    };
+
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape') {
+        closeVideoModal();
+        closeImageModal();
+      }
+    });
+
+    /* Меню на мобильных */
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    });
+
+    /* Инициализация интерфейса */
+    renderHeroUI();
+    renderContentFiltersNav();
+    renderArticlesShowcase();
+    lucide.createIcons();
+  </script>
+</body>
+</html>
