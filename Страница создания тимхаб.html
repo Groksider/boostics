@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тимхаб — Единый командный центр и дом вашей гильдии</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            slate: {
+              50: '#F8FAFC',
+              100: '#F1F5F9',
+              500: '#64748B',
+              900: '#0F172A',
+            },
+            primary: '#2563EB',
+            accent: '#FACC15',
+            hub: {
+              bg: '#F8FAFC',
+              subtle: '#F1F5F9',
+              surface: '#FFFFFF',
+              border: '#E2E8F0',
+              accent: '#2563EB',
+              accentHover: '#3B82F6',
+              gold: '#FACC15',
+              charcoal: '#0F172A',
+              slate: '#64748B'
+            }
+          },
+          boxShadow: {
+            soft: '0 4px 20px -2px rgba(0,0,0,0.04)',
+            float: '0 10px 30px -5px rgba(37,99,235,0.15)',
+            micro: '0 4px 20px -2px rgba(0, 0, 0, 0.04)',
+            microHover: '0 8px 30px -4px rgba(37, 99, 235, 0.08)',
+            ctaGlow: '0 20px 50px -10px rgba(79, 70, 229, 0.45)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #F8FAFC;
+      color: #0F172A;
+      overflow-x: hidden;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: background-color .3s ease, color .3s ease;
+    }
+
+    /* Стили верхнего и левого меню */
+    .scroll-hide::-webkit-scrollbar { display: none; }
+    .scroll-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .wrap { width: 100%; max-width: 80rem; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+
+    .d-flex, .d-block { display: none; }
+    .m-flex { display: flex; }
+    .m-block { display: block; }
+
+    .rail { 
+      position: fixed; 
+      left: 0; 
+      top: 0; 
+      bottom: 0; 
+      z-index: 60; 
+      display: none; 
+      width: 4.5rem; 
+      overflow: hidden; 
+      transition: width .35s ease, box-shadow .35s ease, background-color .3s ease; 
+      background-color: #ffffff; 
+      border-right: 1px solid #E2E8F0;
+      transform: translateZ(0);
+    }
+    .rail:hover { width: 15rem; box-shadow: 24px 0 60px rgba(0,0,0,0.15); }
+    .rail-item { position: relative; display: flex; width: 100%; align-items: center; gap: .75rem; border-radius: 9999px; padding: .45rem .5rem; color: #64748B; white-space: nowrap; transition: all .2s ease; margin-bottom: 0.15rem; }
+    .rail-item:hover { background-color: #F1F5F9; color: #0F172A; }
+    .rail-item.on { background-color: #EFF6FF; color: #2563EB; font-weight: 600; }
+    .rail-item.on::before { content: ""; position: absolute; left: -0.5rem; top: 15%; bottom: 15%; width: 3px; border-radius: 9999px; background: #2563EB; }
+    .rail-ic { display: flex; height: 2.25rem; width: 2.25rem; flex: none; align-items: center; justify-content: center; }
+    .rail-lbl { opacity: 0; transform: translateX(10px); transition: opacity .25s ease .06s, transform .25s ease .06s; font-weight: 600; }
+    .rail:hover .rail-lbl { opacity: 1; transform: translateX(0); }
+    .rail-sec { margin: .5rem .25rem .25rem; border-top: 1px solid #F1F5F9; padding: .5rem .5rem 0; font-size: .65rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; color: #94A3B8; white-space: nowrap; }
+
+    @media (min-width: 640px) {
+      .rail { display: block; }
+      body.app-layout { padding-left: 4.5rem; }
+      .wrap { padding-left: 1.5rem; padding-right: 1.5rem; }
+    }
+
+    @media (min-width: 768px) {
+      .d-flex { display: flex !important; }
+      .d-block { display: block !important; }
+      .m-flex, .m-block { display: none !important; }
+      #mobile-menu { display: none !important; }
+    }
+
+    /* Стили страницы создания Тимхаба */
+    .hero-glow {
+      background: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.10) 0%, rgba(250, 204, 21, 0.08) 35%, rgba(248, 250, 252, 0) 70%);
+    }
+    .carousel-slide {
+      transition: opacity 0.45s ease-in-out, transform 0.45s ease-in-out;
+    }
+    /* Обрезка системной шапки браузера и нижнего бара на скриншотах телефона */
+    .screenshot-crop {
+      width: 100%;
+      height: 132%;
+      object-fit: cover;
+      object-position: center 14%;
+      margin-top: -12%;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white relative app-layout">
+
+  <!-- ================= ВЕРХНЕЕ МЕНЮ (HEADER) ================= -->
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-sm transition-colors duration-300">
+    <div class="wrap flex h-16 items-center gap-2 lg:gap-3.5">
+      
+      <!-- 1. boostics.com (Логотип) -->
+      <a href="/" class="flex items-center gap-2 shrink-0 mr-1">
+        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-md shadow-blue-500/20">
+          <i data-lucide="gamepad-2" class="h-5 w-5"></i>
+        </span>
+        <span class="text-xl font-extrabold tracking-tight text-slate-900">
+          boostics<span class="text-primary">.com</span>
+        </span>
+      </a>
+
+      <!-- 2. Поиск по сайту -->
+      <div class="d-block relative shrink-0">
+        <i data-lucide="search" class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+        <input type="text" placeholder="Поиск по сайту..." class="h-10 w-36 sm:w-44 lg:w-56 rounded-full border border-transparent bg-slate-100 pl-10 pr-4 text-xs lg:text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all shadow-inner" />
+      </div>
+
+      <!-- 3. Навигация: Идеи статей, Для разработчиков, Авторам -->
+      <nav class="d-flex items-center gap-0.5 lg:gap-1 shrink-0">
+        <a href="#" class="rounded-full px-2.5 lg:px-4 py-2 text-xs lg:text-sm font-semibold transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 whitespace-nowrap">Идеи статей</a>
+        <a href="#" class="rounded-full px-2.5 lg:px-4 py-2 text-xs lg:text-sm font-semibold transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 whitespace-nowrap">Для разработчиков</a>
+        <a href="#" class="rounded-full px-2.5 lg:px-4 py-2 text-xs lg:text-sm font-semibold transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 whitespace-nowrap">Авторам</a>
+      </nav>
+
+      <div class="flex-1"></div>
+
+      <!-- Уведомления -->
+      <button class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900">
+        <i data-lucide="bell" class="h-4 w-4"></i>
+        <span class="absolute right-2.5 top-2.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-primary"></span>
+      </button>
+
+      <!-- Кнопка «Написать» -->
+      <button class="d-flex items-center justify-center rounded-full px-4 lg:px-5 py-2 text-xs lg:text-sm bg-primary font-bold text-white hover:bg-blue-700 shadow-float transition-all h-10 shrink-0">
+        <i data-lucide="pen-line" class="mr-1.5 h-4 w-4"></i> Написать
+      </button>
+
+      <!-- Аватар пользователя -->
+      <div class="d-flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity shrink-0">
+        <div class="p-0.5 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400">
+          <div class="flex shrink-0 items-center justify-center rounded-full bg-white border-2 border-white font-extrabold text-slate-900 h-9 w-9 text-xs">K1</div>
+        </div>
+      </div>
+
+      <!-- Мобильный бургер -->
+      <button id="menu-toggle" class="m-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+        <i data-lucide="menu" class="h-5 w-5" id="menu-icon"></i>
+      </button>
+    </div>
+
+    <!-- Выпадающее мобильное меню -->
+    <div id="mobile-menu" class="hidden border-t border-slate-200 bg-white px-4 py-4 shadow-xl">
+      <div class="relative mb-3">
+        <i data-lucide="search" class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+        <input type="text" placeholder="Поиск по сайту..." class="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none" />
+      </div>
+      <a href="#" class="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 mb-1">Идеи статей</a>
+      <a href="#" class="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 mb-1">Для разработчиков</a>
+      <a href="#" class="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 mb-2">Авторам</a>
+    </div>
+  </header>
+
+  <!-- ================= ЛЕВОЕ БОКОВОЕ МЕНЮ (RAIL) ================= -->
+  <aside class="rail shadow-sm">
+    <div class="flex h-full flex-col justify-center gap-1 p-2 overflow-y-auto scroll-hide">
+      <!-- Активный пункт отмечается классом "on" -->
+      <a href="/" title="Главная" class="rail-item on">
+        <span class="rail-ic"><i data-lucide="home" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Главная</span>
+      </a>
+      <a href="#" title="Рейтинги" class="rail-item">
+        <span class="rail-ic"><i data-lucide="trophy" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Рейтинги</span>
+      </a>
+      <a href="#" title="Сообщества" class="rail-item">
+        <span class="rail-ic"><i data-lucide="users" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Сообщества</span>
+      </a>
+      <a href="#" title="Закладки" class="rail-item">
+        <span class="rail-ic"><i data-lucide="bookmark" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold flex-1">Закладки</span>
+        <span class="rail-lbl rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-slate-900 shadow-sm mr-2">3</span>
+      </a>
+      <a href="#" title="Ответы FAQ" class="rail-item">
+        <span class="rail-ic"><i data-lucide="help-circle" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Ответы FAQ</span>
+      </a>
+      <a href="#" title="Правила сайта" class="rail-item">
+        <span class="rail-ic"><i data-lucide="scroll-text" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Правила сайта</span>
+      </a>
+      
+      <div class="rail-sec"><span class="rail-lbl">Автор</span></div>
+      
+      <a href="#" title="Аналитика" class="rail-item">
+        <span class="rail-ic"><i data-lucide="line-chart" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Аналитика</span>
+      </a>
+      <a href="#" title="Идеи статей" class="rail-item">
+        <span class="rail-ic"><i data-lucide="lightbulb" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Идеи статей</span>
+      </a>
+      <a href="#" title="Мой GroupHub" class="rail-item">
+        <span class="rail-ic"><i data-lucide="folder-kanban" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Мой GroupHub</span>
+      </a>
+      <a href="#" title="Мой TeamHub" class="rail-item">
+        <span class="rail-ic"><i data-lucide="network" class="h-5 w-5"></i></span>
+        <span class="rail-lbl text-sm font-semibold">Мой TeamHub</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Фоновое свечение -->
+  <div class="fixed inset-0 hero-glow pointer-events-none z-0"></div>
+
+  <!-- ОСНОВНОЙ КОНТЕНТ -->
+  <main class="relative z-10 flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-10 sm:py-14 flex flex-col gap-12">
+
+    <!-- 1. ШАПКА: Единый командный центр и дом вашей гильдии + Описание "Тимхаб — это..." -->
+    <header class="max-w-4xl mx-auto w-full text-center space-y-6">
+      <h1 class="font-display text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-hub-charcoal leading-tight">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500">Единый командный центр</span>
+        <br class="hidden sm:inline" /> и дом вашей гильдии
+      </h1>
+
+      <div class="text-left sm:text-center bg-hub-surface border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-micro">
+        <p class="text-base sm:text-lg text-hub-slate leading-relaxed font-medium">
+          <strong class="text-hub-charcoal font-display font-extrabold text-lg sm:text-xl bg-yellow-300/40 px-2.5 py-0.5 rounded-full mr-1">Тимхаб — это</strong> закрытая экосистема и планируемый штаб вашей гильдии, где хаотичные сборы превращаются в отлаженную стратегию. Это виртуальный бастион для координации рейдов, оперативных задач, синхронизации прайм-тайма и накопления базы знаний для игроков, нацеленных на победу.
+        </p>
+      </div>
+    </header>
+
+    <!-- 2. МИНИМАЛИСТИЧНАЯ КНОПКА СОЗДАНИЯ СООБЩЕСТВА С ИКОНКОЙ ГРУППЫ -->
+    <section class="flex flex-col items-center justify-center py-2">
+      <button 
+        id="openModalBtn"
+        type="button"
+        class="group relative w-full max-w-md mx-auto px-6 py-4 bg-hub-accent hover:bg-blue-700 text-white rounded-2xl shadow-float hover:shadow-lg flex items-center justify-between gap-4 transition-all duration-200 active:scale-[0.99]"
+      >
+        <!-- Левая иконка группы -->
+        <span class="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center text-white shrink-0 group-hover:bg-white/20 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </span>
+
+        <!-- Текстовый блок -->
+        <span class="flex flex-col items-start text-left flex-grow">
+          <span class="font-display font-bold text-base sm:text-lg text-white leading-snug">
+            Создать сообщество
+          </span>
+          <span class="text-xs font-medium text-blue-100 leading-none mt-1">
+            создай сообщество победителей
+          </span>
+        </span>
+
+        <!-- Правая стрелка -->
+        <span class="w-8 h-8 rounded-lg flex items-center justify-center text-blue-100 group-hover:text-white group-hover:translate-x-0.5 transition-all shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </span>
+      </button>
+    </section>
+
+    <!-- 3. ИНСТРУМЕНТЫ ШТАБА (КАРУСЕЛЬ С РАСШИРЕННЫМИ ФОТО) -->
+    <section aria-label="Инструменты штаба" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200/80 pb-4">
+        <div>
+          <h2 class="font-display text-2xl sm:text-3xl font-extrabold text-hub-charcoal tracking-tight">Инструменты штаба:</h2>
+          <p class="text-sm text-hub-slate font-medium mt-1">Наглядный обзор рабочих экранов и модулей управления гильдией</p>
+        </div>
+
+        <div class="flex items-center gap-3 self-end sm:self-auto">
+          <!-- Кнопка быстрой подгрузки оригиналов с телефона -->
+          <label class="cursor-pointer text-xs font-semibold px-4 py-2.5 rounded-full bg-hub-surface border border-slate-200 hover:border-blue-500 text-hub-slate hover:text-hub-accent shadow-micro transition flex items-center gap-2" title="Если браузер телефона блокирует локальные картинки, выберите 4 скриншота вручную">
+            <svg class="w-4 h-4 text-hub-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <span>Выбрать фото</span>
+            <input type="file" id="localPhotosInput" multiple accept="image/*" class="hidden">
+          </label>
+
+          <!-- Кнопки навигации каруселью -->
+          <div class="flex items-center gap-2 bg-hub-surface p-1 rounded-full border border-slate-200 shadow-micro">
+            <button id="prevBtn" aria-label="Предыдущий слайд" class="p-2 rounded-full hover:bg-hub-subtle text-hub-charcoal hover:text-hub-accent transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            </button>
+            <span id="slideCounter" class="text-xs font-extrabold text-hub-charcoal px-2.5">01 / 04</span>
+            <button id="nextBtn" aria-label="Следующий слайд" class="p-2 rounded-full hover:bg-hub-subtle text-hub-charcoal hover:text-hub-accent transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Витрина карусели -->
+      <div id="carouselViewport" class="relative rounded-3xl overflow-hidden bg-hub-surface border border-slate-200/80 shadow-micro">
+        <div id="slidesContainer" class="relative min-h-[620px] sm:min-h-[560px] lg:min-h-[500px] w-full">
+
+          <!-- ================= СЛАЙД 1: ДОСКА ЗАДАЧ (1000026172.jpg) ================= -->
+          <div class="carousel-slide absolute inset-0 opacity-100 z-10 p-3 sm:p-6 flex flex-col lg:flex-row gap-5 lg:gap-8 items-center" data-index="0">
+            
+            <div class="w-full lg:w-[68%] h-[330px] sm:h-[400px] lg:h-[450px] rounded-2xl overflow-hidden bg-hub-subtle border border-slate-200/80 relative flex items-center justify-center shrink-0">
+              <img 
+                src="1000026172.jpg" 
+                alt="Доска задач – не упусти важное" 
+                class="slide-img screenshot-crop absolute inset-0 z-20"
+                data-slot="0"
+                onerror="this.style.display='none'"
+              >
+              <!-- Встроенная копия интерфейса на случай блокировки файла телефоном -->
+              <div class="w-full h-full p-4 sm:p-6 text-hub-charcoal flex flex-col justify-between overflow-hidden select-none bg-hub-bg">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
+                  <div>
+                    <div class="font-extrabold text-sm sm:text-base text-hub-charcoal">Доска задач – не упусти важное</div>
+                    <div class="text-[10px] text-hub-slate">Инструкции по развертыванию, чек-листы, голосования и оперативные сборы</div>
+                  </div>
+                  <span class="px-3 py-1 rounded-full bg-hub-accent text-white text-[10px] font-bold shrink-0 shadow-sm">+ Написать задачу</span>
+                </div>
+                <div class="grid grid-cols-2 gap-3 my-auto pt-2">
+                  <div class="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-micro space-y-1.5">
+                    <div class="flex justify-between items-center text-[9px] font-bold">
+                      <span class="px-2 py-0.5 rounded-full bg-blue-50 text-hub-accent">• ИНСТРУКЦИЯ</span>
+                      <span class="px-2 py-0.5 rounded-full bg-yellow-100 text-amber-800">⏱ 10:29:54</span>
+                    </div>
+                    <div class="font-bold text-[11px] leading-snug text-hub-charcoal">Инструкция: Получение зелий у Ведьмы в Катакомбах</div>
+                    <div class="text-[9px] text-hub-slate bg-hub-bg p-2 rounded-xl border border-slate-100">Пошаговый мини-гайд по безопасному спуску на нижний ярус склепа...</div>
+                    <div class="flex items-center justify-between pt-1 text-[9px] text-hub-slate">
+                      <span class="flex items-center gap-1.5 font-semibold text-hub-charcoal">
+                        <span class="w-4 h-4 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-400 text-white flex items-center justify-center text-[7px] ring-2 ring-blue-100">M</span>
+                        Морган «Alchemist»
+                      </span>
+                      <span class="px-2 py-0.5 rounded-full bg-hub-subtle text-hub-charcoal font-semibold">Читать →</span>
+                    </div>
+                  </div>
+                  <div class="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-micro space-y-1.5">
+                    <div class="flex justify-between items-center text-[9px] font-bold">
+                      <span class="px-2 py-0.5 rounded-full bg-rose-50 text-rose-600">• СРОЧНО</span>
+                      <span class="px-2 py-0.5 rounded-full bg-yellow-100 text-amber-800">⏱ 15:59:54</span>
+                    </div>
+                    <div class="text-[10px] bg-hub-bg p-2 rounded-xl border-l-2 border-hub-accent text-hub-charcoal">
+                      Уважаемые викинги, завтра сбор в начале осады врат в <b class="text-hub-accent">05:00 UTC</b>, всех ждем!
+                    </div>
+                    <div class="flex gap-1 pt-1 text-[9px] font-bold">
+                      <span class="px-2 py-0.5 rounded-full bg-blue-50 text-hub-accent">Буду 24</span>
+                      <span class="px-2 py-0.5 rounded-full bg-hub-subtle text-hub-slate">Скорее 3</span>
+                      <span class="px-2 py-0.5 rounded-full bg-hub-subtle text-hub-slate">Нет 1</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-[9px] text-hub-slate pt-0.5">
+                      <span class="w-4 h-4 rounded-full bg-gradient-to-tr from-indigo-600 to-violet-500 text-white flex items-center justify-center text-[7px] ring-2 ring-indigo-100">R</span>
+                      <span>Рагнар «Jarl» • Raid Leader</span>
+                    </div>
+                  </div>
+                  <div class="col-span-2 p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-micro flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div class="space-y-1">
+                      <div class="flex items-center gap-2 text-[9px] font-bold">
+                        <span class="px-2 py-0.5 rounded-full bg-yellow-300/60 text-hub-charcoal">• ГОЛОСОВАНИЕ</span>
+                        <span class="text-hub-slate">⏱ 48:34:54</span>
+                      </div>
+                      <div class="font-bold text-[11px] text-hub-charcoal">Голосование: Переход на систему лута DKP с аукционом</div>
+                      <div class="text-[9px] text-hub-slate">Алексей «GrandMaster» • Guild Master</div>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5 text-[9px] font-bold">
+                      <span class="px-2.5 py-1 rounded-full bg-blue-600 text-white">1. Внедрить DKP (ЗА)</span>
+                      <span class="px-2.5 py-1 rounded-full bg-hub-subtle text-hub-slate">2. Loot Council</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Описание справа -->
+            <div class="w-full lg:w-[32%] space-y-4 px-2 sm:px-0">
+              <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 text-hub-accent border border-blue-200/60 text-xs font-bold">
+                <span class="w-2 h-2 rounded-full bg-hub-accent"></span>
+                Инструмент 01 • Оперативное управление
+              </div>
+              <h3 class="font-display text-2xl sm:text-3xl font-extrabold text-hub-charcoal leading-tight">
+                Доска задач — не упусти важное
+              </h3>
+              <p class="text-sm sm:text-base text-hub-slate leading-relaxed">
+                Никакого флуда в общих чатах: все критически важные поручения, предрейдовые чек-листы и общеклановые опросы закреплены на единой интерактивной панели с обратным отсчетом времени.
+              </p>
+              <ul class="space-y-2.5 text-xs sm:text-sm text-hub-slate pt-1">
+                <li class="flex items-start gap-2.5">
+                  <span class="w-5 h-5 rounded-full bg-blue-50 text-hub-accent flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✦</span>
+                  <span><strong class="text-hub-charcoal">Срочные сборы с RSVP:</strong> мгновенная отметка явки («Буду», «Скорее буду», «Не буду») перед осадой врат.</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                  <span class="w-5 h-5 rounded-full bg-yellow-100 text-amber-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✦</span>
+                  <span><strong class="text-hub-charcoal">Прозрачные голосования:</strong> принятие решений по системе лута (DKP, Loot Council, ролл) всем составом.</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                  <span class="w-5 h-5 rounded-full bg-blue-50 text-hub-accent flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✦</span>
+                  <span><strong class="text-hub-charcoal">Пошаговые поручения:</strong> мини-гайды от офицеров и алхимиков клана с таймером актуальности.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- ================= СЛАЙД 2: КАЛЕНДАРЬ И РЕЙДЫ (1000026171.jpg) ================= -->
+          <div class="carousel-slide absolute inset-0 opacity-0 z-0 pointer-events-none p-3 sm:p-6 flex flex-col lg:flex-row gap-5 lg:gap-8 items-center" data-index="1">
+            
+            <div class="w-full lg:w-[68%] h-[330px] sm:h-[400px] lg:h-[450px] rounded-2xl overflow-hidden bg-hub-subtle border border-slate-200/80 relative flex items-center justify-center shrink-0">
+              <img 
+                src="1000026171.jpg" 
+                alt="Календарь и рейды" 
+                class="slide-img screenshot-crop absolute inset-0 z-20"
+                data-slot="1"
+                onerror="this.style.display='none'"
+              >
+              <!-- Встроенная копия интерфейса -->
+              <div class="w-full h-full p-4 sm:p-6 text-hub-charcoal flex flex-col justify-between overflow-hidden select-none bg-hub-bg">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                  <div>
+                    <div class="font-extrabold text-sm sm:text-base text-hub-charcoal">Календарь и рейды</div>
+                    <div class="text-[10px] text-hub-slate">Отслеживайте текущие битвы в реальном времени и планируйте участие</div>
+                  </div>
+                  <span class="px-3 py-1 rounded-full bg-hub-accent text-white text-[10px] font-bold shrink-0">+ Добавить событие</span>
+                </div>
+
+                <div class="space-y-2.5 my-auto">
+                  <div class="text-[10px] font-bold text-hub-charcoal flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Идут в данный момент <span class="px-2 py-0.5 bg-yellow-300/70 text-hub-charcoal rounded-full text-[9px]">2 активных</span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div class="p-2.5 rounded-2xl bg-white border border-slate-200/80 shadow-micro space-y-1.5">
+                      <div class="h-16 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 p-2 flex flex-col justify-between text-white">
+                        <div class="flex justify-between text-[8px] font-bold">
+                          <span class="px-2 py-0.5 rounded-full bg-hub-gold text-hub-charcoal">• СОБЫТИЕ ИДЕТ</span>
+                          <span class="px-2 py-0.5 rounded-full bg-white/20">РЕЙД</span>
+                        </div>
+                        <div class="text-[8px] bg-white text-hub-charcoal px-2 py-0.5 rounded-full w-fit font-bold">⚡ Прямо сейчас (до 22:00 МСК)</div>
+                      </div>
+                      <div class="font-bold text-[11px] text-hub-charcoal">Осада Цитадели Бездны (Финал)</div>
+                      <div class="flex justify-between items-center pt-1 text-[9px]">
+                        <span class="text-hub-slate font-semibold">✓ Ознакомлен 18</span>
+                        <span class="px-2.5 py-0.5 rounded-full bg-hub-accent text-white font-bold">План действий</span>
+                      </div>
+                    </div>
+
+                    <div class="p-2.5 rounded-2xl bg-white border border-slate-200/80 shadow-micro space-y-1.5">
+                      <div class="h-16 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 p-2 flex flex-col justify-between text-white">
+                        <div class="flex justify-between text-[8px] font-bold">
+                          <span class="px-2 py-0.5 rounded-full bg-hub-gold text-hub-charcoal">• СОБЫТИЕ ИДЕТ</span>
+                          <span class="px-2 py-0.5 rounded-full bg-white/20">МИРОВОЙ БОСС</span>
+                        </div>
+                        <div class="text-[8px] bg-white text-hub-charcoal px-2 py-0.5 rounded-full w-fit font-bold">⏳ Осталось ~35 минут</div>
+                      </div>
+                      <div class="font-bold text-[11px] text-hub-charcoal">Охота на Левиафана Бури</div>
+                      <div class="flex justify-between items-center pt-1 text-[9px]">
+                        <span class="text-hub-slate font-semibold">✓ Ознакомлен 14</span>
+                        <span class="px-2.5 py-0.5 rounded-full bg-hub-accent text-white font-bold">План действий</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="text-[10px] font-bold text-hub-accent flex items-center gap-1.5 pt-1">
+                    <span class="w-2 h-2 rounded-full bg-hub-accent"></span> Скоро начнутся <span class="px-2 py-0.5 bg-blue-50 rounded-full text-[9px]">Ожидаются</span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div class="p-2.5 rounded-2xl bg-white border border-slate-200/80 shadow-micro flex items-center justify-between text-[10px]">
+                      <div>
+                        <div class="font-bold text-hub-charcoal">Глобальная Война Гильдий</div>
+                        <div class="text-[9px] text-hub-slate">Пятница, 21:00 (МСК) • Ознакомлен 34</div>
+                      </div>
+                      <span class="px-2.5 py-0.5 rounded-full bg-blue-50 text-hub-accent text-[9px] font-bold">План</span>
+                    </div>
+                    <div class="p-2.5 rounded-2xl bg-white border border-slate-200/80 shadow-micro flex items-center justify-between text-[10px]">
+                      <div>
+                        <div class="font-bold text-hub-charcoal">Прохождение Подземелий (T2)</div>
+                        <div class="text-[9px] text-hub-slate">Суббота, 18:00 (МСК) • Ознакомлен 12</div>
+                      </div>
+                      <span class="px-2.5 py-0.5 rounded-full bg-blue-50 text-hub-accent text-[9px] font-bold">План</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Описание справа -->
+            <div class="w-full lg:w-[32%] space-y-4 px-2 sm:px-0">
+              <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 text-hub-accent border border-blue-200/60 text-xs font-bold">
+                <span class="w-2 h-2 rounded-full bg-hub-gold"></span>
+                Инструмент 02 • Тайминг и координация
+              </div>
+              <h3 class="font-display text-2xl sm:text-3xl font-extrabold text-hub-charcoal leading-tight">
+                Календарь и рейды в реальном времени
+              </h3>
+              <p class="text-sm sm:text-base text-hub-slate leading-relaxed">
+                Живое расписание боевых вылетов гильдии. Отслеживайте активные сражения, которые идут прямо сейчас, и заранее готовьте состав к предстоящим осадам замков и походам в данжи.
+              </p>
+              <ul class="space-y-2.5 text-xs sm:text-sm text-hub-slate pt-1">
+                <li class="flex items-start gap-2.5">
+                  <span class="w-5 h-5 rounded-full bg-yellow-100 text-amber-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✦</span>
+                  <span><strong class="text-hub-charcoal">Индикатор «Событие идет»:</strong> мгновенный фокус на активных рейдах («Осада Цитадели Бездны») и таймерах мировых боссов.</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                  <span class="w-5 h-5 rounded-full bg-blue-50 text-hub-accent flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✦</span>
+                  <span><strong class="text-hub-charcoal">Контроль готовности:</strong> счетчик «Ознакомлен» показывает, сколько бойцов уже изучили тактический план действий.</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                  <span class="w-5 h-5 rounded-full bg-blue-50 text-hub-accent flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✦</span>
+                  <span><strong class="text-hub-charcoal">Анонсы недели:</strong> четкое разделение на PvP-турниры и обучающие походы по подземельям для новичков.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- ================= СЛАЙД 3: СОСТАВ КЛАНА И АКТИВНОСТЬ (1000026170.jpg) ================= -->
+          <div class="carousel-slide absolute inset-0 opacity-0 z-0 pointer-events-none p-3 sm:p-6 flex flex-col lg:flex-row gap-5 lg:gap-8 items-center" data-index="2">
+            
+            <div class="w-full lg:w-[68%] h-[330px] sm:h-[400px] lg:h-[450px] rounded-2xl overflow-hidden bg-hub-subtle border border-slate-200/80 relative flex items-center justify-center shrink-0">
+              <img 
+                src="1000026170.jpg" 
+                alt="Состав клана и активность" 
+                class="slide-img screenshot-crop absolute inset-0 z-20"
+                data-slot="2"
+                onerror="this.style.display='none'"
+              >
+              <!-- Встроенная копия интерфейса -->
+              <div class="w-full h-full p-4 sm:p-6 text-hub-charcoal flex flex-col justify-between overflow-hidden select-none bg-hub-bg">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                  <div>
+                    <div class="font-extrabold text-sm sm:text-base text-hub-charcoal">Состав клана и активность</div>
+                    <div class="text-[10px] text-hub-slate">График онлайна (Прайм-тайм) • Часовой пояс: Европа / Париж</div>
+                  </div>
+                  <span class="px-3 py-0.5 rounded-full bg-hub-gold text-hub-charcoal text-[10px] font-extrabold">19:00 → 23:00 (4 ч.)</span>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-micro space-y-2">
+                  <div class="flex justify-between text-[9px] text-hub-slate">
+                    <span>Выберите интервал онлайна</span>
+                    <span class="text-hub-accent font-bold">Пересекается с ~14 игроками</span>
+                  </div>
+                  <div class="grid grid-cols-12 gap-1 text-center text-[8px] font-bold">
+                    <span class="py-1 rounded-full bg-hub-subtle text-hub-slate">12</span>
+                    <span class="py-1 rounded-full bg-hub-subtle text-hub-slate">13</span>
+                    <span class="py-1 rounded-full bg-hub-subtle text-hub-slate">14</span>
+                    <span class="py-1 rounded-full bg-hub-subtle text-hub-slate">15</span>
+                    <span class="py-1 rounded-full bg-hub-subtle text-hub-slate">16</span>
+                    <span class="py-1 rounded-full bg-hub-subtle text-hub-slate">17</span>
+                    <span class="py-1 rounded-full bg-hub-subtle text-hub-slate">18</span>
+                    <span class="py-1 rounded-full bg-hub-accent text-white">19</span>
+                    <span class="py-1 rounded-full bg-hub-accent text-white">20</span>
+                    <span class="py-1 rounded-full bg-hub-accent text-white">21</span>
+                    <span class="py-1 rounded-full bg-hub-accent text-white">22</span>
+                    <span class="py-1 rounded-full bg-hub-subtle text-hub-slate">23</span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2.5 pt-1">
+                    <div class="p-2.5 rounded-xl border border-blue-200 bg-blue-50/50 flex justify-between items-center text-[9px]">
+                      <div>
+                        <div class="font-extrabold text-hub-charcoal">18:00 - 21:00</div>
+                        <div class="text-hub-accent font-semibold">Вы в сети в этот период</div>
+                      </div>
+                      <span class="px-2 py-0.5 rounded-full bg-hub-gold text-hub-charcoal font-extrabold">ПРАЙМ 🔥</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl border border-blue-200 bg-blue-50/50 flex justify-between items-center text-[9px]">
+                      <div>
+                        <div class="font-extrabold text-hub-charcoal">21:00 - 00:00</div>
+                        <div class="text-hub-accent font-semibold">Вы в сети в этот период</div>
+                      </div>
+                      <span class="px-2 py-0.5 rounded-full bg-hub-gold text-hub-charcoal font-extrabold">ПИК ⚡</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="space-y-1.5">
+                  <div class="text-[10px] font-bold text-hub-charcoal">Список участников (48)</div>
+                  <div class="grid grid-cols-2 gap-2.5 text-[9px]">
+                    <div class="p-2 rounded-xl bg-white border border-slate-200/80 shadow-micro flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-400 text-white font-bold flex items-center justify-center text-[8px] ring-2 ring-blue-100">V</span>
+                        <div><b class="text-hub-charcoal">Valerius</b> <span class="block text-[8px] text-hub-slate">ЛИДЕР КЛАНА</span></div>
+                      </div>
+                      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    </div>
+                    <div class="p-2 rounded-xl bg-white border border-slate-200/80 shadow-micro flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-600 to-violet-500 text-white font-bold flex items-center justify-center text-[8px] ring-2 ring-indigo-100">L</span>
+                        <div><b class="text-hub-charcoal">Lumina_Heals</b> <span class="block text-[8px] text-hub-slate">ОФИЦЕР</span></div>
+                      </div>
+                      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    </div>
+                    <div class="p-2 rounded-xl bg-white border border-slate-200/80 shadow-micro flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 text-white font-bold flex items-center justify-center text-[8px] ring-2 ring-blue-100">M</span>
+                        <div><b class="text-hub-charcoal">Morrigan</b> <span class="block text-[8px] text-hub-slate">ОФИЦЕР</span></div>
+                      </div>
+                      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    </div>
+                    <div class="p-2 rounded-xl bg-white border border-slate-200/80 shadow-micro flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-yellow-400 text-hub-charcoal font-bold flex items-center justify-center text-[8px] ring-2 ring-yellow-100">E</span>
+                        <div><b class="text-hub-charcoal">Eldrin_Sun</b> <span class="block text-[8px] text-hub-slate">ВЕТЕРАН</span></div>
+                      </div>
+                      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Описание справа -->
+            <div class="w-full lg:w-[32%] space-y-4 px-2 sm:px-0">
+              <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-yellow-100/80 text-amber-900 border border-yellow-300 text-xs font-bold">
+                <span class="w-2 h-2 rounded-full bg-hub-gold"></span>
+                Инструмент 03 • Прайм-тайм и ростер
+              </div>
+              <h3 class="font-display text-2xl sm:text-3xl font-extrabold text-hub-charcoal leading-tight">
+                Состав клана и тепловая карта активности
+              </h3>
+              <p class="text-sm sm:text-base text-hub-slate leading-relaxed">
+                Умная синхронизация часовых поясов. Каждый участник отмечает свои игровые часы, а система автоматически вычисляет окна максимального онлайна для назначения главных рейдов.
+              </p>
+              <ul class="space-y-2.5 text-xs sm:text-sm text-hub-slate pt-1">
+                <li class="flex items-start gap-2.5">
+                  <span class="w-5 h-5 rounded-full bg-yellow-100 text-amber-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✦</span>
+                  <span><strong class="text-hub-charcoal">Калькулятор прайм-тайма:</strong> наглядная почасовая шкала показывает, со сколькими соклановцами пересекается ваш интервал.</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                  <span class="w-5 h-5 rounded-full bg-blue-50 text-hub-accent flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✦</span>
+                  <span><strong class="text-hub-charcoal">Слоты «Прайм» и «Пик онлайна»:</strong> группировка игроков по 3-часовым периодам (утро, день, вечер, глубокая ночь).</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                  <span class="w-5 h-5 rounded-full bg-blue-50 text-hub-accent flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✦</span>
+                  <span><strong class="text-hub-charcoal">Живой ростер (48+ бойцов):</strong> карточки лидера, офицеров, ветеранов и снайперов с индикацией присутствия в сети.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- ================= СЛАЙД 4: БАЗА ЗНАНИЙ И ГАЙДЫ (1000026169.jpg) ================= -->
+          <div class="carousel-slide absolute inset-0 opacity-0 z-0 pointer-events-none p-3 sm:p-6 flex flex-col lg:flex-row gap-5 lg:gap-8 items-center" data-index="3">
+            
+            <div class="w-full lg:w-[68%] h-[330px] sm:h-[400px] lg:h-[450px] rounded-2xl overflow-hidden bg-hub-subtle border border-slate-200/80 relative flex items-center justify-center shrink-0">
+              <img 
+                src="1000026169.jpg" 
+                alt="База знаний и Гайды" 
+                class="slide-img screenshot-crop absolute inset-0 z-20"
+                data-slot="3"
+                onerror="this.style.display='none'"
+              >
+              <!-- Встроенная копия интерфейса -->
+              <div class="w-full h-full p-4 sm:p-6 text-hub-charcoal flex flex-col justify-between overflow-hidden select-none bg-hub-bg">
+                <div class="space-y-2 border-b border-slate-200 pb-2">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <div class="font-extrabold text-sm sm:text-base text-hub-charcoal">База знаний и Гайды</div>
+                      <div class="text-[10px] text-hub-slate">Официальные тактики рейдов, видео-разборы, карты, софт гильдии и билды</div>
+                    </div>
+                    <div class="flex gap-1 text-[9px] font-bold">
+                      <span class="px-2.5 py-0.5 rounded-full bg-blue-50 text-hub-accent">Авторские</span>
+                      <span class="px-2.5 py-0.5 rounded-full bg-yellow-300/60 text-hub-charcoal">📌 Закрепленное ГМ</span>
+                    </div>
+                  </div>
+                  <div class="flex flex-wrap items-center justify-between gap-1 text-[9px]">
+                    <div class="flex gap-1 font-semibold">
+                      <span class="px-2.5 py-0.5 rounded-full bg-hub-accent text-white">Все</span>
+                      <span class="px-2.5 py-0.5 rounded-full bg-white border border-slate-200 text-hub-slate">Тип ▾</span>
+                      <span class="px-2.5 py-0.5 rounded-full bg-white border border-slate-200 text-hub-slate">Сложность ▾</span>
+                      <span class="px-2.5 py-0.5 rounded-full bg-white border border-slate-200 text-hub-slate">Софт гильдии ▾</span>
+                    </div>
+                    <span class="px-3 py-0.5 rounded-full bg-hub-accent text-white font-bold">Найти</span>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 my-auto pt-1">
+                  <div class="p-2.5 rounded-2xl bg-white border border-slate-200/80 shadow-micro space-y-1">
+                    <div class="h-16 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 p-2 flex flex-col justify-between text-white">
+                      <div class="flex justify-between text-[8px] font-bold">
+                        <span class="px-2 py-0.5 rounded-full bg-white text-hub-charcoal">• v1.68 Online</span>
+                        <span class="px-2 py-0.5 rounded-full bg-hub-gold text-hub-charcoal">ВИДЕО</span>
+                      </div>
+                      <div class="text-[8px] font-extrabold tracking-wider">GTA 5</div>
+                    </div>
+                    <div class="font-bold text-[10px] text-hub-charcoal leading-tight">15 скрытых механик, трюков с физикой и секретных локаций</div>
+                    <div class="text-[8px] text-hub-slate">RockstarPRO • 47.3k • 14 мин</div>
+                  </div>
+
+                  <div class="p-2.5 rounded-2xl bg-white border border-slate-200/80 shadow-micro space-y-1">
+                    <div class="h-16 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 p-2 flex flex-col justify-between text-white">
+                      <div class="flex justify-between text-[8px] font-bold">
+                        <span class="px-2 py-0.5 rounded-full bg-white text-hub-charcoal">• v1.10 DLC</span>
+                        <span class="px-2 py-0.5 rounded-full bg-hub-gold text-hub-charcoal">АРТ</span>
+                      </div>
+                      <div class="text-[8px] font-extrabold tracking-wider">ELDEN RING</div>
+                    </div>
+                    <div class="font-bold text-[10px] text-hub-charcoal leading-tight">Интерактивная карта Междуземья и арт всех реликвий</div>
+                    <div class="text-[8px] text-hub-slate">VaatiGG • 94.2k • 5 мин</div>
+                  </div>
+
+                  <div class="p-2.5 rounded-2xl bg-white border border-slate-200/80 shadow-micro flex items-center justify-between text-[9px]">
+                    <div class="truncate pr-2">
+                      <span class="text-[8px] font-extrabold text-hub-accent">СТАТЬЯ • BALDUR'S GATE 3</span>
+                      <div class="font-bold text-hub-charcoal truncate">Аналитическая статья о скрытых концовках</div>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full bg-hub-subtle text-hub-slate font-bold shrink-0">v4.0</span>
+                  </div>
+
+                  <div class="p-2.5 rounded-2xl bg-white border border-slate-200/80 shadow-micro flex items-center justify-between text-[9px]">
+                    <div class="truncate pr-2">
+                      <span class="text-[8px] font-extrabold text-hub-accent">СТАТЬЯ • CS2</span>
+                      <div class="font-bold text-hub-charcoal truncate">Экономика раундов и форс-баи сезона</div>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full bg-hub-subtle text-hub-slate font-bold shrink-0">v1.42</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Описание справа -->
+            <div class="w-full lg:w-[32%] space-y-4 px-2 sm:px-0">
+              <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 text-hub-accent border border-blue-200/60 text-xs font-bold">
+                <span class="w-2 h-2 rounded-full bg-hub-accent"></span>
+                Инструмент 04 • Интеллектуальный арсенал
+              </div>
+              <h3 class="font-display text-2xl sm:text-3xl font-extrabold text-hub-charcoal leading-tight">
+                База знаний, тактики и гайды
+              </h3>
+              <p class="text-sm sm:text-base text-hub-slate leading-relaxed">
+                Структурированная энциклопедия опыта вашей гильдии. Все видео-разборы боссов, интерактивные карты локаций, аналитические статьи и проверенные билды собраны в одном месте с версионностью патчей.
+              </p>
+              <ul class="space-y-2.5 text-xs sm:text-sm text-hub-slate pt-1">
+                <li class="flex items-start gap-2.5">
+                  <span class="w-5 h-5 rounded-full bg-blue-50 text-hub-accent flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✦</span>
+                  <span><strong class="text-hub-charcoal">Умная фильтрация:</strong> быстрый поиск по формату («Видео», «Арт», «Статья»), сложности, софту гильдии и закрепленным материалам ГМа.</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                  <span class="w-5 h-5 rounded-full bg-yellow-100 text-amber-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✦</span>
+                  <span><strong class="text-hub-charcoal">Контроль актуальности:</strong> каждый гайд помечен номером патча или DLC, чтобы бойцы использовали только рабочие механики.</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                  <span class="w-5 h-5 rounded-full bg-blue-50 text-hub-accent flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✦</span>
+                  <span><strong class="text-hub-charcoal">Авторский вклад:</strong> система поощряет ветеранов делиться разборами, картами и математическими расчетами.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Нижние переключатели карусели с подписями -->
+      <div id="carouselIndicators" class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <button class="indicator-btn text-left p-4 rounded-2xl border-2 transition-all bg-hub-surface border-hub-accent shadow-microHover" data-slide="0">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold text-hub-accent">01 • Задачи</span>
+            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-hub-accent">Сборы & Опросы</span>
+          </div>
+          <div class="text-sm font-bold text-hub-charcoal truncate mt-1.5">Доска задач — не упусти важное</div>
+        </button>
+
+        <button class="indicator-btn text-left p-4 rounded-2xl border transition-all bg-hub-surface border-slate-200/80 hover:border-blue-300 shadow-micro" data-slide="1">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold text-hub-slate">02 • События</span>
+            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-yellow-100 text-amber-800">Live-таймеры</span>
+          </div>
+          <div class="text-sm font-bold text-hub-slate truncate mt-1.5">Календарь и рейды</div>
+        </button>
+
+        <button class="indicator-btn text-left p-4 rounded-2xl border transition-all bg-hub-surface border-slate-200/80 hover:border-blue-300 shadow-micro" data-slide="2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold text-hub-slate">03 • Участники</span>
+            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-yellow-100 text-amber-800">Прайм-тайм</span>
+          </div>
+          <div class="text-sm font-bold text-hub-slate truncate mt-1.5">Состав клана и активность</div>
+        </button>
+
+        <button class="indicator-btn text-left p-4 rounded-2xl border transition-all bg-hub-surface border-slate-200/80 hover:border-blue-300 shadow-micro" data-slide="3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold text-hub-slate">04 • Библиотека</span>
+            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-hub-accent">Видео & Карты</span>
+          </div>
+          <div class="text-sm font-bold text-hub-slate truncate mt-1.5">База знаний и Гайды</div>
+        </button>
+      </div>
+    </section>
+
+    <!-- 4. БЛОК ПРЕИМУЩЕСТВ ИЗ 3 КАРТОЧЕК -->
+    <section aria-label="Преимущества Тимхаба" class="space-y-4">
+      <div class="border-b border-slate-200/80 pb-3">
+        <h2 class="font-display text-2xl sm:text-3xl font-extrabold text-hub-charcoal tracking-tight">Преимущества штаба:</h2>
+        <p class="text-sm text-hub-slate font-medium mt-1">Три фундаментальных контура, которые выводят организацию гильдии на новый уровень</p>
+      </div>
+
+      <div class="p-4 sm:p-6 rounded-3xl bg-hub-subtle/70 border border-slate-200/80">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+          
+          <!-- Карточка 1 -->
+          <div class="p-6 rounded-2xl bg-hub-surface border border-slate-200/80 hover:border-blue-400 shadow-micro hover:shadow-microHover transition flex flex-col gap-3.5">
+            <div class="flex items-center gap-3.5">
+              <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-400 flex items-center justify-center text-white shadow-sm shrink-0 ring-4 ring-blue-50">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+              </div>
+              <h3 class="font-display font-extrabold text-hub-charcoal text-base sm:text-lg">Тактический зал</h3>
+            </div>
+            <ul class="text-xs sm:text-sm text-hub-slate font-medium space-y-2 pl-1">
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-hub-accent"></span>Живой календарь рейдов и осад</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-hub-accent"></span>Оперативные сборы с отметкой явки</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-hub-accent"></span>Чек-листы и планы действий для пати</li>
+            </ul>
+          </div>
+
+          <!-- Карточка 2 -->
+          <div class="p-6 rounded-2xl bg-hub-surface border border-slate-200/80 hover:border-yellow-400 shadow-micro hover:shadow-microHover transition flex flex-col gap-3.5">
+            <div class="flex items-center gap-3.5">
+              <div class="w-11 h-11 rounded-full bg-hub-gold flex items-center justify-center text-hub-charcoal shadow-sm shrink-0 ring-4 ring-yellow-100">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+              </div>
+              <h3 class="font-display font-extrabold text-hub-charcoal text-base sm:text-lg">База знаний и архив</h3>
+            </div>
+            <ul class="text-xs sm:text-sm text-hub-slate font-medium space-y-2 pl-1">
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-hub-gold"></span>Видео-разборы, карты и тактики</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-hub-gold"></span>Закрепленные билды от лидера и офицеров</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-hub-gold"></span>Умная фильтрация по играм и сложности</li>
+            </ul>
+          </div>
+
+          <!-- Карточка 3 -->
+          <div class="p-6 rounded-2xl bg-hub-surface border border-slate-200/80 hover:border-blue-400 shadow-micro hover:shadow-microHover transition flex flex-col gap-3.5">
+            <div class="flex items-center gap-3.5">
+              <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-blue-600 to-violet-600 flex items-center justify-center text-white shadow-sm shrink-0 ring-4 ring-indigo-50">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              </div>
+              <h3 class="font-display font-extrabold text-hub-charcoal text-base sm:text-lg">Офицерский контур</h3>
+            </div>
+            <ul class="text-xs sm:text-sm text-hub-slate font-medium space-y-2 pl-1">
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-hub-accent"></span>Тепловая карта прайм-тайма клана</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-hub-accent"></span>Прозрачные голосования (DKP / Loot Council)</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-hub-accent"></span>Реестр состава, званий и онлайна</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- МОДАЛЬНОЕ ОКНО СОЗДАНИЯ СООБЩЕСТВА -->
+  <div id="createHubModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+    <div class="bg-hub-surface border border-slate-200 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-6 relative">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="inline-block text-[11px] font-extrabold uppercase tracking-wider px-3 py-0.5 rounded-full bg-blue-50 text-hub-accent">Инициализация штаба</span>
+          <h3 class="font-display text-2xl font-extrabold text-hub-charcoal mt-1.5">Создать сообщество победителей</h3>
+        </div>
+        <button id="closeModalBtn" type="button" class="text-hub-slate hover:text-hub-charcoal p-2 rounded-full bg-hub-subtle hover:bg-slate-200/70 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <form id="hubForm" class="space-y-4">
+        <!-- 1. Наименование -->
+        <div>
+          <label class="block text-xs font-bold text-hub-charcoal mb-1.5">Наименование</label>
+          <input type="text" required placeholder="Например: AETHERIA" class="w-full px-4 py-3 rounded-2xl bg-hub-bg border border-slate-200 text-hub-charcoal placeholder-hub-slate focus:outline-none focus:border-hub-accent focus:ring-2 focus:ring-blue-500/20 text-sm font-medium transition">
+        </div>
+
+        <!-- 2. Слоган -->
+        <div>
+          <label class="block text-xs font-bold text-hub-charcoal mb-1.5">Слоган</label>
+          <input type="text" required placeholder="Например: Ни шагу назад, только к победе" class="w-full px-4 py-3 rounded-2xl bg-hub-bg border border-slate-200 text-hub-charcoal placeholder-hub-slate focus:outline-none focus:border-hub-accent focus:ring-2 focus:ring-blue-500/20 text-sm font-medium transition">
+        </div>
+
+        <!-- 3. Иконка гильдии -->
+        <div>
+          <label class="block text-xs font-bold text-hub-charcoal mb-1.5">Иконка гильдии</label>
+          <label class="flex items-center gap-3.5 p-3 rounded-2xl bg-hub-bg border border-dashed border-slate-300 hover:border-hub-accent cursor-pointer transition group">
+            <div id="guildIconPreview" class="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-hub-slate group-hover:text-hub-accent overflow-hidden shrink-0 shadow-sm transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <div class="flex flex-col text-left">
+              <span id="guildIconText" class="text-xs font-bold text-hub-charcoal group-hover:text-hub-accent transition">Загрузить иконку гильдии</span>
+              <span class="text-[11px] text-hub-slate">PNG, JPG или WEBP</span>
+            </div>
+            <input type="file" id="guildIconInput" accept="image/*" class="hidden">
+          </label>
+        </div>
+
+        <!-- Кнопка «Создать Тимхаб» -->
+        <div class="pt-2">
+          <button type="submit" class="w-full py-3.5 rounded-2xl bg-hub-accent hover:bg-blue-700 text-white font-bold text-sm shadow-float transition">
+            Создать Тимхаб
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- СКРИПТ УПРАВЛЕНИЯ МЕНЮ -->
+  <script>
+    // Мобильное бургер-меню
+    const menuToggle = document.getElementById('menu-toggle');
+    if (menuToggle) {
+      menuToggle.addEventListener('click', () => {
+        const menu = document.getElementById('mobile-menu');
+        if (menu) menu.classList.toggle('hidden');
+      });
+    }
+
+    // Инициализация иконок Lucide
+    lucide.createIcons();
+  </script>
+
+  <!-- СКРИПТ КАРУСЕЛИ, ПОДГРУЗКИ ЛОКАЛЬНЫХ ФОТО И МОДАЛКИ -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const slides = document.querySelectorAll('.carousel-slide');
+      const indicators = document.querySelectorAll('.indicator-btn');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const slideCounter = document.getElementById('slideCounter');
+      const viewport = document.getElementById('carouselViewport');
+
+      let currentIndex = 0;
+      const totalSlides = slides.length;
+      let autoPlayTimer = null;
+
+      function updateCarousel(newIndex) {
+        currentIndex = (newIndex + totalSlides) % totalSlides;
+
+        slides.forEach((slide, idx) => {
+          if (idx === currentIndex) {
+            slide.classList.remove('opacity-0', 'z-0', 'pointer-events-none');
+            slide.classList.add('opacity-100', 'z-10');
+          } else {
+            slide.classList.remove('opacity-100', 'z-10');
+            slide.classList.add('opacity-0', 'z-0', 'pointer-events-none');
+          }
+        });
+
+        indicators.forEach((btn, idx) => {
+          const numEl = btn.querySelector('span:first-child');
+          const titleEl = btn.querySelector('div:last-child');
+          if (idx === currentIndex) {
+            btn.className = 'indicator-btn text-left p-4 rounded-2xl border-2 transition-all bg-hub-surface border-hub-accent shadow-microHover';
+            numEl.classList.replace('text-hub-slate', 'text-hub-accent');
+            titleEl.classList.replace('text-hub-slate', 'text-hub-charcoal');
+          } else {
+            btn.className = 'indicator-btn text-left p-4 rounded-2xl border transition-all bg-hub-surface border-slate-200/80 hover:border-blue-300 shadow-micro';
+            numEl.classList.replace('text-hub-accent', 'text-hub-slate');
+            titleEl.classList.replace('text-hub-charcoal', 'text-hub-slate');
+          }
+        });
+
+        slideCounter.textContent = `0${currentIndex + 1} / 0${totalSlides}`;
+      }
+
+      prevBtn.addEventListener('click', () => {
+        updateCarousel(currentIndex - 1);
+        resetAutoPlay();
+      });
+
+      nextBtn.addEventListener('click', () => {
+        updateCarousel(currentIndex + 1);
+        resetAutoPlay();
+      });
+
+      indicators.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const targetSlide = parseInt(btn.getAttribute('data-slide'), 10);
+          updateCarousel(targetSlide);
+          resetAutoPlay();
+        });
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+          updateCarousel(currentIndex - 1);
+          resetAutoPlay();
+        } else if (e.key === 'ArrowRight') {
+          updateCarousel(currentIndex + 1);
+          resetAutoPlay();
+        }
+      });
+
+      // Свайпы пальцем на мобильном
+      let touchStartX = 0;
+      viewport.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      viewport.addEventListener('touchend', (e) => {
+        const touchEndX = e.changedTouches[0].screenX;
+        if (touchStartX - touchEndX > 40) {
+          updateCarousel(currentIndex + 1);
+          resetAutoPlay();
+        } else if (touchEndX - touchStartX > 40) {
+          updateCarousel(currentIndex - 1);
+          resetAutoPlay();
+        }
+      }, { passive: true });
+
+      function startAutoPlay() {
+        autoPlayTimer = setInterval(() => {
+          updateCarousel(currentIndex + 1);
+        }, 7000);
+      }
+
+      function resetAutoPlay() {
+        clearInterval(autoPlayTimer);
+        startAutoPlay();
+      }
+
+      startAutoPlay();
+
+      // Ручной выбор файлов, если content:// блокирует доступ
+      const localPhotosInput = document.getElementById('localPhotosInput');
+      const slideImages = document.querySelectorAll('.slide-img');
+
+      localPhotosInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        files.slice(0, 4).forEach((file, index) => {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            if (slideImages[index]) {
+              slideImages[index].src = event.target.result;
+              slideImages[index].style.display = 'block';
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+
+      // Предпросмотр иконки гильдии в модалке
+      const guildIconInput = document.getElementById('guildIconInput');
+      const guildIconPreview = document.getElementById('guildIconPreview');
+      const guildIconText = document.getElementById('guildIconText');
+
+      if (guildIconInput) {
+        guildIconInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              guildIconPreview.innerHTML = `<img src="${event.target.result}" alt="Иконка гильдии" class="w-full h-full object-cover">`;
+              guildIconText.textContent = file.name;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+
+      // Модальное окно
+      const modal = document.getElementById('createHubModal');
+      const openModalBtn = document.getElementById('openModalBtn');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      const cancelModalBtn = document.getElementById('cancelModalBtn');
+      const hubForm = document.getElementById('hubForm');
+
+      function toggleModal(show) {
+        if (show) {
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+        } else {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+        }
+      }
+
+      openModalBtn.addEventListener('click', () => toggleModal(true));
+      closeModalBtn.addEventListener('click', () => toggleModal(false));
+      if (cancelModalBtn) {
+        cancelModalBtn.addEventListener('click', () => toggleModal(false));
+      }
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) toggleModal(false);
+      });
+
+      hubForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        toggleModal(false);
+        openModalBtn.innerHTML = `
+          <span class="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center text-white shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </span>
+          <span class="flex flex-col items-start text-left flex-grow">
+            <span class="font-display font-bold text-base sm:text-lg text-white leading-snug">
+              Штаб создан!
+            </span>
+            <span class="text-xs font-medium text-blue-100 leading-none mt-1">
+              сообщество победителей активно
+            </span>
+          </span>
+          <span class="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </span>
+        `;
+      });
+    });
+  </script>
+</body>
+</html>

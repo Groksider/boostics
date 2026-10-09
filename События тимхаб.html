@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AETHERIA — События и Рейды</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#F8FAFC',
+              card: '#FFFFFF',
+              heading: '#0F172A',
+              muted: '#64748B',
+              border: '#E2E8F0',
+              primary: '#2563EB',
+              'primary-light': '#3B82F6',
+              yellow: '#FACC15',
+              cyan: '#06b6d4',
+              green: '#10b981',
+              red: '#ef4444'
+            }
+          },
+          boxShadow: {
+            'micro': '0 4px 20px -2px rgba(0,0,0,0.04)',
+            'micro-lg': '0 10px 25px -3px rgba(0,0,0,0.06)',
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    [contenteditable]:empty:before {
+      content: attr(placeholder);
+      color: #94a3b8;
+      cursor: text;
+    }
+    .tiptap-editor blockquote {
+      border-left: 3px solid #2563EB;
+      padding-left: 1rem;
+      color: #64748B;
+      font-style: italic;
+      margin: 0.5rem 0;
+      background: #F8FAFC;
+      padding: 0.5rem 1rem;
+      border-radius: 0 12px 12px 0;
+    }
+    .tiptap-editor ul {
+      list-style-type: disc;
+      padding-left: 1.25rem;
+      margin: 0.4rem 0;
+    }
+    .tiptap-editor ol {
+      list-style-type: decimal;
+      padding-left: 1.25rem;
+      margin: 0.4rem 0;
+    }
+    .tiptap-editor h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0F172A;
+      margin-top: 0.5rem;
+    }
+    .tiptap-editor code {
+      background: #F1F5F9;
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      font-family: monospace;
+      color: #2563EB;
+      border: 1px solid #E2E8F0;
+    }
+  </style>
+</head>
+<body class="bg-brand-bg text-brand-muted min-h-screen p-4 md:p-8 font-sans selection:bg-brand-primary selection:text-white">
+
+  <div class="max-w-6xl mx-auto space-y-10">
+
+    <!-- БЛОК СОБЫТИЙ -->
+    <section id="tab-content-events" class="space-y-8">
+      
+      <!-- Список событий -->
+      <div id="events-list-view" class="space-y-10">
+        
+        <!-- Заголовок страницы и кнопка создания -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-brand-border">
+          <div>
+            <h1 class="text-3xl sm:text-4xl font-display font-extrabold text-brand-heading">Календарь и рейды</h1>
+            <p class="text-sm text-brand-muted mt-1 font-medium">Отслеживайте текущие битвы в реальном времени и планируйте участие</p>
+          </div>
+
+          <div id="header-actions">
+            <button id="btn-create-event" onclick="openCreateModal()" class="bg-brand-primary hover:bg-brand-primary-light text-white px-6 py-3 rounded-full text-sm font-bold flex items-center gap-2 transition-all shadow-micro hover:shadow-micro-lg hover:-translate-y-0.5 shrink-0">
+              <i data-lucide="plus" class="w-4 h-4 stroke-[3]"></i>
+              <span>Добавить событие</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- СЕКЦИЯ 1: СОБЫТИЯ, КОТОРЫЕ ИДУТ В ДАННЫЙ МОМЕНТ -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="relative flex h-3 w-3">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              </span>
+              <h2 class="text-xl sm:text-2xl font-display font-extrabold text-brand-heading">Идут в данный момент</h2>
+              <span class="bg-emerald-50 text-emerald-700 font-extrabold text-xs px-2.5 py-0.5 rounded-full border border-emerald-200">2 активных</span>
+            </div>
+          </div>
+
+          <!-- Сетка карточек активных событий -->
+          <div id="live-events-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Карточка 1 (Идет сейчас: Рейд) -->
+            <div class="bg-brand-card border-2 border-emerald-500/30 rounded-[24px] shadow-micro overflow-hidden flex flex-col hover:border-emerald-500/60 hover:shadow-micro-lg transition-all duration-300 group">
+              <div class="h-44 relative overflow-hidden m-2 rounded-[18px]">
+                <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Рейд">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                
+                <!-- ЗЕЛЕНАЯ ПЛАШКА: СОБЫТИЕ ИДЕТ -->
+                <div class="absolute top-3 left-3 bg-emerald-500 text-white text-[11px] font-extrabold px-3.5 py-1.5 rounded-full shadow-md uppercase tracking-wider flex items-center gap-2">
+                  <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                  </span>
+                  <span>СОБЫТИЕ ИДЕТ</span>
+                </div>
+
+                <div class="absolute top-3 right-3 bg-white/95 text-brand-heading text-[10px] font-extrabold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider">
+                  РЕЙД
+                </div>
+
+                <div class="absolute bottom-3 left-3 bg-white/95 backdrop-blur shadow-sm px-3 py-1.5 rounded-full text-brand-heading text-[11px] font-bold flex items-center gap-1.5">
+                  <i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-600"></i> Прямо сейчас (до 22:00 МСК)
+                </div>
+              </div>
+
+              <div class="p-5 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 class="text-brand-heading font-extrabold text-xl leading-tight mb-2">Осада Цитадели Бездны (Финал)</h3>
+                  <p class="text-brand-muted text-sm leading-relaxed mb-4">Сбор мейн-состава в голосовом канале. Идет трай финального босса 3-го крыла. Срочно нужен хил!</p>
+                </div>
+                <div class="flex items-center justify-between mt-auto pt-4 border-t border-brand-border/60">
+                  <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+                    <i data-lucide="check-check" class="w-4 h-4"></i> Ознакомлен 18
+                  </div>
+                  <button onclick="openEventDetail(1)" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5"></i> План действий
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Карточка 2 (Идет сейчас: Мировой босс) -->
+            <div class="bg-brand-card border-2 border-emerald-500/30 rounded-[24px] shadow-micro overflow-hidden flex flex-col hover:border-emerald-500/60 hover:shadow-micro-lg transition-all duration-300 group">
+              <div class="h-44 relative overflow-hidden m-2 rounded-[18px]">
+                <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=700&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Мировой босс">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                
+                <!-- ЗЕЛЕНАЯ ПЛАШКА: СОБЫТИЕ ИДЕТ -->
+                <div class="absolute top-3 left-3 bg-emerald-500 text-white text-[11px] font-extrabold px-3.5 py-1.5 rounded-full shadow-md uppercase tracking-wider flex items-center gap-2">
+                  <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                  </span>
+                  <span>СОБЫТИЕ ИДЕТ</span>
+                </div>
+
+                <div class="absolute top-3 right-3 bg-white/95 text-brand-heading text-[10px] font-extrabold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider">
+                  МИРОВОЙ БОСС
+                </div>
+
+                <div class="absolute bottom-3 left-3 bg-white/95 backdrop-blur shadow-sm px-3 py-1.5 rounded-full text-brand-heading text-[11px] font-bold flex items-center gap-1.5">
+                  <i data-lucide="hourglass" class="w-3.5 h-3.5 text-emerald-600"></i> Осталось ~35 минут
+                </div>
+              </div>
+
+              <div class="p-5 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 class="text-brand-heading font-extrabold text-xl leading-tight mb-2">Охота на Левиафана Бури</h3>
+                  <p class="text-brand-muted text-sm leading-relaxed mb-4">Битва на центральной локации Океана Песков. Стяжка гильдии по координатам [X:412 Y:890]. Дроп редких рун.</p>
+                </div>
+                <div class="flex items-center justify-between mt-auto pt-4 border-t border-brand-border/60">
+                  <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+                    <i data-lucide="check-check" class="w-4 h-4"></i> Ознакомлен 48
+                  </div>
+                  <button onclick="openEventDetail(4)" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5"></i> План действий
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- СЕКЦИЯ 2: СОБЫТИЯ, КОТОРЫЕ ВОТ-ВОТ НАСТУПЯТ -->
+        <div class="space-y-4 pt-4 border-t border-brand-border">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-3 h-3 rounded-full bg-brand-primary"></div>
+              <h2 class="text-xl sm:text-2xl font-display font-extrabold text-brand-heading">Скоро начнутся</h2>
+              <span class="bg-blue-50 text-brand-primary font-extrabold text-xs px-2.5 py-0.5 rounded-full border border-blue-200">Ожидаются</span>
+            </div>
+          </div>
+
+          <!-- Сетка карточек предстоящих событий -->
+          <div id="upcoming-events-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Карточка 3 (Скоро: PvP) -->
+            <div class="bg-brand-card border border-brand-border rounded-[24px] shadow-micro overflow-hidden flex flex-col hover:border-brand-primary/40 hover:shadow-micro-lg transition-all duration-300 group">
+              <div class="h-40 relative overflow-hidden m-2 rounded-[18px]">
+                <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?w=700&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="PvP">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                <div class="absolute top-3 left-3 bg-white text-brand-primary text-[10px] font-extrabold px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wider">PvP ТУРНИР</div>
+                <div class="absolute bottom-3 left-3 bg-white/95 backdrop-blur shadow-sm px-2.5 py-1.5 rounded-full text-brand-heading text-[11px] font-bold flex items-center gap-1.5">
+                  <i data-lucide="calendar-clock" class="w-3.5 h-3.5 text-brand-primary"></i> Пятница, 21:00 (МСК)
+                </div>
+              </div>
+              <div class="p-5 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 class="text-brand-heading font-extrabold text-lg leading-tight mb-2">Глобальная Война Гильдий (Замок)</h3>
+                  <p class="text-brand-muted text-sm leading-relaxed mb-4">Битва за территории. Требуются классы с массовым уроном и контролем. Сбор в дискорде за 15 минут.</p>
+                </div>
+                <div class="flex items-center justify-between mt-auto pt-4 border-t border-brand-border/60">
+                  <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
+                    <i data-lucide="check-check" class="w-4 h-4 text-slate-500"></i> Ознакомлен 34
+                  </div>
+                  <button onclick="openEventDetail(2)" class="bg-blue-50 text-brand-primary hover:bg-brand-primary hover:text-white px-5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5"></i> План действий
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Карточка 4 (Скоро: Обучение) -->
+            <div class="bg-brand-card border border-brand-border rounded-[24px] shadow-micro overflow-hidden flex flex-col hover:border-brand-primary/40 hover:shadow-micro-lg transition-all duration-300 group">
+              <div class="h-40 relative overflow-hidden m-2 rounded-[18px]">
+                <img src="https://images.unsplash.com/photo-1542751110-97427bbecf20?w=700&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Обучение">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                <div class="absolute top-3 left-3 bg-white text-brand-primary text-[10px] font-extrabold px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wider">ОБУЧЕНИЕ</div>
+                <div class="absolute bottom-3 left-3 bg-white/95 backdrop-blur shadow-sm px-2.5 py-1.5 rounded-full text-brand-heading text-[11px] font-bold flex items-center gap-1.5">
+                  <i data-lucide="calendar-clock" class="w-3.5 h-3.5 text-brand-primary"></i> Суббота, 15:00 (МСК)
+                </div>
+              </div>
+              <div class="p-5 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 class="text-brand-heading font-extrabold text-lg leading-tight mb-2">Прохождение Подземелий (Т2 Данжи)</h3>
+                  <p class="text-brand-muted text-sm leading-relaxed mb-4">Офицеры водят новичков по подземельям 2-го тира. Объясняем базовые механики прерывания кастов и позиционку.</p>
+                </div>
+                <div class="flex items-center justify-between mt-auto pt-4 border-t border-brand-border/60">
+                  <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
+                    <i data-lucide="check-check" class="w-4 h-4 text-slate-500"></i> Ознакомлен 12
+                  </div>
+                  <button onclick="openEventDetail(3)" class="bg-blue-50 text-brand-primary hover:bg-brand-primary hover:text-white px-5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5"></i> План действий
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Детальный просмотр плана события -->
+      <div id="events-detail-view" class="hidden space-y-6"></div>
+
+    </section>
+
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО СОЗДАНИЯ СОБЫТИЯ -->
+  <div id="modal-create-event" class="fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-white rounded-[24px] w-full max-w-2xl max-h-[92vh] flex flex-col shadow-micro-lg overflow-hidden animate-fade-in border border-brand-border">
+      
+      <!-- Шапка модалки -->
+      <div class="px-7 py-5 bg-slate-50 border-b border-brand-border flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center text-brand-primary">
+            <i data-lucide="calendar-plus" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-display font-extrabold text-brand-heading leading-none mb-1">Добавить событие</h3>
+            <p class="text-xs text-brand-muted font-medium">Задайте статус и параметры плана сбора</p>
+          </div>
+        </div>
+        <button onclick="closeCreateModal()" class="text-brand-muted hover:text-brand-heading transition-colors p-2 rounded-full hover:bg-slate-200">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Тело модалки -->
+      <div class="p-7 overflow-y-auto space-y-5 bg-white">
+        
+        <!-- Название -->
+        <div>
+          <label class="block text-[11px] font-bold text-brand-muted uppercase tracking-wider mb-2">Название события</label>
+          <input id="new-event-title" type="text" placeholder="Например: Зачистка Древнего Храма..." 
+                 class="w-full bg-white border border-brand-border rounded-2xl px-4 py-3 text-sm text-brand-heading focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 outline-none transition-all font-medium">
+        </div>
+
+        <!-- 3 колонки: Статус, Категория и Время -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-[11px] font-bold text-brand-muted uppercase tracking-wider mb-2">Статус события</label>
+            <select id="new-event-status" class="w-full bg-white border border-brand-border rounded-2xl px-3 py-3 text-sm text-brand-heading focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 outline-none transition-all font-semibold">
+              <option value="upcoming">Скоро начнется</option>
+              <option value="live">Идет прямо сейчас</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-brand-muted uppercase tracking-wider mb-2">Категория</label>
+            <select id="new-event-category" class="w-full bg-white border border-brand-border rounded-2xl px-3 py-3 text-sm text-brand-heading focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 outline-none transition-all font-semibold">
+              <option value="РЕЙД">РЕЙД</option>
+              <option value="PvP ТУРНИР">PvP ТУРНИР</option>
+              <option value="МИРОВОЙ БОСС">МИРОВОЙ БОСС</option>
+              <option value="ОБУЧЕНИЕ">ОБУЧЕНИЕ</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-brand-muted uppercase tracking-wider mb-2">Время сбора</label>
+            <input id="new-event-time" type="text" placeholder="Воскресенье, 19:30" 
+                   class="w-full bg-white border border-brand-border rounded-2xl px-3.5 py-3 text-sm text-brand-heading focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 outline-none transition-all font-medium">
+          </div>
+        </div>
+
+        <!-- 2 колонки: Ознакомлено и URL обложки -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-[11px] font-bold text-brand-muted uppercase tracking-wider mb-2">Ознакомлено (кол-во)</label>
+            <input id="new-event-members" type="text" placeholder="Например: 1" value="1"
+                   class="w-full bg-white border border-brand-border rounded-2xl px-4 py-3 text-sm text-brand-heading focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 outline-none transition-all font-medium">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-brand-muted uppercase tracking-wider mb-2">URL Обложки (опционально)</label>
+            <input id="new-event-image" type="text" placeholder="https://images.unsplash.com/..." 
+                   class="w-full bg-white border border-brand-border rounded-2xl px-4 py-3 text-sm text-brand-heading focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 outline-none transition-all font-medium">
+          </div>
+        </div>
+
+        <!-- МИНИ TIPTAP РЕДАКТОР -->
+        <div>
+          <label class="block text-[11px] font-bold text-brand-muted uppercase tracking-wider mb-2">Описание и тактический план</label>
+          <div class="border border-brand-border rounded-2xl overflow-hidden focus-within:border-brand-primary focus-within:ring-4 focus-within:ring-brand-primary/10 transition-all bg-white">
+            <div class="bg-slate-50 border-b border-brand-border p-2 flex flex-wrap items-center gap-1 select-none">
+              <button type="button" onclick="tiptapCommand('bold')" class="p-1.5 rounded-lg text-brand-muted hover:text-brand-primary hover:bg-brand-primary/10 transition-colors" title="Жирный">
+                <i data-lucide="bold" class="w-4 h-4"></i>
+              </button>
+              <button type="button" onclick="tiptapCommand('italic')" class="p-1.5 rounded-lg text-brand-muted hover:text-brand-primary hover:bg-brand-primary/10 transition-colors" title="Курсив">
+                <i data-lucide="italic" class="w-4 h-4"></i>
+              </button>
+              <div class="h-5 w-px bg-brand-border mx-2"></div>
+              <button type="button" onclick="tiptapFormatBlock('h3')" class="px-2 py-1.5 rounded-lg text-brand-muted hover:text-brand-primary hover:bg-brand-primary/10 text-xs font-extrabold transition-colors">
+                H3
+              </button>
+              <button type="button" onclick="tiptapCommand('insertUnorderedList')" class="p-1.5 rounded-lg text-brand-muted hover:text-brand-primary hover:bg-brand-primary/10 transition-colors">
+                <i data-lucide="list" class="w-4 h-4"></i>
+              </button>
+              <button type="button" onclick="tiptapCommand('insertOrderedList')" class="p-1.5 rounded-lg text-brand-muted hover:text-brand-primary hover:bg-brand-primary/10 transition-colors">
+                <i data-lucide="list-ordered" class="w-4 h-4"></i>
+              </button>
+              <button type="button" onclick="tiptapFormatBlock('blockquote')" class="p-1.5 rounded-lg text-brand-muted hover:text-brand-primary hover:bg-brand-primary/10 transition-colors">
+                <i data-lucide="quote" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <div id="tiptap-content" contenteditable="true" placeholder="Введите цели сбора, требования к расходникам и распределение ролей..." 
+                 class="tiptap-editor min-h-[120px] max-h-[220px] overflow-y-auto p-4 bg-white text-brand-heading text-sm leading-relaxed outline-none"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Подвал модалки -->
+      <div class="px-7 py-4 bg-slate-50 border-t border-brand-border flex items-center justify-end gap-3">
+        <button onclick="closeCreateModal()" class="px-5 py-2.5 rounded-full border border-brand-border text-sm font-bold text-brand-muted hover:text-brand-heading hover:bg-slate-200 transition-all">
+          Отмена
+        </button>
+        <button onclick="submitNewEvent()" class="px-6 py-2.5 rounded-full bg-brand-primary hover:bg-brand-primary-light text-white text-sm font-bold flex items-center gap-2 shadow-micro hover:shadow-micro-lg transition-all">
+          <i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>
+          <span>Опубликовать</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // БАЗА ДАННЫХ ДЛЯ СОБЫТИЙ
+    const eventsData = {
+      1: {
+        id: 1,
+        title: "Осада Цитадели Бездны (Финал)",
+        category: "РЕЙД",
+        status: "live",
+        badgeColor: "bg-blue-50 border-blue-200 text-brand-primary",
+        themeColor: "brand-primary",
+        timeTag: "Прямо сейчас (до 22:00 МСК)",
+        members: "18",
+        guide: {
+          tag: "Событие идет",
+          tagBg: "bg-emerald-500",
+          title: "Осада Бездны:<br>Финальный босс",
+          desc: "Идет бой 3-й фазы. Мейн-танк держит порталы, РДД фокусят аддов по левому флангу.",
+          image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop",
+          buttonText: "Инструкция к бою"
+        },
+        plan: {
+          subtitle: "Требования к составу и обязательные расходники",
+          requirements: "GearScore от 420+, голосовой чат Discord (канал Raid-1), аддон BossTracker.",
+          checklist: [
+            "Зелье защиты от магии тьмы (x5)",
+            "Настой титанической концентрации / стойкости (x3)",
+            "Еда на выносливость и крит. урон +120 (x4)",
+            "Запасные свитки воскрешения и ремкомплекты (x2)"
+          ],
+          tactics: [
+            {
+              step: "Текущая фаза: 30% HP босса",
+              desc: "Максимальный бурст урона под героизмом! Состав собирается строго под золотым куполом."
+            }
+          ]
+        },
+        comments: [
+          {
+            author: "Morpheus",
+            role: "Мейн-танк",
+            roleBadge: "text-amber-700 bg-amber-50 border-amber-200",
+            time: "20:45",
+            text: "Босс на 35%! Хил, держите оверхил по танкам на смене стаков!"
+          }
+        ]
+      },
+      4: {
+        id: 4,
+        title: "Охота на Левиафана Бури",
+        category: "МИРОВОЙ БОСС",
+        status: "live",
+        badgeColor: "bg-emerald-50 border-emerald-200 text-emerald-700",
+        themeColor: "emerald-600",
+        timeTag: "Осталось ~35 минут",
+        members: "48",
+        guide: {
+          tag: "Мировой босс",
+          tagBg: "bg-emerald-500",
+          title: "Левиафан Бури:<br>Локация Песков",
+          desc: "Рейдовый сбор всех гильдейских крыльев. Опасайтесь кругового шторма на 50% здоровья.",
+          image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&auto=format&fit=crop",
+          buttonText: "Открыть карту сбора"
+        },
+        plan: {
+          subtitle: "Позиционирование и распределение лута",
+          requirements: "Персонажи от 60 уровня, наличие маунта для быстрого возвращения после смерти.",
+          checklist: [
+            "Эликсиры защиты от электричества и бури",
+            "Флаконы восстановления энергии",
+            "Освобожденные ячейки инвентаря для сундуков босса"
+          ],
+          tactics: [
+            {
+              step: "Внимание: Штормовая воронка",
+              desc: "При касте воронки весь рейд отпрыгивает на внешние скалы. Милишникам не жадничать с уроном."
+            }
+          ]
+        },
+        comments: [
+          {
+            author: "Storm_Watcher",
+            role: "Разведчик",
+            roleBadge: "text-cyan-700 bg-cyan-50 border-cyan-200",
+            time: "20:50",
+            text: "Вражеская гильдия пытается зайти со спины, выделите 5 человек для охраны прохода!"
+          }
+        ]
+      },
+      2: {
+        id: 2,
+        title: "Глобальная Война Гильдий (Битва за Замок)",
+        category: "PvP ТУРНИР",
+        status: "upcoming",
+        badgeColor: "bg-blue-50 border-blue-200 text-brand-primary",
+        themeColor: "brand-primary",
+        timeTag: "Пятница, 21:00 (МСК)",
+        members: "34",
+        guide: {
+          tag: "PvP Тактика",
+          tagBg: "bg-brand-primary",
+          title: "Тактика осады:<br>Захват Бастиона",
+          desc: "Схема контроля точек резонанса, ротация осадных орудий, тайминги возрождений и фокус целей.",
+          image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop",
+          buttonText: "Смотреть тактику"
+        },
+        plan: {
+          subtitle: "Осадная стратегия, распределение крыльев и расходники",
+          requirements: "PvP-сет брони (устойчивость от 35%), Discord с микрофоном (WarRoom-1).",
+          checklist: [
+            "PvP-тринкет готовности (снятие контроля)",
+            "Боевые гильдейские штандарты урона (x10)",
+            "Осадные бомбы и наборы починки тарана"
+          ],
+          tactics: [
+            {
+              step: "20:45 – Сбор и проверка крыльев",
+              desc: "Разбивка на отряды: Alpha (прорыв центральных ворот), Bravo (контроль респауна врага)."
+            }
+          ]
+        },
+        comments: [
+          {
+            author: "ShadowBlade",
+            role: "PvP Лидер",
+            roleBadge: "text-rose-600 bg-rose-50 border-rose-200",
+            time: "16:40",
+            text: "Проверьте яды и зелья невидимости перед сбором!"
+          }
+        ]
+      },
+      3: {
+        id: 3,
+        title: "Прохождение Подземелий (Обучение новичков)",
+        category: "ОБУЧЕНИЕ",
+        status: "upcoming",
+        badgeColor: "bg-blue-50 border-blue-200 text-brand-primary",
+        themeColor: "brand-primary",
+        timeTag: "Суббота, 15:00 (МСК)",
+        members: "12",
+        guide: {
+          tag: "Для новичков",
+          tagBg: "bg-brand-primary",
+          title: "Гайд по данжам Т2:<br>Забытые Гробницы",
+          desc: "Базовые механики прерывания кастов, агро танка, позиционирование хилов и безопасные зоны.",
+          image: "https://images.unsplash.com/photo-1542751110-97427bbecf20?w=800&auto=format&fit=crop",
+          buttonText: "Открыть шпаргалку"
+        },
+        plan: {
+          subtitle: "Учебный план похода и помощь новичкам",
+          requirements: "Уровень персонажа 50+, готовность слушать голосовые подсказки наставника.",
+          checklist: [
+            "Зелья мгновенного восстановления здоровья и маны",
+            "Настроенные горячие клавиши прерывания заклинаний"
+          ],
+          tactics: [
+            {
+              step: "15:00 – Инструктаж в хабе",
+              desc: "Проверка интерфейса, назначение меток на мобов."
+            }
+          ]
+        },
+        comments: [
+          {
+            author: "Mentor_Aragorn",
+            role: "Наставник",
+            roleBadge: "text-cyan-600 bg-cyan-50 border-cyan-200",
+            time: "12:10",
+            text: "Ждем всех желающих, поможем одеться в синий шмот!"
+          }
+        ]
+      }
+    };
+
+    let currentEventId = 1;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.innerText = text;
+      return div.innerHTML;
+    }
+
+    function tiptapCommand(command) {
+      document.execCommand(command, false, null);
+      document.getElementById('tiptap-content').focus();
+    }
+
+    function tiptapFormatBlock(tag) {
+      document.execCommand('formatBlock', false, tag);
+      document.getElementById('tiptap-content').focus();
+    }
+
+    function openCreateModal() {
+      const modal = document.getElementById('modal-create-event');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function closeCreateModal() {
+      const modal = document.getElementById('modal-create-event');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    window.addEventListener('click', (e) => {
+      const modal = document.getElementById('modal-create-event');
+      if (e.target === modal) closeCreateModal();
+    });
+
+    // Создание события
+    function submitNewEvent() {
+      const title = document.getElementById('new-event-title').value.trim();
+      const status = document.getElementById('new-event-status').value;
+      const category = document.getElementById('new-event-category').value;
+      const time = document.getElementById('new-event-time').value.trim() || (status === 'live' ? 'Идет прямо сейчас' : 'Скоро, 20:00 (МСК)');
+      const members = document.getElementById('new-event-members').value.trim() || '1';
+      let img = document.getElementById('new-event-image').value.trim();
+      const tiptapHtml = document.getElementById('tiptap-content').innerHTML.trim();
+      const tiptapText = document.getElementById('tiptap-content').innerText.trim() || 'Детали плана будут объявлены в голосовом канале.';
+
+      if (!title) {
+        alert('Пожалуйста, введите название события');
+        return;
+      }
+
+      if (!img) {
+        img = 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&auto=format&fit=crop';
+      }
+
+      const newId = Date.now();
+      const isLive = status === 'live';
+
+      eventsData[newId] = {
+        id: newId,
+        title: title,
+        category: category,
+        status: status,
+        badgeColor: isLive ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-blue-50 border-blue-200 text-brand-primary",
+        themeColor: isLive ? "emerald-600" : "brand-primary",
+        timeTag: time,
+        members: members,
+        guide: {
+          tag: isLive ? "Событие идет" : "План сбора",
+          tagBg: isLive ? "bg-emerald-500" : "bg-brand-primary",
+          title: title,
+          desc: tiptapText.slice(0, 100) + '...',
+          image: img,
+          buttonText: "Открыть план"
+        },
+        plan: {
+          subtitle: "Инструктаж сбора гильдии",
+          requirements: "Соблюдение команд в Discord и боевая готовность.",
+          checklist: ["Отремонтированная экипировка", "Боевые зелья", "Голосовая связь"],
+          tactics: [{ step: "Установка", desc: tiptapHtml || tiptapText }]
+        },
+        comments: []
+      };
+
+      const targetGrid = isLive ? document.getElementById('live-events-grid') : document.getElementById('upcoming-events-grid');
+      const card = document.createElement('div');
+      
+      if (isLive) {
+        card.className = "bg-brand-card border-2 border-emerald-500/30 rounded-[24px] shadow-micro overflow-hidden flex flex-col hover:border-emerald-500/60 hover:shadow-micro-lg transition-all duration-300 group animate-fade-in";
+        card.innerHTML = `
+          <div class="h-44 relative overflow-hidden m-2 rounded-[18px]">
+            <img src="${img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="${title}">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+            <div class="absolute top-3 left-3 bg-emerald-500 text-white text-[11px] font-extrabold px-3.5 py-1.5 rounded-full shadow-md uppercase tracking-wider flex items-center gap-2">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+              </span>
+              <span>СОБЫТИЕ ИДЕТ</span>
+            </div>
+            <div class="absolute top-3 right-3 bg-white/95 text-brand-heading text-[10px] font-extrabold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider">${category}</div>
+            <div class="absolute bottom-3 left-3 bg-white/95 backdrop-blur shadow-sm px-3 py-1.5 rounded-full text-brand-heading text-[11px] font-bold flex items-center gap-1.5">
+              <i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-600"></i> ${time}
+            </div>
+          </div>
+          <div class="p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="text-brand-heading font-extrabold text-xl leading-tight mb-2">${title}</h3>
+              <p class="text-brand-muted text-sm leading-relaxed mb-4">${tiptapText.slice(0, 95)}...</p>
+            </div>
+            <div class="flex items-center justify-between mt-auto pt-4 border-t border-brand-border/60">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+                <i data-lucide="check-check" class="w-4 h-4"></i> Ознакомлен ${members}
+              </div>
+              <button onclick="openEventDetail(${newId})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i> План действий
+              </button>
+            </div>
+          </div>
+        `;
+      } else {
+        card.className = "bg-brand-card border border-brand-border rounded-[24px] shadow-micro overflow-hidden flex flex-col hover:border-brand-primary/40 hover:shadow-micro-lg transition-all duration-300 group animate-fade-in";
+        card.innerHTML = `
+          <div class="h-40 relative overflow-hidden m-2 rounded-[18px]">
+            <img src="${img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="${title}">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+            <div class="absolute top-3 left-3 bg-white text-brand-primary text-[10px] font-extrabold px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wider">${category}</div>
+            <div class="absolute bottom-3 left-3 bg-white/95 backdrop-blur shadow-sm px-2.5 py-1.5 rounded-full text-brand-heading text-[11px] font-bold flex items-center gap-1.5">
+              <i data-lucide="calendar-clock" class="w-3.5 h-3.5 text-brand-primary"></i> ${time}
+            </div>
+          </div>
+          <div class="p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="text-brand-heading font-extrabold text-lg leading-tight mb-2">${title}</h3>
+              <p class="text-brand-muted text-sm leading-relaxed mb-4">${tiptapText.slice(0, 95)}...</p>
+            </div>
+            <div class="flex items-center justify-between mt-auto pt-4 border-t border-brand-border/60">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
+                <i data-lucide="check-check" class="w-4 h-4 text-slate-500"></i> Ознакомлен ${members}
+              </div>
+              <button onclick="openEventDetail(${newId})" class="bg-blue-50 text-brand-primary hover:bg-brand-primary hover:text-white px-5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i> План действий
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      targetGrid.prepend(card);
+
+      document.getElementById('new-event-title').value = '';
+      document.getElementById('new-event-time').value = '';
+      document.getElementById('new-event-image').value = '';
+      document.getElementById('tiptap-content').innerHTML = '';
+      closeCreateModal();
+      lucide.createIcons();
+    }
+
+    // Детальный просмотр
+    function generateEventDetailHTML(ev) {
+      const isLive = ev.status === 'live';
+      const livePill = isLive ? `
+        <span class="bg-emerald-500 text-white text-[11px] font-extrabold px-3 py-1.5 rounded-full shadow-md uppercase tracking-wider flex items-center gap-2">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+          </span>
+          <span>СОБЫТИЕ ИДЕТ СЕЙЧАС</span>
+        </span>
+      ` : '';
+
+      const checklistHTML = ev.plan.checklist.map(item => `
+        <li onclick="toggleCheck(this)" class="flex items-center gap-4 bg-slate-50 hover:bg-white border border-brand-border px-4 py-3 rounded-2xl cursor-pointer transition-all shadow-sm group select-none">
+          <div class="check-box w-6 h-6 rounded-lg border-2 border-brand-border bg-white flex items-center justify-center transition-all group-hover:border-slate-400 shrink-0 shadow-sm">
+            <i data-lucide="check" class="w-4 h-4 text-emerald-600 opacity-0 check-icon transition-opacity stroke-[4]"></i>
+          </div>
+          <span class="text-brand-heading text-sm font-medium item-label transition-colors">${item}</span>
+        </li>
+      `).join('');
+
+      const tacticsHTML = ev.plan.tactics.map(tac => `
+        <div class="p-4 rounded-2xl bg-white border border-brand-border space-y-2 shadow-sm">
+          <div class="text-sm font-extrabold text-brand-primary flex items-center gap-2">
+            <i data-lucide="shield" class="w-4 h-4"></i>
+            <span>${tac.step}</span>
+          </div>
+          <div class="text-sm text-brand-muted leading-relaxed pl-6 tiptap-editor">${tac.desc}</div>
+        </div>
+      `).join('');
+
+      const commentsHTML = ev.comments.map(c => `
+        <div class="bg-white p-5 rounded-[20px] border border-brand-border shadow-sm">
+          <div class="font-extrabold text-brand-heading text-sm mb-2 flex items-center justify-between">
+            <span class="flex items-center gap-2.5">
+              <span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
+                <i data-lucide="user" class="w-4 h-4 text-brand-muted"></i>
+              </span>
+              <span>${c.author}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full border font-bold ${c.roleBadge}">${c.role}</span>
+            </span>
+            <span class="text-xs text-brand-muted font-medium">${c.time}</span>
+          </div>
+          <p class="text-brand-heading font-medium leading-relaxed text-sm ml-10">${c.text}</p>
+        </div>
+      `).join('');
+
+      return `
+        <button onclick="closeEventDetail()" class="text-brand-heading bg-white hover:bg-slate-50 flex items-center gap-2 text-sm font-bold transition-all w-fit px-5 py-2.5 rounded-full border border-brand-border shadow-sm hover:shadow-md hover:-translate-y-0.5">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i> Назад к событиям
+        </button>
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              ${livePill}
+              <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border shadow-sm bg-white">${ev.category}</span>
+              <span class="text-sm text-brand-muted font-medium">• Ознакомлен: <b class="text-brand-heading font-bold">${ev.members}</b></span>
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-display font-extrabold text-brand-heading">${ev.title}</h2>
+          </div>
+          <span class="px-4 py-2 rounded-full border bg-white shadow-sm text-sm font-extrabold text-brand-heading w-fit">
+            <i data-lucide="clock" class="w-4 h-4 inline mr-1 text-brand-muted"></i> ${ev.timeTag}
+          </span>
+        </div>
+
+        <div class="flex flex-col gap-8 pb-10">
+          
+          <!-- Баннер гайда -->
+          <div class="scroll-mt-6 flex justify-center w-full">
+            <div class="relative w-full max-w-[540px] aspect-[16/9] rounded-[32px] overflow-hidden flex flex-col justify-between p-8 bg-gradient-to-br from-indigo-600 via-brand-primary to-cyan-400 shadow-micro-lg text-white">
+               <div class="absolute inset-0 z-0 mix-blend-overlay opacity-30">
+                  <img src="${ev.guide.image}" class="w-full h-full object-cover" alt="${ev.title}">
+               </div>
+               <div class="relative z-10 flex flex-col h-full justify-between">
+                 <div>
+                   <span class="bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-widest">${ev.guide.tag}</span>
+                 </div>
+                 <div>
+                   <h3 class="text-2xl sm:text-3xl font-display font-extrabold mb-2 leading-tight drop-shadow-sm">${ev.guide.title}</h3>
+                   <p class="text-white/90 text-sm leading-relaxed mb-4">${ev.guide.desc}</p>
+                 </div>
+               </div>
+            </div>
+          </div>
+
+          <!-- План подготовки -->
+          <div class="bg-white border border-brand-border rounded-[32px] p-8 shadow-micro space-y-6">
+            <div class="flex items-center gap-4 pb-4 border-b border-brand-border">
+              <div class="w-12 h-12 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-brand-primary">
+                <i data-lucide="swords" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <h3 class="font-display font-extrabold text-brand-heading text-xl">План действий и подготовка</h3>
+                <p class="text-sm font-medium text-brand-muted mt-1">${ev.plan.subtitle}</p>
+              </div>
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-brand-heading font-medium flex items-center gap-3">
+              <i data-lucide="alert-circle" class="w-5 h-5 text-amber-600 shrink-0"></i>
+              <span><b>Требования:</b> ${ev.plan.requirements}</span>
+            </div>
+            
+            <div>
+              <h4 class="text-brand-heading text-sm font-extrabold uppercase tracking-wider mb-3">Чек-лист экипировки:</h4>
+              <ul class="space-y-2.5">
+                ${checklistHTML}
+              </ul>
+            </div>
+
+            <div class="pt-2">
+              <h4 class="text-brand-heading text-sm font-extrabold uppercase tracking-wider mb-3">Поэтапный план:</h4>
+              <div class="space-y-2.5 bg-slate-50 p-4 rounded-3xl border border-brand-border">
+                ${tacticsHTML}
+              </div>
+            </div>
+          </div>
+
+          <!-- Комментарии -->
+          <div class="bg-white border border-brand-border rounded-[32px] shadow-micro flex flex-col h-[460px] overflow-hidden">
+            <div class="px-8 py-5 bg-slate-50 border-b border-brand-border flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
+                  <i data-lucide="message-square" class="w-5 h-5"></i>
+                </div>
+                <h3 class="font-display font-extrabold text-brand-heading text-lg">Обсуждение сбора</h3>
+              </div>
+              <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">Чат активен</span>
+            </div>
+            
+            <div id="comments-list-${ev.id}" class="flex-1 overflow-y-auto p-6 space-y-4 bg-brand-bg/40">
+              ${commentsHTML}
+            </div>
+            
+            <div class="p-4 bg-white border-t border-brand-border flex gap-3">
+              <input id="comment-input-${ev.id}" onkeydown="if(event.key === 'Enter') submitComment(${ev.id})" type="text" placeholder="Написать сообщение в сбор..." class="flex-1 bg-slate-50 border border-brand-border rounded-full px-5 py-2.5 text-sm font-medium text-brand-heading focus:bg-white focus:border-brand-primary outline-none">
+              <button onclick="submitComment(${ev.id})" class="px-6 py-2.5 bg-brand-primary hover:bg-brand-primary-light text-white rounded-full font-bold text-sm transition-all shadow-micro flex items-center gap-2">
+                <span>Отправить</span>
+                <i data-lucide="send" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      `;
+    }
+
+    function openEventDetail(id) {
+      currentEventId = id;
+      const ev = eventsData[id];
+      if (!ev) return;
+
+      const container = document.getElementById('events-detail-view');
+      container.innerHTML = generateEventDetailHTML(ev);
+
+      document.getElementById('events-list-view').classList.add('hidden');
+      container.classList.remove('hidden');
+
+      lucide.createIcons();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function closeEventDetail() {
+      document.getElementById('events-detail-view').classList.add('hidden');
+      document.getElementById('events-list-view').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleCheck(el) {
+      const icon = el.querySelector('.check-icon');
+      const label = el.querySelector('.item-label');
+      const box = el.querySelector('.check-box');
+      const isChecked = icon.classList.contains('opacity-100');
+
+      if (isChecked) {
+        icon.classList.remove('opacity-100');
+        icon.classList.add('opacity-0');
+        box.classList.remove('border-emerald-500', 'bg-emerald-50');
+        box.classList.add('border-brand-border', 'bg-white');
+        label.classList.remove('line-through', 'text-brand-muted');
+        label.classList.add('text-brand-heading');
+      } else {
+        icon.classList.remove('opacity-0');
+        icon.classList.add('opacity-100');
+        box.classList.add('border-emerald-500', 'bg-emerald-50');
+        box.classList.remove('border-brand-border', 'bg-white');
+        label.classList.add('line-through', 'text-brand-muted');
+        label.classList.remove('text-brand-heading');
+      }
+    }
+
+    function submitComment(eventId) {
+      const input = document.getElementById(`comment-input-${eventId}`);
+      if (!input || !input.value.trim()) return;
+
+      const text = input.value.trim();
+      const commentsList = document.getElementById(`comments-list-${eventId}`);
+      const now = new Date();
+      const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+
+      const newCommentEl = document.createElement('div');
+      newCommentEl.className = 'bg-white p-5 rounded-[20px] border border-brand-border shadow-sm animate-fade-in';
+      newCommentEl.innerHTML = `
+        <div class="font-extrabold text-brand-heading text-sm mb-2 flex items-center justify-between">
+          <span class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
+                <i data-lucide="user" class="w-4 h-4 text-brand-muted"></i>
+            </span>
+            <span>Вы (Рекрут)</span>
+            <span class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Участник</span>
+          </span>
+          <span class="text-xs text-brand-muted font-medium">${timeStr}</span>
+        </div>
+        <p class="text-brand-heading font-medium leading-relaxed text-sm ml-10">${escapeHtml(text)}</p>
+      `;
+
+      commentsList.appendChild(newCommentEl);
+      input.value = '';
+      commentsList.scrollTop = commentsList.scrollHeight;
+      lucide.createIcons();
+    }
+  </script>
+</body>
+</html>

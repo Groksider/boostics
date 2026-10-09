@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Участники — AETHERIA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#F8FAFC', 
+              surface: '#FFFFFF', 
+              border: '#E2E8F0', 
+              primary: '#2563EB', 
+              secondary: '#FACC15', 
+              textMain: '#0F172A', 
+              textMuted: '#64748B', 
+              success: '#10B981', 
+              
+              purple: '#2563EB', 
+              cyan: '#0EA5E9',
+              amber: '#FACC15',
+              green: '#10B981',
+              slate: '#64748B'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          boxShadow: {
+            micro: '0 4px 20px -2px rgba(0,0,0,0.04)',
+            'micro-hover': '0 8px 30px -4px rgba(0,0,0,0.08)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background-color: #F8FAFC; color: #0F172A; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F8FAFC; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+    
+    .timeline-no-select {
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen p-3 sm:p-6 md:p-8 bg-brand-bg font-sans">
+
+  <main class="max-w-7xl mx-auto space-y-6 pb-12">
+    <!-- Заголовок страницы -->
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl sm:text-2xl font-display font-extrabold text-brand-textMain tracking-tight">
+        Состав клана и активность
+      </h2>
+    </div>
+
+    <div class="flex flex-col gap-6">
+      
+      <!-- ГЛАВНЫЙ БЛОК ОНЛАЙНА -->
+      <div class="bg-brand-surface border border-brand-border rounded-[24px] flex flex-col shadow-micro overflow-hidden">
+        
+        <!-- Шапка блока (Banner) -->
+        <div class="p-4 sm:p-6 border-b border-brand-border bg-gradient-to-r from-blue-50 via-indigo-50 to-cyan-50 flex flex-wrap gap-3 justify-between items-center">
+          <div>
+            <h3 class="font-extrabold text-brand-textMain text-sm sm:text-base flex items-center gap-2">
+              <i data-lucide="clock-4" class="w-4 h-4 sm:w-5 sm:h-5 text-brand-primary"></i> График онлайна (Прайм-тайм)
+            </h3>
+            <p class="text-xs text-brand-textMuted mt-1 font-medium">
+              Кликните по начальному и конечному часу ИЛИ зажмите и протяните, чтобы задать интервал
+            </p>
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-bold uppercase tracking-wide text-brand-textMain bg-white px-4 py-2 rounded-full border border-brand-border flex items-center gap-2 shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-brand-success animate-pulse"></span>
+              <span>Европа / Париж</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Панель управления и шкала -->
+        <div class="p-4 sm:p-6 bg-white">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+            <!-- Выбранный слот -->
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-brand-primary shrink-0 shadow-inner">
+                <i data-lucide="mouse-pointer-click" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <div class="text-[10px] font-extrabold text-brand-textMuted uppercase tracking-wider mb-1">Ваш интервал</div>
+                <div id="selected-range-label" class="text-sm sm:text-base font-bold flex items-center gap-1.5 font-mono">
+                  <!-- Генерируется через JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Шаблоны и кнопка сохранения -->
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs font-bold text-brand-textMuted hidden lg:inline mr-1">Шаблоны:</span>
+              <button onclick="setPreset(19, 23)" class="px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide rounded-full bg-white hover:bg-slate-50 border border-brand-border text-brand-textMuted hover:text-brand-primary transition-all shadow-sm">
+                Прайм
+              </button>
+              <button onclick="setPreset(22, 2)" class="px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide rounded-full bg-white hover:bg-slate-50 border border-brand-border text-brand-textMuted hover:text-brand-primary transition-all shadow-sm">
+                Ночь
+              </button>
+              <button onclick="setPreset(13, 18)" class="px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide rounded-full bg-white hover:bg-slate-50 border border-brand-border text-brand-textMuted hover:text-brand-primary transition-all shadow-sm">
+                День
+              </button>
+              <button id="save-btn" onclick="saveUserRange()" class="ml-auto sm:ml-2 px-5 py-2 text-xs font-bold uppercase tracking-wide rounded-full bg-brand-primary hover:bg-blue-700 text-white transition-all flex items-center gap-1.5 shadow-md hover:shadow-lg hover:-translate-y-0.5">
+                <i data-lucide="check" class="w-4 h-4"></i> Сохранить
+              </button>
+            </div>
+          </div>
+
+          <!-- 24-часовая интерактивная шкала -->
+          <div class="timeline-no-select relative bg-slate-50/50 border border-brand-border rounded-[20px] p-3 sm:p-5 shadow-inner">
+            
+            <div class="flex justify-between items-center text-[11px] font-medium text-brand-textMuted mb-3">
+              <span id="drag-hint" class="flex items-center gap-1.5">
+                <i data-lucide="info" class="w-3.5 h-3.5 text-brand-primary"></i> Выберите начальную и конечную точку кликом или протяните зажатием
+              </span>
+              <span id="overlap-stat" class="text-brand-primary font-bold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                Пересекается с ~18 игроками
+              </span>
+            </div>
+
+            <!-- Сетка ячеек часов -->
+            <div id="timeline-grid" class="grid gap-1 sm:gap-1.5 relative touch-none cursor-crosshair h-12 sm:h-14 items-stretch select-none" style="grid-template-columns: repeat(24, minmax(0, 1fr));">
+              <!-- Генерируется через JS -->
+            </div>
+
+            <!-- Засечки часов -->
+            <div class="grid gap-1 sm:gap-1.5 mt-2 text-[10px] font-bold font-mono text-brand-textMuted select-none opacity-60" style="grid-template-columns: repeat(24, minmax(0, 1fr));">
+              <div class="text-left col-span-3">00:00</div>
+              <div class="text-left col-span-3">03:00</div>
+              <div class="text-left col-span-3">06:00</div>
+              <div class="text-left col-span-3">09:00</div>
+              <div class="text-left col-span-3">12:00</div>
+              <div class="text-left col-span-3">15:00</div>
+              <div class="text-left col-span-3">18:00</div>
+              <div class="text-right col-span-3">23:00</div>
+            </div>
+          </div>
+
+          <!-- ПЛАШКА-БЛОК: ОНЛАЙН СОКЛАНОВЦЕВ ПО ПЕРИОДАМ -->
+          <div class="mt-5 bg-white border border-brand-border rounded-[24px] shadow-sm hover:shadow-micro transition-all overflow-hidden">
+            
+            <button onclick="toggleClanSlots()" class="w-full p-4 flex items-center justify-between gap-3 text-left hover:bg-slate-50 transition-colors">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-brand-primary shrink-0 shadow-sm">
+                  <i data-lucide="globe" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <div class="text-sm font-extrabold text-brand-textMain leading-tight">
+                    Онлайн соклановцев по периодам
+                  </div>
+                  <div class="text-[11px] text-brand-textMuted mt-1 font-medium">
+                    Часовой пояс: <span class="text-brand-textMain font-mono font-bold">Европа / Париж</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <span id="clan-toggle-text" class="text-[11px] font-bold uppercase tracking-wide text-brand-primary hidden sm:inline">Развернуть</span>
+                <div class="w-8 h-8 rounded-full bg-slate-100 border border-brand-border flex items-center justify-center text-brand-textMuted shadow-inner">
+                  <i id="clan-chevron" data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200"></i>
+                </div>
+              </div>
+            </button>
+
+            <!-- Контент: СВЁРНУТ ПО УМОЛЧАНИЮ -->
+            <div id="clan-slots-content" class="hidden p-4 pt-0 border-t border-slate-100">
+              <div id="clan-periods-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
+                <!-- Генерируется через JS -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- СПИСОК УЧАСТНИКОВ -->
+      <div class="bg-white border border-brand-border rounded-[24px] flex flex-col shadow-micro overflow-hidden">
+        
+        <div class="p-4 sm:p-6 border-b border-brand-border bg-gradient-to-r from-blue-50 to-indigo-50 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-brand-primary shadow-sm">
+              <i data-lucide="users" class="w-4 h-4"></i>
+            </div>
+            <h3 class="font-extrabold text-brand-textMain text-base">Список участников (48)</h3>
+          </div>
+          <!-- Удалена надпись "3 колонки" -->
+        </div>
+        
+        <div id="members-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 sm:p-6 bg-brand-bg">
+          <!-- Генерируется динамически через JS -->
+        </div>
+
+        <div class="p-4 sm:p-6 pt-0 bg-brand-bg">
+          <button id="toggle-members-btn" onclick="toggleAllMembers()" class="w-full py-3.5 px-6 rounded-full bg-white hover:bg-slate-50 border border-brand-border hover:border-brand-primary text-[12px] font-bold uppercase tracking-wide text-brand-textMain hover:text-brand-primary transition-all flex items-center justify-center gap-2 shadow-sm active:scale-[0.99] group">
+            <span id="toggle-members-text">Показать весь список участников (48)</span>
+            <i id="toggle-members-icon" data-lucide="chevron-down" class="w-4 h-4 text-brand-primary transition-transform duration-200 group-hover:translate-y-0.5"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- МОДАЛЬНОЕ ОКНО: СПИСОК ИГРОКОВ В СЛОТЕ -->
+  <div id="slot-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-200">
+    <div class="bg-white border border-brand-border rounded-[24px] w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl overflow-hidden transform scale-95 transition-transform duration-200" id="slot-modal-content">
+      <div class="p-4 sm:p-6 border-b border-brand-border bg-slate-50 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-brand-primary shadow-inner">
+            <i data-lucide="clock" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-3 mb-1">
+              <h3 id="modal-period-title" class="font-mono text-lg font-extrabold text-brand-textMain">18:00 - 21:00</h3>
+              <span id="modal-period-badge" class="text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide bg-brand-secondary text-brand-textMain shadow-sm">ПРАЙМ</span>
+            </div>
+            <p id="modal-period-subtitle" class="text-xs text-brand-textMuted font-medium">Европа / Париж</p>
+          </div>
+        </div>
+        <button onclick="closeSlotModal()" class="w-8 h-8 rounded-full bg-white hover:bg-slate-100 border border-brand-border flex items-center justify-center text-brand-textMuted hover:text-brand-textMain transition-colors shadow-sm">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div id="modal-members-list" class="p-4 sm:p-6 space-y-3 overflow-y-auto max-h-[60vh] bg-brand-bg"></div>
+      <div class="p-4 sm:p-6 border-t border-brand-border bg-white flex items-center justify-between">
+        <span class="flex items-center gap-2 text-xs font-bold text-brand-textMuted uppercase tracking-wide">
+          <span class="w-2.5 h-2.5 rounded-full bg-brand-success shadow-sm"></span> Европа / Париж
+        </span>
+        <button onclick="closeSlotModal()" class="px-6 py-2.5 rounded-full bg-brand-primary hover:bg-blue-700 text-white text-[11px] font-bold uppercase tracking-wide transition-all shadow-md hover:shadow-lg">
+          Закрыть
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const guildMembers = [
+      { name: "Valerius", roleTitle: "Лидер клана", online: true, avatar: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=80&auto=format&fit=crop", color: "purple" },
+      { name: "Lumina_Heals", roleTitle: "Офицер", online: true, avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&auto=format&fit=crop", color: "cyan" },
+      { name: "Morrigan", roleTitle: "Офицер", online: true, avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&auto=format&fit=crop", color: "purple" },
+      { name: "Eldrin_Sun", roleTitle: "Ветеран", online: true, avatar: null, color: "green" },
+      { name: "IronWill", roleTitle: "Ветеран", online: true, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop", color: "amber" },
+      { name: "Shadow_99", roleTitle: "Участник", online: false, avatar: null, color: "slate" },
+      { name: "Artemis", roleTitle: "Снайпер", online: true, avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&auto=format&fit=crop", color: "purple" },
+      { name: "FrostBite", roleTitle: "Участник", online: false, avatar: null, color: "cyan" },
+      { name: "NightWolf", roleTitle: "Ветеран", online: true, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop", color: "purple" },
+      { name: "DarkRider", roleTitle: "Участник", online: true, avatar: null, color: "slate" },
+      
+      { name: "StormRage", roleTitle: "Ветеран", online: true, avatar: null, color: "amber" },
+      { name: "Gorr", roleTitle: "Участник", online: true, avatar: null, color: "slate" },
+      { name: "BloodHunter", roleTitle: "Офицер", online: true, avatar: null, color: "purple" },
+      { name: "Pyro", roleTitle: "Участник", online: false, avatar: null, color: "amber" },
+      { name: "Raven_Wing", roleTitle: "Ветеран", online: true, avatar: null, color: "cyan" },
+      { name: "Titan", roleTitle: "Участник", online: false, avatar: null, color: "slate" },
+      { name: "DawnSeeker", roleTitle: "Участник", online: true, avatar: null, color: "green" },
+      { name: "SilentDeath", roleTitle: "Снайпер", online: true, avatar: null, color: "purple" },
+      { name: "Aegis", roleTitle: "Ветеран", online: true, avatar: null, color: "cyan" },
+      { name: "Zephyr", roleTitle: "Участник", online: false, avatar: null, color: "slate" },
+
+      { name: "Thunder", roleTitle: "Участник", online: true, avatar: null, color: "amber" },
+      { name: "GhostSoul", roleTitle: "Участник", online: false, avatar: null, color: "slate" },
+      { name: "SunStrike", roleTitle: "Участник", online: true, avatar: null, color: "amber" },
+      { name: "MorningMist", roleTitle: "Участник", online: false, avatar: null, color: "cyan" },
+      { name: "Kael_Sun", roleTitle: "Участник", online: true, avatar: null, color: "green" },
+      { name: "LightBringer", roleTitle: "Ветеран", online: true, avatar: null, color: "purple" },
+      { name: "SilverArrow", roleTitle: "Снайпер", online: false, avatar: null, color: "slate" },
+      { name: "Vortex", roleTitle: "Участник", online: true, avatar: null, color: "cyan" },
+      { name: "Blaze", roleTitle: "Участник", online: false, avatar: null, color: "amber" },
+      { name: "Phantom", roleTitle: "Участник", online: true, avatar: null, color: "slate" },
+
+      { name: "Echo", roleTitle: "Новичок", online: true, avatar: null, color: "purple" },
+      { name: "Rex", roleTitle: "Участник", online: false, avatar: null, color: "slate" },
+      { name: "Viper", roleTitle: "Снайпер", online: true, avatar: null, color: "green" },
+      { name: "Lynx", roleTitle: "Участник", online: false, avatar: null, color: "amber" },
+      { name: "Nova", roleTitle: "Ветеран", online: true, avatar: null, color: "cyan" },
+      { name: "Orion", roleTitle: "Участник", online: false, avatar: null, color: "slate" },
+      { name: "Atlas", roleTitle: "Участник", online: true, avatar: null, color: "purple" },
+      { name: "Helix", roleTitle: "Новичок", online: false, avatar: null, color: "slate" },
+      { name: "Zenith", roleTitle: "Ветеран", online: true, avatar: null, color: "amber" },
+      { name: "Apex", roleTitle: "Участник", online: true, avatar: null, color: "green" },
+      { name: "Pulse", roleTitle: "Участник", online: false, avatar: null, color: "slate" },
+      { name: "Cipher", roleTitle: "Участник", online: true, avatar: null, color: "cyan" },
+      { name: "Nomad", roleTitle: "Ветеран", online: false, avatar: null, color: "amber" },
+      { name: "Ronin", roleTitle: "Участник", online: true, avatar: null, color: "purple" },
+      { name: "Specter", roleTitle: "Участник", online: false, avatar: null, color: "slate" },
+      { name: "Karma", roleTitle: "Новичок", online: true, avatar: null, color: "green" },
+      { name: "Rogue", roleTitle: "Участник", online: false, avatar: null, color: "slate" },
+      { name: "Blitz", roleTitle: "Ветеран", online: true, avatar: null, color: "amber" }
+    ];
+
+    let isShowingAllMembers = false;
+
+    function renderMembersList() {
+      const container = document.getElementById('members-grid');
+      container.innerHTML = '';
+
+      const countToDisplay = isShowingAllMembers ? guildMembers.length : 30;
+      const membersToRender = guildMembers.slice(0, countToDisplay);
+
+      membersToRender.forEach(m => {
+        const card = document.createElement('div');
+        card.className = `flex items-center gap-3 p-3 sm:p-4 rounded-[20px] bg-white border border-brand-border hover:border-brand-${m.color} transition-all group overflow-hidden min-w-0 shadow-sm hover:shadow-micro-hover ${!m.online ? 'opacity-60 grayscale-[30%]' : ''}`;
+
+        // Если аватара нет, генерируем его динамически через сервис
+        const finalAvatar = m.avatar || `https://i.pravatar.cc/100?u=${encodeURIComponent(m.name)}`;
+
+        const avatarHtml = `
+          <div class="rounded-full p-[2.5px] bg-gradient-to-tr from-brand-${m.color} to-brand-secondary shrink-0 transition-transform group-hover:scale-105 shadow-sm">
+            <img src="${finalAvatar}" class="w-9 h-9 rounded-full object-cover border-[2.5px] border-white bg-slate-50">
+          </div>
+        `;
+
+        const statusDot = m.online
+          ? `<div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-brand-success border-[2.5px] border-white rounded-full z-10 shadow-sm"></div>`
+          : `<div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-slate-300 border-[2.5px] border-white rounded-full z-10 shadow-sm"></div>`;
+
+        card.innerHTML = `
+          <div class="relative shrink-0 flex items-center justify-center">
+            ${avatarHtml}
+            ${statusDot}
+          </div>
+          <div class="min-w-0 flex-1 truncate ml-1">
+            <div class="text-[13px] font-extrabold text-brand-textMain group-hover:text-brand-${m.color} transition-colors truncate">${m.name}</div>
+            <div class="text-[11px] font-bold text-brand-textMuted uppercase tracking-wide truncate mt-0.5">${m.roleTitle}</div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    function toggleAllMembers() {
+      isShowingAllMembers = !isShowingAllMembers;
+      const text = document.getElementById('toggle-members-text');
+      const icon = document.getElementById('toggle-members-icon');
+
+      if (isShowingAllMembers) {
+        text.textContent = 'Свернуть список участников';
+        icon.classList.add('rotate-180');
+      } else {
+        text.textContent = `Показать весь список участников (${guildMembers.length})`;
+        icon.classList.remove('rotate-180');
+      }
+
+      renderMembersList();
+    }
+
+    const clan3hSlots = [
+      {
+        start: 0, end: 3, label: "00:00 - 03:00", badge: "Ночной слот",
+        players: [
+          { name: "Eldrin_Sun", role: "Ветеран", avatar: null },
+          { name: "Shadow_99", role: "Участник", avatar: null },
+          { name: "NightWolf", role: "Участник", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop" },
+          { name: "DarkRider", role: "Участник", avatar: null }
+        ]
+      },
+      {
+        start: 3, end: 6, label: "03:00 - 06:00", badge: "Глубокая ночь",
+        players: [
+          { name: "Eldrin_Sun", role: "Ветеран", avatar: null },
+          { name: "GhostSoul", role: "Участник", avatar: null }
+        ]
+      },
+      {
+        start: 6, end: 9, label: "06:00 - 09:00", badge: "Раннее утро",
+        players: [
+          { name: "DawnSeeker", role: "Участник", avatar: null },
+          { name: "IronWill", role: "Ветеран", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop" }
+        ]
+      },
+      {
+        start: 9, end: 12, label: "09:00 - 12:00", badge: "Утро",
+        players: [
+          { name: "IronWill", role: "Ветеран", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop" },
+          { name: "Artemis", role: "Снайпер", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&auto=format&fit=crop" },
+          { name: "Kael_Sun", role: "Участник", avatar: null }
+        ]
+      },
+      {
+        start: 12, end: 15, label: "12:00 - 15:00", badge: "День",
+        players: [
+          { name: "Lumina_Heals", role: "Офицер", avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&auto=format&fit=crop" },
+          { name: "Artemis", role: "Снайпер", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&auto=format&fit=crop" },
+          { name: "FrostBite", role: "Участник", avatar: null }
+        ]
+      },
+      {
+        start: 15, end: 18, label: "15:00 - 18:00", badge: "Предпрайм",
+        players: [
+          { name: "Valerius", role: "Лидер клана", avatar: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=80&auto=format&fit=crop" },
+          { name: "Lumina_Heals", role: "Офицер", avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&auto=format&fit=crop" },
+          { name: "Morrigan", role: "Офицер", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&auto=format&fit=crop" }
+        ]
+      },
+      {
+        start: 18, end: 21, label: "18:00 - 21:00", badge: "ПРАЙМ 🔥", isPrime: true,
+        players: [
+          { name: "Valerius", role: "Лидер клана", avatar: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=80&auto=format&fit=crop" },
+          { name: "Lumina_Heals", role: "Офицер", avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&auto=format&fit=crop" },
+          { name: "Morrigan", role: "Офицер", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&auto=format&fit=crop" },
+          { name: "IronWill", role: "Ветеран", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop" }
+        ]
+      },
+      {
+        start: 21, end: 24, label: "21:00 - 00:00", badge: "ПИК ОНЛАЙНА 🔥", isPrime: true,
+        players: [
+          { name: "Valerius", role: "Лидер клана", avatar: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=80&auto=format&fit=crop" },
+          { name: "Eldrin_Sun", role: "Ветеран", avatar: null },
+          { name: "Shadow_99", role: "Участник", avatar: null },
+          { name: "Morrigan", role: "Офицер", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&auto=format&fit=crop" }
+        ]
+      }
+    ];
+
+    let isClanSlotsOpen = false;
+
+    function formatHour(h) {
+      const normalized = (h % 24 + 24) % 24;
+      return (normalized < 10 ? '0' : '') + normalized + ':00';
+    }
+
+    function toggleClanSlots() {
+      const content = document.getElementById('clan-slots-content');
+      const chevron = document.getElementById('clan-chevron');
+      const text = document.getElementById('clan-toggle-text');
+      
+      isClanSlotsOpen = !isClanSlotsOpen;
+
+      if (isClanSlotsOpen) {
+        content.classList.remove('hidden');
+        chevron.classList.add('rotate-180');
+        if (text) text.textContent = 'Свернуть';
+      } else {
+        content.classList.add('hidden');
+        chevron.classList.remove('rotate-180');
+        if (text) text.textContent = 'Развернуть';
+      }
+    }
+
+    function renderClanSlots() {
+      const container = document.getElementById('clan-periods-grid');
+      if (!container) return;
+      container.innerHTML = '';
+
+      clan3hSlots.forEach((slot, index) => {
+        const isOverlap = (currentStart < currentEnd)
+          ? (slot.start < currentEnd && slot.end > currentStart)
+          : (slot.start < currentEnd || slot.end > currentStart);
+
+        const card = document.createElement('div');
+        card.className = `p-4 rounded-[24px] border transition-all relative overflow-hidden ${
+          isOverlap 
+            ? 'bg-blue-50 border-brand-primary shadow-micro ring-1 ring-brand-primary/20' 
+            : 'bg-white border-brand-border hover:border-slate-300 shadow-sm'
+        }`;
+
+        const previewPlayers = slot.players.slice(0, 3);
+        let previewAvatarsHtml = '';
+
+        previewPlayers.forEach((p) => {
+          // Динамический аватар для тех, у кого его нет
+          const finalAvatar = p.avatar || `https://i.pravatar.cc/100?u=${encodeURIComponent(p.name)}`;
+
+          previewAvatarsHtml += `
+            <div class="relative group/avatar cursor-pointer -ml-2.5 first:ml-0" title="${p.name} (${p.role})">
+              <div class="rounded-full p-[2px] bg-gradient-to-tr from-brand-primary to-brand-secondary hover:scale-110 transition-transform shadow-sm">
+                <img src="${finalAvatar}" class="w-8 h-8 rounded-full object-cover border-[2.5px] border-white bg-slate-50">
+              </div>
+              <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-success border-2 border-white z-10"></span>
+            </div>
+          `;
+        });
+
+        const totalPlayers = slot.players.length;
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <span class="font-mono text-[13px] font-extrabold text-brand-textMain">${slot.label}</span>
+            </div>
+            <span class="text-[9px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide ${
+              slot.isPrime 
+                ? 'bg-brand-secondary text-brand-textMain shadow-sm' 
+                : 'bg-slate-100 text-brand-textMuted border border-brand-border'
+            }">
+              ${slot.badge}
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between gap-2 pt-3 border-t border-brand-border border-dashed">
+            <div class="flex items-center pl-1">
+              ${previewAvatarsHtml}
+            </div>
+
+            <button onclick="openSlotMembersModal(${index})" class="px-3.5 py-1.5 rounded-full bg-white border border-brand-border hover:border-brand-primary text-brand-textMain hover:text-brand-primary text-[10px] font-bold uppercase tracking-wide flex items-center gap-1 transition-all active:scale-95 shadow-sm">
+              <span>Все (${totalPlayers})</span>
+              <i data-lucide="chevron-right" class="w-3 h-3"></i>
+            </button>
+          </div>
+
+          ${isOverlap ? `
+            <div class="mt-4 text-[10px] font-bold uppercase tracking-wide text-brand-primary flex items-center gap-1.5 bg-white w-fit px-3 py-1.5 rounded-full shadow-sm border border-blue-100">
+              <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Вы в сети в этот период
+            </div>
+          ` : ''}
+        `;
+
+        container.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    function openSlotMembersModal(slotIndex) {
+      const slot = clan3hSlots[slotIndex];
+      if (!slot) return;
+
+      const modal = document.getElementById('slot-modal');
+      const content = document.getElementById('slot-modal-content');
+      const title = document.getElementById('modal-period-title');
+      const badge = document.getElementById('modal-period-badge');
+      const subtitle = document.getElementById('modal-period-subtitle');
+      const listContainer = document.getElementById('modal-members-list');
+
+      title.textContent = slot.label;
+      badge.textContent = slot.badge;
+      subtitle.textContent = `В сети в этот период: ${slot.players.length} игроков (Европа / Париж)`;
+
+      listContainer.innerHTML = '';
+      slot.players.forEach((player) => {
+        // Динамический аватар для модального окна
+        const finalAvatar = player.avatar || `https://i.pravatar.cc/100?u=${encodeURIComponent(player.name)}`;
+
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-3 sm:p-4 rounded-[20px] bg-white border border-brand-border hover:border-brand-primary transition-colors shadow-sm';
+
+        const avatarHtml = `
+          <div class="rounded-full p-[2.5px] bg-gradient-to-tr from-brand-primary to-brand-secondary shrink-0 shadow-sm">
+            <img src="${finalAvatar}" class="w-10 h-10 rounded-full object-cover border-[2.5px] border-white bg-slate-50">
+          </div>
+        `;
+
+        item.innerHTML = `
+          <div class="flex items-center gap-4">
+            <div class="relative">
+              ${avatarHtml}
+              <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-brand-success border-[2.5px] border-white rounded-full z-10 shadow-sm"></div>
+            </div>
+            <div>
+              <div class="text-sm font-extrabold text-brand-textMain">${player.name}</div>
+              <div class="text-[11px] font-bold uppercase tracking-wide text-brand-textMuted mt-1">${player.role}</div>
+            </div>
+          </div>
+          <span class="text-[10px] px-3 py-1.5 rounded-full font-bold uppercase tracking-wide bg-green-50 text-green-700 border border-green-200 shadow-sm">
+            Онлайн
+          </span>
+        `;
+        listContainer.appendChild(item);
+      });
+
+      modal.classList.remove('pointer-events-none', 'opacity-0');
+      content.classList.remove('scale-95');
+      content.classList.add('scale-100');
+      lucide.createIcons();
+    }
+
+    function closeSlotModal() {
+      const modal = document.getElementById('slot-modal');
+      const content = document.getElementById('slot-modal-content');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+    }
+
+    window.addEventListener('click', (e) => {
+      const modal = document.getElementById('slot-modal');
+      if (e.target === modal) closeSlotModal();
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSlotModal();
+    });
+
+    // -------------------------------------------------------------
+    // ИНТЕРАКТИВНЫЙ ВЫБОР ДИАПАЗОНА (КЛИКИ И DRAG & SELECT)
+    // -------------------------------------------------------------
+    let isDragging = false;
+    let dragStartHour = 19;
+    let dragEndHour = 23;
+    let currentStart = 19;
+    let currentEnd = 23;
+    let firstClickHour = null;
+
+    const timelineGrid = document.getElementById('timeline-grid');
+    const selectedRangeLabel = document.getElementById('selected-range-label');
+    const overlapStat = document.getElementById('overlap-stat');
+    const dragHint = document.getElementById('drag-hint');
+
+    function buildTimelineGrid() {
+      timelineGrid.innerHTML = '';
+      for (let i = 0; i < 24; i++) {
+        const cell = document.createElement('div');
+        cell.dataset.hour = i;
+        cell.className = 'timeline-cell h-full rounded-[14px] flex flex-col items-center justify-center text-[11px] font-extrabold transition-all border border-brand-border bg-white text-brand-textMuted cursor-pointer relative group hover:border-brand-primary shadow-sm';
+        
+        cell.innerHTML = `
+          <span class="pointer-events-none">${i}</span>
+          <div class="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-brand-textMain px-3 py-1.5 rounded-full text-[11px] border border-brand-textMain pointer-events-none text-white whitespace-nowrap z-20 font-mono shadow-md">
+            ${formatHour(i)}
+          </div>
+        `;
+
+        cell.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          handleCellStart(i);
+        });
+
+        cell.addEventListener('mouseenter', () => {
+          if (isDragging) updateDragSelection(i);
+        });
+
+        timelineGrid.appendChild(cell);
+      }
+
+      window.addEventListener('mouseup', handleCellEnd);
+      timelineGrid.addEventListener('touchstart', handleTouchStart, { passive: false });
+      timelineGrid.addEventListener('touchmove', handleTouchMove, { passive: false });
+      timelineGrid.addEventListener('touchend', handleCellEnd);
+    }
+
+    function handleCellStart(hour) {
+      if (firstClickHour !== null) {
+        const start = Math.min(firstClickHour, hour);
+        const end = Math.max(firstClickHour, hour) + 1;
+        firstClickHour = null;
+        isDragging = false;
+        applyFinalRange(start, end);
+        dragHint.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-brand-success"></i> Интервал выбран!`;
+        lucide.createIcons();
+        return;
+      }
+
+      isDragging = true;
+      dragStartHour = hour;
+      dragEndHour = hour;
+      renderCurrentRange(dragStartHour, dragEndHour);
+      dragHint.innerHTML = `<span class="text-brand-primary font-bold animate-pulse">Тяните до часа окончания или кликните вторую точку...</span>`;
+    }
+
+    function updateDragSelection(hour) {
+      if (!isDragging) return;
+      dragEndHour = hour;
+      renderCurrentRange(dragStartHour, dragEndHour);
+    }
+
+    function handleCellEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      
+      if (dragStartHour !== dragEndHour) {
+        firstClickHour = null;
+        const start = Math.min(dragStartHour, dragEndHour);
+        const end = Math.max(dragStartHour, dragEndHour) + 1;
+        applyFinalRange(start, end);
+        dragHint.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-brand-success"></i> Интервал выбран!`;
+        lucide.createIcons();
+      } else {
+        firstClickHour = dragStartHour;
+        applyFinalRange(dragStartHour, dragStartHour + 1);
+        dragHint.innerHTML = `<span class="text-brand-primary font-bold">Начало: ${formatHour(dragStartHour)}. Кликните вторую точку для интервала...</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    function handleTouchStart(e) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      const cell = target?.closest('.timeline-cell');
+      if (cell) handleCellStart(parseInt(cell.dataset.hour));
+    }
+
+    function handleTouchMove(e) {
+      if (!isDragging) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      const cell = target?.closest('.timeline-cell');
+      if (cell) {
+        const hour = parseInt(cell.dataset.hour);
+        if (hour !== dragEndHour) updateDragSelection(hour);
+      }
+    }
+
+    function renderCurrentRange(start, end) {
+      const s = Math.min(start, end);
+      const e = Math.max(start, end);
+
+      const cells = timelineGrid.querySelectorAll('.timeline-cell');
+      cells.forEach((cell) => {
+        const h = parseInt(cell.dataset.hour);
+        if (h >= s && h <= e) {
+          cell.className = 'timeline-cell h-full rounded-[14px] flex flex-col items-center justify-center text-[11px] font-extrabold transition-all border-2 border-brand-primary bg-blue-50 text-brand-primary shadow-sm relative group';
+        } else {
+          cell.className = 'timeline-cell h-full rounded-[14px] flex flex-col items-center justify-center text-[11px] font-extrabold transition-all border border-brand-border bg-white text-brand-textMuted cursor-pointer relative group shadow-sm hover:border-brand-primary';
+        }
+      });
+
+      const displayEnd = (e + 1 === 24) ? '24:00' : formatHour(e + 1);
+      const hoursCount = (e - s) + 1;
+      
+      selectedRangeLabel.innerHTML = `
+        <span class="text-brand-textMain font-bold bg-white px-2 py-1 rounded-[10px] shadow-sm border border-brand-border">${formatHour(s)}</span>
+        <i data-lucide="arrow-right" class="w-4 h-4 text-brand-textMuted font-sans"></i>
+        <span class="text-brand-textMain font-bold bg-white px-2 py-1 rounded-[10px] shadow-sm border border-brand-border">${displayEnd}</span>
+        <span class="text-[11px] uppercase tracking-wide font-bold px-3 py-1.5 rounded-full bg-brand-secondary text-brand-textMain shadow-sm ml-1">${hoursCount} ч.</span>
+      `;
+      lucide.createIcons();
+    }
+
+    function applyFinalRange(start, end) {
+      currentStart = start;
+      currentEnd = end;
+
+      const cells = timelineGrid.querySelectorAll('.timeline-cell');
+      cells.forEach((cell) => {
+        const h = parseInt(cell.dataset.hour);
+        const inRange = (start < end) ? (h >= start && h < end) : (h >= start || h < end);
+
+        if (inRange) {
+          cell.className = 'timeline-cell h-full rounded-[14px] flex flex-col items-center justify-center text-[11px] font-extrabold transition-all border border-brand-primary bg-brand-primary text-white relative group shadow-md';
+        } else {
+          cell.className = 'timeline-cell h-full rounded-[14px] flex flex-col items-center justify-center text-[11px] font-extrabold transition-all border border-brand-border bg-white text-brand-textMuted cursor-pointer relative group shadow-sm hover:border-brand-primary';
+        }
+      });
+
+      const endText = end === 24 ? '24:00' : formatHour(end);
+      const duration = (end >= start) ? (end - start) : (24 - start + end);
+
+      selectedRangeLabel.innerHTML = `
+        <span class="text-brand-textMain font-bold bg-white px-2.5 py-1 rounded-[10px] shadow-sm border border-brand-border">${formatHour(start)}</span>
+        <i data-lucide="arrow-right" class="w-4 h-4 text-brand-textMuted font-sans"></i>
+        <span class="text-brand-textMain font-bold bg-white px-2.5 py-1 rounded-[10px] shadow-sm border border-brand-border">${endText}</span>
+        <span class="text-[11px] uppercase tracking-wide font-bold px-3 py-1.5 rounded-full bg-brand-secondary text-brand-textMain shadow-sm ml-1">${duration} ч.</span>
+      `;
+      lucide.createIcons();
+
+      calculateOverlap(start, end);
+      renderClanSlots();
+    }
+
+    function calculateOverlap(start, end) {
+      let activeMates = 0;
+      for (let h = start; h < end; h++) {
+        if (h >= 19 && h <= 23) activeMates += 4;
+        else if (h >= 14 && h < 19) activeMates += 2;
+        else activeMates += 1;
+      }
+      const count = Math.min(36, Math.max(4, Math.floor(activeMates / 2) + 6));
+      overlapStat.innerHTML = `Пересекается с ~${count} игроками`;
+    }
+
+    window.setPreset = function(s, e) {
+      firstClickHour = null;
+      applyFinalRange(s, e);
+    };
+
+    window.saveUserRange = function() {
+      const btn = document.getElementById('save-btn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Сохранено!`;
+      btn.classList.add('bg-brand-success');
+      btn.classList.remove('bg-brand-primary');
+      lucide.createIcons();
+
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.classList.remove('bg-brand-success');
+        btn.classList.add('bg-brand-primary');
+        lucide.createIcons();
+      }, 1500);
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      buildTimelineGrid();
+      renderClanSlots();
+      renderMembersList();
+      applyFinalRange(19, 23);
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

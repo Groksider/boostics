@@ -21,14 +21,14 @@
           colors: {
             brand: {
               bg: '#F8FAFC',
-              surface: '#FFFFFF',
-              card: '#FFFFFF',
-              border: '#E2E8F0',
-              blue: '#2563EB',
-              blueHover: '#1D4ED8',
-              yellow: '#FACC15',
-              dark: '#0F172A',
-              muted: '#64748B'
+              bgAlt: '#F1F5F9',
+              base: '#FFFFFF',
+              primary: '#2563EB',
+              primaryLight: '#3B82F6',
+              secondary: '#FACC15',
+              heading: '#0F172A',
+              muted: '#64748B',
+              border: '#E2E8F0'
             }
           },
           fontFamily: {
@@ -74,7 +74,7 @@
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
   </style>
 </head>
-<body class="p-4 sm:p-6 lg:p-8 min-h-screen selection:bg-brand-blue selection:text-white bg-slate-50/70">
+<body class="p-4 sm:p-6 lg:p-8 min-h-screen selection:bg-brand-primary selection:text-white bg-brand-bg">
 
   <!-- SVG ГРАДИЕНТ ДЛЯ ОГНЯ -->
   <svg class="absolute w-0 h-0 overflow-hidden" aria-hidden="true">
@@ -91,44 +91,44 @@
   <section id="screen-moments" class="space-y-6 max-w-[1780px] mx-auto">
     
     <!-- ШАПКА РАЗДЕЛА -->
-    <div class="bg-white border border-slate-200/80 rounded-[28px] p-5 sm:p-6 relative overflow-visible shadow-soft">
+    <div class="bg-brand-base border border-brand-border rounded-[24px] p-5 sm:p-6 relative overflow-visible shadow-soft">
       <!-- Декоративная акцентная полоса сверху -->
-      <div class="absolute top-0 left-6 right-6 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-amber-400 rounded-full"></div>
+      <div class="absolute top-0 left-6 right-6 h-1 bg-gradient-to-r from-indigo-500 to-cyan-400 rounded-full"></div>
       
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-5 pt-1">
         
         <!-- НАДПИСЬ: ЯРКИЕ МОМЕНТЫ КЛАНА -->
         <div class="flex items-center gap-3.5">
-          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 shrink-0">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-primary to-violet-500 flex items-center justify-center text-white shadow-md shadow-brand-primary/20 shrink-0">
             <i data-lucide="sparkles" class="w-6 h-6"></i>
           </div>
           <div>
-            <h1 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-brand-heading tracking-tight">
               Яркие моменты клана
             </h1>
-            <p class="text-xs sm:text-sm text-slate-500 font-medium">Лучшие скриншоты, рейды и события нашего сообщества</p>
+            <p class="text-xs sm:text-sm text-brand-muted font-medium">Лучшие скриншоты, рейды и события нашего сообщества</p>
           </div>
         </div>
 
         <!-- ПРАВЫЙ БЛОК: ЕДИНАЯ СТРОКА ПОИСКА С ФИЛЬТРАМИ ВНУТРИ + КНОПКА ВЫБОРА АРХИВА -->
         <div class="flex flex-wrap items-center gap-3 xl:justify-end">
           
-          <!-- ОБЩАЯ СТРОКА ПОИСКА (ВНУТРИ: ТЕКСТ, ЧИП АРХИВА И МЕНЮ АВТОРОВ) -->
-          <div class="flex items-center bg-slate-50/90 border border-slate-200/90 hover:border-slate-300 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 rounded-full p-1.5 pl-4 transition-all duration-200 w-full sm:w-auto shadow-sm">
+          <!-- ОБЩАЯ СТРОКА ПОИСКА -->
+          <div class="flex items-center bg-brand-bg border border-brand-border hover:border-brand-primaryLight focus-within:border-brand-primary focus-within:bg-brand-base focus-within:ring-4 focus-within:ring-brand-primary/10 rounded-full p-1.5 pl-4 transition-all duration-200 w-full sm:w-auto shadow-soft">
             
             <!-- Иконка лупы и поле текстового ввода -->
             <div class="flex items-center gap-2 flex-1 min-w-[150px] sm:min-w-[200px]">
-              <i data-lucide="search" class="w-4 h-4 text-slate-400 shrink-0"></i>
+              <i data-lucide="search" class="w-4 h-4 text-brand-muted shrink-0"></i>
               <input 
                 type="text" 
                 id="search-input" 
                 placeholder="Поиск по моментам..." 
-                class="w-full bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none py-1.5 pr-2 font-medium"
+                class="w-full bg-transparent text-xs text-brand-heading placeholder-brand-muted focus:outline-none py-1.5 pr-2 font-medium"
               />
             </div>
 
             <!-- Внутренний вертикальный разделитель -->
-            <div class="h-5 w-px bg-slate-200 mx-1.5 shrink-0 hidden sm:block"></div>
+            <div class="h-5 w-px bg-brand-border mx-1.5 shrink-0 hidden sm:block"></div>
 
             <!-- ВНУТРЕННИЕ ФИЛЬТРЫ: АРХИВ И АВТОР -->
             <div class="flex items-center gap-1.5 shrink-0">
@@ -138,7 +138,7 @@
                 type="button" 
                 id="archive-toggle-btn" 
                 onclick="toggleArchiveFilter()"
-                class="px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 border select-none active:scale-95 bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100 shadow-sm"
+                class="px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 border select-none active:scale-95 bg-brand-base border-brand-border text-brand-muted hover:text-brand-heading hover:bg-brand-bgAlt shadow-sm"
                 title="Включить фильтрацию по архиву"
               >
                 <i data-lucide="clock" class="w-3.5 h-3.5"></i>
@@ -151,28 +151,28 @@
                   type="button"
                   id="author-dropdown-btn"
                   onclick="toggleAuthorDropdown(event)"
-                  class="flex items-center gap-1.5 bg-white border border-slate-200 hover:border-slate-300 rounded-full px-3 py-1.5 text-xs font-semibold text-slate-700 transition-all active:scale-95 shadow-sm group"
+                  class="flex items-center gap-1.5 bg-brand-base border border-brand-border hover:border-brand-primaryLight rounded-full px-3 py-1.5 text-xs font-semibold text-brand-heading transition-all active:scale-95 shadow-sm group"
                 >
-                  <i data-lucide="user" class="w-3.5 h-3.5 text-blue-600 shrink-0"></i>
+                  <i data-lucide="user" class="w-3.5 h-3.5 text-brand-primary shrink-0"></i>
                   <span id="selected-author-label" class="max-w-[95px] sm:max-w-[120px] truncate text-left">Все авторы</span>
-                  <i data-lucide="chevron-down" id="author-chevron" class="w-3 h-3 text-slate-400 transition-transform duration-200"></i>
+                  <i data-lucide="chevron-down" id="author-chevron" class="w-3 h-3 text-brand-muted transition-transform duration-200"></i>
                 </button>
 
                 <!-- Выпадающий блок списка авторов -->
                 <div 
                   id="author-dropdown-menu"
                   onclick="event.stopPropagation()"
-                  class="hidden absolute right-0 top-full mt-2 w-64 bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl p-2.5 shadow-xl z-50 animate-in fade-in zoom-in-95 duration-150"
+                  class="hidden absolute right-0 top-full mt-2 w-64 bg-brand-base/95 backdrop-blur-xl border border-brand-border rounded-[24px] p-2.5 shadow-xl z-50 animate-in fade-in zoom-in-95 duration-150"
                 >
                   <!-- Поиск автора внутри меню -->
                   <div class="relative mb-2">
-                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-brand-muted"></i>
                     <input 
                       type="text" 
                       id="author-search-input" 
                       oninput="filterAuthorsList(this.value)"
                       placeholder="Поиск автора..." 
-                      class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-2.5 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all font-medium"
+                      class="w-full bg-brand-bgAlt border border-brand-border rounded-full pl-8 pr-2.5 py-1.5 text-xs text-brand-heading placeholder-brand-muted focus:outline-none focus:border-brand-primary focus:bg-brand-base transition-all font-medium"
                     />
                   </div>
 
@@ -192,31 +192,31 @@
               id="archive-dropdown-btn" 
               type="button"
               onclick="toggleArchiveDropdown(event)"
-              class="px-4 py-2 sm:py-2.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200/90 hover:border-blue-300 shadow-sm active:scale-95 group"
+              class="px-4 py-2 sm:py-2.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 bg-brand-base hover:bg-brand-bgAlt text-brand-heading border border-brand-border hover:border-brand-primaryLight shadow-sm active:scale-95 group"
             >
-              <i data-lucide="archive" class="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform"></i>
+              <i data-lucide="archive" class="w-4 h-4 text-brand-primary group-hover:scale-110 transition-transform"></i>
               <span>Архив</span>
-              <span id="active-filter-badge" class="hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+              <span id="active-filter-badge" class="hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-bgAlt text-brand-muted border border-brand-border">
                 Все записи
               </span>
-              <i data-lucide="chevron-down" id="archive-chevron" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200"></i>
+              <i data-lucide="chevron-down" id="archive-chevron" class="w-3.5 h-3.5 text-brand-muted transition-transform duration-200"></i>
             </button>
 
             <!-- Меню: Месяц и под ним Недели -->
             <div 
               id="archive-dropdown-menu" 
               onclick="event.stopPropagation()"
-              class="hidden absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white/95 backdrop-blur-xl border border-slate-200 rounded-3xl p-5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150"
+              class="hidden absolute right-0 top-full mt-2 w-72 sm:w-80 bg-brand-base/95 backdrop-blur-xl border border-brand-border rounded-[24px] p-5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150"
             >
-              <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
-                <div class="flex items-center gap-2 text-xs font-extrabold text-slate-900 uppercase tracking-wider">
-                  <i data-lucide="calendar" class="w-4 h-4 text-blue-600"></i>
+              <div class="flex items-center justify-between pb-3 mb-3 border-b border-brand-border">
+                <div class="flex items-center gap-2 text-xs font-extrabold text-brand-heading uppercase tracking-wider">
+                  <i data-lucide="calendar" class="w-4 h-4 text-brand-primary"></i>
                   Период архива
                 </div>
                 <button 
                   type="button"
                   onclick="resetArchiveFilter()" 
-                  class="text-[11px] text-slate-400 hover:text-blue-600 transition-colors flex items-center gap-1 font-semibold"
+                  class="text-[11px] text-brand-muted hover:text-brand-primary transition-colors flex items-center gap-1 font-semibold"
                   title="Сбросить фильтр дат"
                 >
                   <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Сброс
@@ -225,13 +225,13 @@
 
               <!-- 1. Месяц -->
               <div class="space-y-1.5 mb-4">
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                <label class="text-[10px] font-bold text-brand-muted uppercase tracking-wider block">
                   Месяц
                 </label>
                 <select 
                   id="month-select" 
                   onchange="changeMonth(this.value)"
-                  class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-2xl px-3.5 py-2.5 focus:outline-none focus:border-blue-500 focus:bg-white cursor-pointer transition-all shadow-sm"
+                  class="w-full bg-brand-bgAlt border border-brand-border text-brand-heading text-xs font-semibold rounded-[16px] px-3.5 py-2.5 focus:outline-none focus:border-brand-primary focus:bg-brand-base cursor-pointer transition-all shadow-sm"
                 >
                 </select>
               </div>
@@ -239,21 +239,21 @@
               <!-- 2. Недели под месяцем -->
               <div class="space-y-1.5 mb-4">
                 <div class="flex items-center justify-between">
-                  <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  <label class="text-[10px] font-bold text-brand-muted uppercase tracking-wider">
                     Недели
                   </label>
-                  <span id="weeks-hint" class="text-[10px] text-blue-600 font-bold"></span>
+                  <span id="weeks-hint" class="text-[10px] text-brand-primary font-bold"></span>
                 </div>
                 <div id="weeks-selector" class="flex flex-col gap-1.5 max-h-48 overflow-y-auto custom-scrollbar pr-0.5">
                   <!-- Заполняется динамически -->
                 </div>
               </div>
 
-              <div class="pt-2 border-t border-slate-100">
+              <div class="pt-2 border-t border-brand-border">
                 <button 
                   type="button"
                   onclick="closeArchiveDropdown()" 
-                  class="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full text-xs font-bold transition-all text-center shadow-md shadow-blue-500/25 active:scale-95"
+                  class="w-full py-2.5 bg-brand-primary hover:bg-brand-primaryLight text-white rounded-full text-xs font-bold transition-all text-center shadow-md shadow-brand-primary/25 active:scale-95"
                 >
                   Применить
                 </button>
@@ -273,27 +273,27 @@
   </section>
 
   <!-- МОДАЛЬНОЕ ОКНО -->
-  <div id="image-modal" class="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-6 opacity-0 transition-opacity duration-300">
-    <div id="image-modal-content" class="relative w-full max-w-4xl max-h-[90vh] bg-white border border-slate-200/80 rounded-[32px] overflow-hidden shadow-2xl flex flex-col scale-95 transition-transform duration-300 ease-out">
+  <div id="image-modal" class="fixed inset-0 z-[100] bg-brand-heading/50 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-6 opacity-0 transition-opacity duration-300">
+    <div id="image-modal-content" class="relative w-full max-w-4xl max-h-[90vh] bg-brand-base border border-brand-border rounded-[32px] overflow-hidden shadow-2xl flex flex-col scale-95 transition-transform duration-300 ease-out">
       
-      <button onclick="closeImageModal()" class="absolute top-4 right-4 z-50 p-2.5 bg-white/90 backdrop-blur border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-white rounded-full transition-all shadow-md active:scale-95">
+      <button onclick="closeImageModal()" class="absolute top-4 right-4 z-50 p-2.5 bg-brand-base/90 backdrop-blur border border-brand-border text-brand-muted hover:text-brand-heading hover:bg-brand-base rounded-full transition-all shadow-md active:scale-95">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
 
       <div class="flex-1 overflow-y-auto custom-scrollbar p-5 sm:p-8 space-y-6">
-        <div class="relative w-full h-64 sm:h-80 lg:h-[420px] rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 shadow-inner">
+        <div class="relative w-full h-64 sm:h-80 lg:h-[420px] rounded-3xl overflow-hidden bg-brand-bg border border-brand-border shrink-0 shadow-inner">
           <img id="modal-image-display" src="" alt="Изображение" class="w-full h-full object-cover">
         </div>
 
         <div class="space-y-4">
-          <h2 id="modal-title" class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight"></h2>
+          <h2 id="modal-title" class="text-2xl sm:text-3xl font-extrabold text-brand-heading leading-tight"></h2>
           
           <div class="flex items-center gap-3 pt-1">
-            <img id="modal-author-avatar" src="" alt="" class="w-10 h-10 rounded-full object-cover ring-2 ring-brand-yellow ring-offset-2 border border-slate-200">
-            <span id="modal-author-name" class="text-slate-900 text-sm font-bold"></span>
+            <img id="modal-author-avatar" src="" alt="" class="w-10 h-10 rounded-full object-cover ring-2 ring-brand-secondary ring-offset-2 border border-brand-border">
+            <span id="modal-author-name" class="text-brand-heading text-sm font-bold"></span>
           </div>
 
-          <p id="modal-desc" class="text-slate-600 text-sm sm:text-base leading-relaxed bg-slate-50 p-5 rounded-2xl border border-slate-100 font-medium"></p>
+          <p id="modal-desc" class="text-brand-muted text-sm sm:text-base leading-relaxed bg-brand-bgAlt p-5 rounded-3xl border border-brand-border font-medium"></p>
         </div>
       </div>
     </div>
@@ -467,9 +467,9 @@
       if (!btn) return;
 
       if (isArchiveActive) {
-        btn.className = "px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 border select-none active:scale-95 bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-500/25";
+        btn.className = "px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 border select-none active:scale-95 bg-brand-primary border-brand-primary text-white shadow-sm shadow-brand-primary/25";
       } else {
-        btn.className = "px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 border select-none active:scale-95 bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100 shadow-sm";
+        btn.className = "px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 border select-none active:scale-95 bg-brand-base border-brand-border text-brand-muted hover:text-brand-heading hover:bg-brand-bgAlt shadow-sm";
       }
     }
 
@@ -531,13 +531,13 @@
         <button 
           type="button" 
           onclick="selectAuthor('all')" 
-          class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-left transition-all ${
+          class="flex items-center gap-2.5 px-3 py-2 rounded-full text-xs font-semibold text-left transition-all ${
             selectedAuthor === 'all' 
-              ? 'bg-blue-50 text-blue-600 border border-blue-200 font-bold' 
-              : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+              ? 'bg-brand-primary text-white font-bold shadow-sm' 
+              : 'text-brand-heading hover:bg-brand-bgAlt'
           }"
         >
-          <div class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 border border-slate-200 text-[10px]">
+          <div class="w-6 h-6 rounded-full bg-brand-bgAlt flex items-center justify-center text-brand-muted border border-brand-border text-[10px]">
             <i data-lucide="users" class="w-3.5 h-3.5"></i>
           </div>
           <span class="truncate">Все авторы</span>
@@ -546,7 +546,7 @@
 
       if (authors.length === 0) {
         itemsHtml += `
-          <div class="py-3 px-2 text-center text-slate-400 text-[11px] font-medium">
+          <div class="py-3 px-2 text-center text-brand-muted text-[11px] font-medium">
             Автор не найден
           </div>
         `;
@@ -555,13 +555,13 @@
           <button 
             type="button" 
             onclick="selectAuthor('${author.name}')" 
-            class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-left transition-all ${
+            class="flex items-center gap-2.5 px-3 py-2 rounded-full text-xs font-semibold text-left transition-all ${
               selectedAuthor === author.name 
-                ? 'bg-blue-50 text-blue-600 border border-blue-200 font-bold' 
-                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                ? 'bg-brand-primary text-white font-bold shadow-sm' 
+                : 'text-brand-heading hover:bg-brand-bgAlt'
             }"
           >
-            <img src="${author.avatar}" alt="${author.name}" class="w-6 h-6 rounded-full object-cover ring-2 ring-brand-yellow/80" />
+            <img src="${author.avatar}" alt="${author.name}" class="w-6 h-6 rounded-full object-cover ring-2 ring-brand-secondary" />
             <span class="truncate">${author.name}</span>
           </button>
         `).join('');
@@ -610,7 +610,7 @@
 
       if (!isArchiveActive || selectedMonthKey === 'all') {
         badge.textContent = 'Все записи';
-        badge.className = 'hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200';
+        badge.className = 'hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-bgAlt text-brand-muted border border-brand-border';
       } else {
         const [year, monthNum] = selectedMonthKey.split('-');
         const monthName = MONTH_NAMES[parseInt(monthNum) - 1];
@@ -619,7 +619,7 @@
         } else {
           badge.textContent = `${monthName}, нед. ${selectedWeek}`;
         }
-        badge.className = 'hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 border border-blue-200 text-blue-600 shadow-sm';
+        badge.className = 'hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-primary text-white shadow-sm';
       }
     }
 
@@ -634,11 +634,11 @@
 
       const sortedMonths = Array.from(monthsSet).sort().reverse();
 
-      let optionsHtml = '<option value="all" class="bg-white text-slate-800">Все месяцы (Все записи)</option>';
+      let optionsHtml = '<option value="all" class="bg-brand-base text-brand-heading">Все месяцы (Все записи)</option>';
       optionsHtml += sortedMonths.map(key => {
         const [year, monthNum] = key.split('-');
         const monthName = MONTH_NAMES[parseInt(monthNum) - 1];
-        return `<option value="${key}" class="bg-white text-slate-800">${monthName} ${year}</option>`;
+        return `<option value="${key}" class="bg-brand-base text-brand-heading">${monthName} ${year}</option>`;
       }).join('');
 
       monthSelect.innerHTML = optionsHtml;
@@ -656,7 +656,7 @@
       if (selectedMonthKey === 'all') {
         weeksHint.textContent = '';
         weeksSelector.innerHTML = `
-          <div class="py-3 px-3 text-center text-[11px] text-slate-400 bg-slate-50 rounded-2xl border border-slate-200 font-medium">
+          <div class="py-3 px-3 text-center text-[11px] text-brand-muted bg-brand-bgAlt rounded-[16px] border border-brand-border font-medium">
             Сначала выберите месяц выше
           </div>
         `;
@@ -686,14 +686,14 @@
           <button 
             type="button"
             onclick="selectWeek('${w.id}')"
-            class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+            class="w-full flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
               isActive 
-                ? 'bg-blue-600 text-white font-bold shadow-sm shadow-blue-500/30' 
-                : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-slate-900'
+                ? 'bg-brand-primary text-white font-bold shadow-sm shadow-brand-primary/30' 
+                : 'bg-brand-bgAlt text-brand-muted border border-brand-border hover:bg-brand-bg hover:text-brand-heading'
             }"
           >
             <span>${w.label}</span>
-            <span class="text-[10px] ${isActive ? 'text-blue-100 font-bold' : 'text-slate-400'}">${w.sub}</span>
+            <span class="text-[10px] ${isActive ? 'text-white' : 'text-brand-muted'}">${w.sub}</span>
           </button>
         `;
       }).join('');
@@ -768,7 +768,7 @@
       if (activeEmojis.length === 0) return '';
 
       return `
-        <div class="px-5 pb-4 pt-2.5 flex items-center gap-1.5 overflow-x-auto custom-scrollbar border-t border-slate-100 bg-slate-50/50">
+        <div class="px-5 pb-4 pt-2.5 flex items-center gap-1.5 overflow-x-auto custom-scrollbar border-t border-brand-border bg-brand-bgAlt/50">
           ${activeEmojis.map(emoji => {
             const count = item.reactions[emoji];
             const isReacted = item.userReactions[emoji];
@@ -777,12 +777,12 @@
                 onclick="toggleReaction(event, '${item.id}', '${emoji}')"
                 class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold transition-all shrink-0 active:scale-95 ${
                   isReacted 
-                    ? 'bg-blue-50 border-blue-300 text-blue-700 shadow-sm' 
-                    : 'bg-white border-slate-200/90 text-slate-700 hover:border-blue-300 hover:text-blue-600 shadow-sm'
+                    ? 'bg-brand-primary border-brand-primary text-white shadow-sm' 
+                    : 'bg-brand-base border-brand-border text-brand-muted hover:border-brand-primary hover:text-brand-primary shadow-sm'
                 }"
               >
                 <span class="text-xs leading-none">${emoji}</span>
-                <span class="text-[11px] ${isReacted ? 'text-blue-700' : 'text-slate-600'}">${count}</span>
+                <span class="text-[11px] ${isReacted ? 'text-white' : 'text-brand-muted'}">${count}</span>
               </button>
             `;
           }).join('')}
@@ -822,12 +822,12 @@
 
       if (filtered.length === 0) {
         momentsGrid.innerHTML = `
-          <div class="col-span-full h-64 bg-white border-2 border-dashed border-slate-200 rounded-[28px] flex flex-col items-center justify-center p-6 text-center shadow-soft">
-            <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+          <div class="col-span-full h-64 bg-brand-base border-2 border-dashed border-brand-border rounded-[28px] flex flex-col items-center justify-center p-6 text-center shadow-soft">
+            <div class="w-12 h-12 rounded-full bg-brand-bgAlt text-brand-muted flex items-center justify-center mb-3">
               <i data-lucide="archive" class="w-6 h-6"></i>
             </div>
-            <h3 class="text-slate-800 font-bold text-base">Ничего не найдено</h3>
-            <p class="text-xs text-slate-500 mt-1 font-medium">Попробуйте изменить запрос или фильтры поиска</p>
+            <h3 class="text-brand-heading font-bold text-base">Ничего не найдено</h3>
+            <p class="text-xs text-brand-muted mt-1 font-medium">Попробуйте изменить запрос или фильтры поиска</p>
           </div>
         `;
         lucide.createIcons();
@@ -840,16 +840,16 @@
         return `
           <div 
             onclick="openImageModal('${item.id}')"
-            class="bg-white rounded-[24px] overflow-hidden border border-slate-200/80 cursor-pointer group hover:border-blue-300 hover:shadow-card-hover transition-all duration-300 flex flex-col justify-between h-full relative shadow-soft"
+            class="bg-brand-base rounded-[24px] overflow-hidden border border-brand-bgAlt cursor-pointer group hover:border-brand-primaryLight hover:shadow-card-hover transition-all duration-300 flex flex-col justify-between h-full relative shadow-soft"
           >
             <!-- Превью -->
-            <div class="relative h-52 overflow-hidden shrink-0 bg-slate-100">
+            <div class="relative h-52 overflow-hidden shrink-0 bg-brand-bgAlt">
               <img src="${item.image_url}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
 
               <!-- Кнопка Огня с реакциями -->
               <div class="absolute top-3 right-3 z-20 group/picker" onclick="event.stopPropagation()">
                 <button 
-                  class="w-9 h-9 bg-white/90 hover:bg-white backdrop-blur border border-slate-200/90 rounded-full transition-all shadow-md flex items-center justify-center active:scale-90 hover:scale-110"
+                  class="w-9 h-9 bg-brand-base/90 hover:bg-brand-base backdrop-blur border border-brand-border rounded-full transition-all shadow-md flex items-center justify-center active:scale-90 hover:scale-110"
                   title="Оставить реакцию"
                 >
                   <svg class="w-5 h-5 drop-shadow-[0_1px_4px_rgba(249,115,22,0.4)]" viewBox="0 0 24 24" fill="url(#realisticFireGradient)">
@@ -858,11 +858,11 @@
                 </button>
 
                 <!-- Реакции -->
-                <div class="absolute right-0 top-11 hidden group-hover/picker:flex items-center gap-1 p-1.5 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-full shadow-xl z-30 transition-all animate-in fade-in zoom-in-95 duration-200">
+                <div class="absolute right-0 top-11 hidden group-hover/picker:flex items-center gap-1 p-1.5 bg-brand-base/95 backdrop-blur-md border border-brand-border rounded-full shadow-xl z-30 transition-all animate-in fade-in zoom-in-95 duration-200">
                   ${emojis.map(emoji => `
                     <button 
                       onclick="toggleReaction(event, '${item.id}', '${emoji}')"
-                      class="p-1.5 hover:bg-slate-100 rounded-full text-base hover:scale-125 transition-transform active:scale-95"
+                      class="p-1.5 hover:bg-brand-bgAlt rounded-full text-base hover:scale-125 transition-transform active:scale-95"
                       title="Поставить ${emoji}"
                     >
                       ${emoji}
@@ -875,24 +875,24 @@
             <!-- Контент -->
             <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
               <div>
-                <h3 class="text-slate-900 font-extrabold text-base leading-snug group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">
+                <h3 class="text-brand-heading font-extrabold text-base leading-snug group-hover:text-brand-primary transition-colors line-clamp-2 mb-2">
                   ${item.title}
                 </h3>
-                <p class="text-slate-500 text-xs leading-relaxed line-clamp-2 font-medium">
+                <p class="text-brand-muted text-xs leading-relaxed line-clamp-2 font-medium">
                   ${item.excerpt}
                 </p>
               </div>
 
               <!-- Автор со story-style бейджем -->
-              <div class="flex items-center gap-2.5 pt-3 border-t border-slate-100">
-                <div class="p-[1.5px] rounded-full bg-gradient-to-tr from-amber-400 via-amber-300 to-blue-500 shrink-0">
+              <div class="flex items-center gap-2.5 pt-3 border-t border-brand-border">
+                <div class="p-[1.5px] rounded-full bg-gradient-to-tr from-brand-primary via-indigo-500 to-cyan-400 shrink-0">
                   <img 
                     src="${item.author_avatar}" 
                     alt="${item.author}" 
-                    class="w-7 h-7 rounded-full object-cover border border-white"
+                    class="w-7 h-7 rounded-full object-cover border border-brand-base"
                   />
                 </div>
-                <span class="text-xs text-slate-800 font-bold tracking-tight">${item.author}</span>
+                <span class="text-xs text-brand-heading font-bold tracking-tight">${item.author}</span>
               </div>
             </div>
 
