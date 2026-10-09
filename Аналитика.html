@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AETHERIA — Аналитика гильдии</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#0a0d14',
+              surface: '#111625',
+              card: '#161d31',
+              border: '#232d4b',
+              purple: '#7c3aed',
+              cyan: '#06b6d4',
+              accent: '#6366f1',
+              green: '#10b981',
+              amber: '#f59e0b',
+              red: '#ef4444',
+              blue: '#2563EB',
+              blueHover: '#1D4ED8',
+              yellow: '#FACC15',
+              muted: '#64748B'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+            jakarta: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          boxShadow: {
+            'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.04)',
+            'card-hover': '0 16px 32px -4px rgba(37, 99, 235, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background-color: #0a0d14; color: #e2e8f0; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0d14; }
+    ::-webkit-scrollbar-thumb { background: #232d4b; border-radius: 4px; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+
+    @keyframes pulseRing {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    .pulse-ring { animation: pulseRing 2s infinite; }
+  </style>
+</head>
+<body class="min-h-screen font-sans p-4 sm:p-6 lg:p-8">
+
+  <div class="max-w-7xl mx-auto space-y-6 pb-12 animate-fade-in">
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- ШАПКА -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-display font-bold text-white flex items-center gap-2">
+          <i data-lucide="bar-chart-3" class="w-6 h-6 text-brand-cyan"></i>
+          Аналитика гильдии
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">
+          Ключевые метрики для руководства • <span class="text-brand-green font-semibold">обновлено 5 мин назад</span>
+        </p>
+      </div>
+
+      <!-- Период -->
+      <div class="flex items-center gap-1.5 p-1 bg-brand-surface border border-brand-border rounded-xl w-fit">
+        <button class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-colors">7 дней</button>
+        <button class="px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-purple/25 text-white border border-brand-purple/40">30 дней</button>
+        <button class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-colors">Сезон</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- KPI КАРТОЧКИ -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
+
+      <!-- Онлайн -->
+      <div class="bg-brand-surface border border-brand-border rounded-2xl p-4 shadow-lg hover:border-brand-green/50 transition-all">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-9 h-9 rounded-xl bg-brand-green/15 border border-brand-green/30 flex items-center justify-center">
+            <i data-lucide="users" class="w-4 h-4 text-brand-green"></i>
+          </div>
+          <span class="text-[10px] font-bold text-brand-green bg-brand-green/10 border border-brand-green/30 px-1.5 py-0.5 rounded">+3 за час</span>
+        </div>
+        <div class="text-2xl font-display font-extrabold text-white leading-none">24<span class="text-base text-slate-500 font-bold">/48</span></div>
+        <div class="text-[11px] text-slate-400 mt-1.5 font-medium">Онлайн сейчас</div>
+        <div class="mt-3 w-full h-1.5 bg-brand-dark rounded-full overflow-hidden">
+          <div class="h-full bg-brand-green w-[50%] rounded-full transition-all"></div>
+        </div>
+      </div>
+
+      <!-- Средний GS -->
+      <div class="bg-brand-surface border border-brand-border rounded-2xl p-4 shadow-lg hover:border-brand-purple/50 transition-all">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-9 h-9 rounded-xl bg-brand-purple/15 border border-brand-purple/30 flex items-center justify-center">
+            <i data-lucide="shield" class="w-4 h-4 text-brand-purple"></i>
+          </div>
+          <span class="text-[10px] font-bold text-brand-purple bg-brand-purple/10 border border-brand-purple/30 px-1.5 py-0.5 rounded">+12 нед.</span>
+        </div>
+        <div class="text-2xl font-display font-extrabold text-white leading-none">425</div>
+        <div class="text-[11px] text-slate-400 mt-1.5 font-medium">Средний GearScore</div>
+        <div class="mt-3 w-full h-1.5 bg-brand-dark rounded-full overflow-hidden">
+          <div class="h-full bg-brand-purple w-[78%] rounded-full transition-all"></div>
+        </div>
+      </div>
+
+      <!-- Прогресс рейда -->
+      <div class="bg-brand-surface border border-brand-border rounded-2xl p-4 shadow-lg hover:border-brand-amber/50 transition-all">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-9 h-9 rounded-xl bg-brand-amber/15 border border-brand-amber/30 flex items-center justify-center">
+            <i data-lucide="swords" class="w-4 h-4 text-brand-amber"></i>
+          </div>
+          <span class="text-[10px] font-bold text-brand-amber bg-brand-amber/10 border border-brand-amber/30 px-1.5 py-0.5 rounded">70%</span>
+        </div>
+        <div class="text-2xl font-display font-extrabold text-white leading-none">7<span class="text-base text-slate-500 font-bold">/10</span></div>
+        <div class="text-[11px] text-slate-400 mt-1.5 font-medium">Боссов за сезон</div>
+        <div class="mt-3 w-full h-1.5 bg-brand-dark rounded-full overflow-hidden">
+          <div class="h-full bg-brand-amber w-[70%] rounded-full transition-all"></div>
+        </div>
+      </div>
+
+      <!-- Посещаемость -->
+      <div class="bg-brand-surface border border-brand-border rounded-2xl p-4 shadow-lg hover:border-brand-cyan/50 transition-all">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-9 h-9 rounded-xl bg-brand-cyan/15 border border-brand-cyan/30 flex items-center justify-center">
+            <i data-lucide="calendar-check" class="w-4 h-4 text-brand-cyan"></i>
+          </div>
+          <span class="text-[10px] font-bold text-brand-cyan bg-brand-cyan/10 border border-brand-cyan/30 px-1.5 py-0.5 rounded">+4%</span>
+        </div>
+        <div class="text-2xl font-display font-extrabold text-white leading-none">86<span class="text-base text-slate-500 font-bold">%</span></div>
+        <div class="text-[11px] text-slate-400 mt-1.5 font-medium">Явка на события</div>
+        <div class="mt-3 w-full h-1.5 bg-brand-dark rounded-full overflow-hidden">
+          <div class="h-full bg-brand-cyan w-[86%] rounded-full transition-all"></div>
+        </div>
+      </div>
+
+      <!-- Гильд-банк -->
+      <div class="bg-brand-surface border border-brand-border rounded-2xl p-4 shadow-lg hover:border-brand-yellow/50 transition-all">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-9 h-9 rounded-xl bg-brand-yellow/15 border border-brand-yellow/30 flex items-center justify-center">
+            <i data-lucide="coins" class="w-4 h-4 text-brand-yellow"></i>
+          </div>
+          <span class="text-[10px] font-bold text-brand-yellow bg-brand-yellow/10 border border-brand-yellow/30 px-1.5 py-0.5 rounded">+240k</span>
+        </div>
+        <div class="text-2xl font-display font-extrabold text-white leading-none">2.4<span class="text-base text-slate-500 font-bold">M</span></div>
+        <div class="text-[11px] text-slate-400 mt-1.5 font-medium">Золото в банке</div>
+        <div class="mt-3 w-full h-1.5 bg-brand-dark rounded-full overflow-hidden">
+          <div class="h-full bg-brand-yellow w-[62%] rounded-full transition-all"></div>
+        </div>
+      </div>
+
+      <!-- Заявки -->
+      <div class="bg-brand-surface border border-brand-border rounded-2xl p-4 shadow-lg hover:border-brand-red/50 transition-all relative overflow-hidden">
+        <div class="absolute top-2 right-2 w-6 h-6 rounded-full bg-brand-red text-white text-[10px] font-extrabold flex items-center justify-center shadow-lg shadow-brand-red/40 pulse-ring">5</div>
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-9 h-9 rounded-xl bg-brand-red/15 border border-brand-red/30 flex items-center justify-center">
+            <i data-lucide="user-plus" class="w-4 h-4 text-brand-red"></i>
+          </div>
+        </div>
+        <div class="text-2xl font-display font-extrabold text-white leading-none">5</div>
+        <div class="text-[11px] text-slate-400 mt-1.5 font-medium">Новых заявок</div>
+        <button class="mt-3 w-full py-1.5 rounded-lg bg-brand-red/20 hover:bg-brand-red/30 border border-brand-red/40 text-brand-red text-[10px] font-bold transition-all">
+          Обработать
+        </button>
+      </div>
+
+      <!-- Активные сегодня -->
+      <div class="bg-brand-surface border border-brand-border rounded-2xl p-4 shadow-lg hover:border-brand-accent/50 transition-all">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-9 h-9 rounded-xl bg-brand-accent/15 border border-brand-accent/30 flex items-center justify-center">
+            <i data-lucide="flame" class="w-4 h-4 text-brand-accent"></i>
+          </div>
+          <span class="text-[10px] font-bold text-brand-accent bg-brand-accent/10 border border-brand-accent/30 px-1.5 py-0.5 rounded">Сегодня</span>
+        </div>
+        <div class="text-2xl font-display font-extrabold text-white leading-none">31<span class="text-base text-slate-500 font-bold">/48</span></div>
+        <div class="text-[11px] text-slate-400 mt-1.5 font-medium">Заходили в игру</div>
+        <div class="mt-3 w-full h-1.5 bg-brand-dark rounded-full overflow-hidden">
+          <div class="h-full bg-brand-accent w-[65%] rounded-full transition-all"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- ГРАФИК АКТИВНОСТИ + РАСПРЕДЕЛЕНИЕ ПО РОЛЯМ -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+
+      <!-- 7-дневный график -->
+      <div class="lg:col-span-2 bg-brand-surface border border-brand-border rounded-2xl p-5 shadow-lg">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h3 class="font-bold text-white text-sm flex items-center gap-2">
+              <i data-lucide="activity" class="w-4 h-4 text-brand-cyan"></i>
+              Активность за 7 дней
+            </h3>
+            <p class="text-[11px] text-slate-400 mt-0.5">Пиковый онлайн по дням недели</p>
+          </div>
+          <div class="flex items-center gap-3 text-[10px] text-slate-400">
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-brand-cyan"></span>Онлайн</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-brand-red"></span>События</span>
+          </div>
+        </div>
+
+        <div class="flex items-end justify-between gap-2 sm:gap-3 h-44">
+          <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer">
+            <span class="text-[10px] font-bold text-slate-400 group-hover:text-brand-cyan transition-colors">22</span>
+            <div class="w-full max-w-[42px] rounded-t-lg bg-gradient-to-t from-brand-cyan/20 to-brand-cyan/60 group-hover:from-brand-cyan/40 group-hover:to-brand-cyan transition-all" style="height: 55%;"></div>
+            <span class="text-[10px] text-slate-500 font-semibold">Пн</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer">
+            <span class="text-[10px] font-bold text-slate-400 group-hover:text-brand-cyan transition-colors">18</span>
+            <div class="w-full max-w-[42px] rounded-t-lg bg-gradient-to-t from-brand-cyan/20 to-brand-cyan/60 group-hover:from-brand-cyan/40 group-hover:to-brand-cyan transition-all" style="height: 45%;"></div>
+            <span class="text-[10px] text-slate-500 font-semibold">Вт</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer">
+            <span class="text-[10px] font-bold text-slate-400 group-hover:text-brand-cyan transition-colors">26</span>
+            <div class="w-full max-w-[42px] rounded-t-lg bg-gradient-to-t from-brand-cyan/20 to-brand-cyan/60 group-hover:from-brand-cyan/40 group-hover:to-brand-cyan transition-all" style="height: 65%;"></div>
+            <span class="text-[10px] text-slate-500 font-semibold">Ср</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer">
+            <span class="text-[10px] font-bold text-slate-400 group-hover:text-brand-cyan transition-colors">28</span>
+            <div class="w-full max-w-[42px] rounded-t-lg bg-gradient-to-t from-brand-cyan/20 to-brand-cyan/60 group-hover:from-brand-cyan/40 group-hover:to-brand-cyan transition-all" style="height: 70%;"></div>
+            <span class="text-[10px] text-slate-500 font-semibold">Чт</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer relative">
+            <span class="text-[10px] font-bold text-brand-red group-hover:text-white transition-colors">41</span>
+            <div class="w-full max-w-[42px] rounded-t-lg bg-gradient-to-t from-brand-red/30 to-brand-red group-hover:to-brand-red/90 transition-all shadow-lg shadow-brand-red/20" style="height: 100%;"></div>
+            <span class="text-[10px] text-brand-red font-bold">Пт 🔥</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer">
+            <span class="text-[10px] font-bold text-slate-400 group-hover:text-brand-cyan transition-colors">34</span>
+            <div class="w-full max-w-[42px] rounded-t-lg bg-gradient-to-t from-brand-cyan/20 to-brand-cyan/60 group-hover:from-brand-cyan/40 group-hover:to-brand-cyan transition-all" style="height: 83%;"></div>
+            <span class="text-[10px] text-slate-500 font-semibold">Сб</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer">
+            <span class="text-[10px] font-bold text-slate-400 group-hover:text-brand-cyan transition-colors">24</span>
+            <div class="w-full max-w-[42px] rounded-t-lg bg-gradient-to-t from-brand-cyan/20 to-brand-cyan/60 group-hover:from-brand-cyan/40 group-hover:to-brand-cyan transition-all" style="height: 60%;"></div>
+            <span class="text-[10px] text-slate-500 font-semibold">Вс</span>
+          </div>
+        </div>
+
+        <div class="mt-5 pt-4 border-t border-brand-border/60 grid grid-cols-3 gap-3 text-center">
+          <div>
+            <div class="text-lg font-display font-extrabold text-brand-cyan">193</div>
+            <div class="text-[10px] text-slate-400 font-medium mt-0.5">Суммарный онлайн</div>
+          </div>
+          <div>
+            <div class="text-lg font-display font-extrabold text-brand-purple">31</div>
+            <div class="text-[10px] text-slate-400 font-medium mt-0.5">Средний онлайн/день</div>
+          </div>
+          <div>
+            <div class="text-lg font-display font-extrabold text-brand-green">41</div>
+            <div class="text-[10px] text-slate-400 font-medium mt-0.5">Пик (Пятница)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Распределение по ролям -->
+      <div class="bg-brand-surface border border-brand-border rounded-2xl p-5 shadow-lg flex flex-col">
+        <div class="mb-4">
+          <h3 class="font-bold text-white text-sm flex items-center gap-2">
+            <i data-lucide="pie-chart" class="w-4 h-4 text-brand-purple"></i>
+            Состав по ролям
+          </h3>
+          <p class="text-[11px] text-slate-400 mt-0.5">48 участников</p>
+        </div>
+
+        <div class="flex items-center justify-center my-2">
+          <div class="relative w-40 h-40">
+            <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
+              <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#161d31" stroke-width="3.5"></circle>
+              <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#f59e0b" stroke-width="3.5" stroke-dasharray="17 83" stroke-dashoffset="0"></circle>
+              <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#10b981" stroke-width="3.5" stroke-dasharray="21 79" stroke-dashoffset="-17"></circle>
+              <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#7c3aed" stroke-width="3.5" stroke-dasharray="29 71" stroke-dashoffset="-38"></circle>
+              <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#06b6d4" stroke-width="3.5" stroke-dasharray="25 75" stroke-dashoffset="-67"></circle>
+              <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#6366f1" stroke-width="3.5" stroke-dasharray="8 92" stroke-dashoffset="-92"></circle>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span class="text-2xl font-display font-extrabold text-white">48</span>
+              <span class="text-[10px] text-slate-400 font-medium">игроков</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-2 mt-3">
+          <div class="flex items-center justify-between text-xs">
+            <span class="flex items-center gap-2 text-slate-300"><span class="w-2.5 h-2.5 rounded-sm bg-brand-purple"></span> РДД</span>
+            <span class="font-bold text-white">14 <span class="text-slate-500 font-medium">29%</span></span>
+          </div>
+          <div class="flex items-center justify-between text-xs">
+            <span class="flex items-center gap-2 text-slate-300"><span class="w-2.5 h-2.5 rounded-sm bg-brand-cyan"></span> Мили ДД</span>
+            <span class="font-bold text-white">12 <span class="text-slate-500 font-medium">25%</span></span>
+          </div>
+          <div class="flex items-center justify-between text-xs">
+            <span class="flex items-center gap-2 text-slate-300"><span class="w-2.5 h-2.5 rounded-sm bg-brand-green"></span> Хилы</span>
+            <span class="font-bold text-white">10 <span class="text-slate-500 font-medium">21%</span></span>
+          </div>
+          <div class="flex items-center justify-between text-xs">
+            <span class="flex items-center gap-2 text-slate-300"><span class="w-2.5 h-2.5 rounded-sm bg-brand-amber"></span> Танки</span>
+            <span class="font-bold text-white">8 <span class="text-slate-500 font-medium">17%</span></span>
+          </div>
+          <div class="flex items-center justify-between text-xs">
+            <span class="flex items-center gap-2 text-slate-300"><span class="w-2.5 h-2.5 rounded-sm bg-brand-accent"></span> Саппорт</span>
+            <span class="font-bold text-white">4 <span class="text-slate-500 font-medium">8%</span></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- ТОП ИГРОКОВ + ТРЕБУЮТ ВНИМАНИЯ -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+
+      <!-- Топ-5 по вкладу -->
+      <div class="bg-brand-surface border border-brand-border rounded-2xl shadow-lg overflow-hidden">
+        <div class="p-5 border-b border-brand-border flex items-center justify-between">
+          <div>
+            <h3 class="font-bold text-white text-sm flex items-center gap-2">
+              <i data-lucide="trophy" class="w-4 h-4 text-brand-yellow"></i>
+              Топ-5 по вкладу за месяц
+            </h3>
+            <p class="text-[11px] text-slate-400 mt-0.5">Учитывая активность, банк и явку</p>
+          </div>
+          <button class="text-[11px] text-brand-cyan font-semibold hover:underline">Всё</button>
+        </div>
+
+        <div class="p-3 space-y-1.5">
+
+          <div class="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-brand-yellow/10 to-transparent border border-brand-yellow/20 hover:border-brand-yellow/40 transition-all">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-yellow to-amber-500 flex items-center justify-center text-brand-dark font-extrabold text-sm shadow-md shrink-0">1</div>
+            <img src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=80&auto=format&fit=crop" class="w-9 h-9 rounded-full object-cover ring-2 ring-brand-yellow/40 shrink-0">
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-bold text-white truncate flex items-center gap-1.5">
+                Valerius <i data-lucide="crown" class="w-3 h-3 text-brand-yellow"></i>
+              </div>
+              <div class="text-[10px] text-slate-400">Лидер клана</div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-sm font-extrabold text-brand-yellow font-mono">12,840</div>
+              <div class="text-[9px] text-slate-500 uppercase tracking-wider">очков</div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 p-3 rounded-xl bg-brand-card border border-brand-border hover:border-slate-500/50 transition-all">
+            <div class="w-8 h-8 rounded-lg bg-slate-400/20 border border-slate-400/40 flex items-center justify-center text-slate-200 font-extrabold text-sm shrink-0">2</div>
+            <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&auto=format&fit=crop" class="w-9 h-9 rounded-full object-cover ring-2 ring-brand-cyan/40 shrink-0">
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-bold text-white truncate">Lumina_Heals</div>
+              <div class="text-[10px] text-slate-400">Офицер • Хил</div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-sm font-extrabold text-white font-mono">11,205</div>
+              <div class="text-[9px] text-slate-500 uppercase tracking-wider">очков</div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 p-3 rounded-xl bg-brand-card border border-brand-border hover:border-slate-500/50 transition-all">
+            <div class="w-8 h-8 rounded-lg bg-amber-600/20 border border-amber-600/40 flex items-center justify-center text-amber-500 font-extrabold text-sm shrink-0">3</div>
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop" class="w-9 h-9 rounded-full object-cover ring-2 ring-brand-amber/40 shrink-0">
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-bold text-white truncate">IronWill</div>
+              <div class="text-[10px] text-slate-400">Ветеран • Танк</div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-sm font-extrabold text-white font-mono">9,780</div>
+              <div class="text-[9px] text-slate-500 uppercase tracking-wider">очков</div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 p-3 rounded-xl bg-brand-card border border-brand-border hover:border-slate-500/50 transition-all opacity-90">
+            <div class="w-8 h-8 rounded-lg bg-brand-card border border-brand-border flex items-center justify-center text-slate-400 font-extrabold text-sm shrink-0">4</div>
+            <div class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center text-white text-xs font-bold ring-2 ring-brand-border shrink-0">ES</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-bold text-white truncate">Eldrin_Sun</div>
+              <div class="text-[10px] text-slate-400">Ветеран • РДД</div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-sm font-extrabold text-white font-mono">8,450</div>
+              <div class="text-[9px] text-slate-500 uppercase tracking-wider">очков</div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 p-3 rounded-xl bg-brand-card border border-brand-border hover:border-slate-500/50 transition-all opacity-90">
+            <div class="w-8 h-8 rounded-lg bg-brand-card border border-brand-border flex items-center justify-center text-slate-400 font-extrabold text-sm shrink-0">5</div>
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&auto=format&fit=crop" class="w-9 h-9 rounded-full object-cover ring-2 ring-brand-purple/40 shrink-0">
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-bold text-white truncate">Artemis</div>
+              <div class="text-[10px] text-slate-400">Снайпер • РДД</div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-sm font-extrabold text-white font-mono">7,120</div>
+              <div class="text-[9px] text-slate-500 uppercase tracking-wider">очков</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Требуют внимания -->
+      <div class="bg-brand-surface border border-brand-border rounded-2xl shadow-lg overflow-hidden">
+        <div class="p-5 border-b border-brand-border flex items-center justify-between">
+          <div>
+            <h3 class="font-bold text-white text-sm flex items-center gap-2">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-brand-red"></i>
+              Требуют внимания
+            </h3>
+            <p class="text-[11px] text-slate-400 mt-0.5">Автоматические предупреждения для РЛ</p>
+          </div>
+          <span class="text-[10px] font-bold text-brand-red bg-brand-red/10 border border-brand-red/30 px-2 py-0.5 rounded">12 всего</span>
+        </div>
+
+        <div class="p-3 space-y-2">
+
+          <div class="flex items-start gap-3 p-3 rounded-xl bg-brand-card border border-brand-red/20 hover:border-brand-red/40 transition-all cursor-pointer">
+            <div class="w-9 h-9 rounded-lg bg-brand-red/15 border border-brand-red/30 flex items-center justify-center shrink-0">
+              <i data-lucide="user-x" class="w-4 h-4 text-brand-red"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <div class="text-xs font-bold text-white">Неактивные &gt;7 дней</div>
+                <span class="text-[9px] font-extrabold text-brand-red bg-brand-red/10 border border-brand-red/30 px-1.5 py-0.5 rounded">3</span>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-0.5 truncate">Shadow_99, Titan, Zephyr — риск исключения</div>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 shrink-0 mt-1"></i>
+          </div>
+
+          <div class="flex items-start gap-3 p-3 rounded-xl bg-brand-card border border-brand-amber/20 hover:border-brand-amber/40 transition-all cursor-pointer">
+            <div class="w-9 h-9 rounded-lg bg-brand-amber/15 border border-brand-amber/30 flex items-center justify-center shrink-0">
+              <i data-lucide="package-x" class="w-4 h-4 text-brand-amber"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <div class="text-xs font-bold text-white">Без расходников на осаду</div>
+                <span class="text-[9px] font-extrabold text-brand-amber bg-brand-amber/10 border border-brand-amber/30 px-1.5 py-0.5 rounded">5</span>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-0.5 truncate">Пятница 21:00 — обязательно проверить</div>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 shrink-0 mt-1"></i>
+          </div>
+
+          <div class="flex items-start gap-3 p-3 rounded-xl bg-brand-card border border-brand-purple/20 hover:border-brand-purple/40 transition-all cursor-pointer">
+            <div class="w-9 h-9 rounded-lg bg-brand-purple/15 border border-brand-purple/30 flex items-center justify-center shrink-0">
+              <i data-lucide="shield-off" class="w-4 h-4 text-brand-purple"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <div class="text-xs font-bold text-white">Низкий GearScore (&lt;380)</div>
+                <span class="text-[9px] font-extrabold text-brand-purple bg-brand-purple/10 border border-brand-purple/30 px-1.5 py-0.5 rounded">4</span>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-0.5 truncate">Назначить в учебный поход с офицером</div>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 shrink-0 mt-1"></i>
+          </div>
+
+          <div class="flex items-start gap-3 p-3 rounded-xl bg-brand-card border border-brand-cyan/20 hover:border-brand-cyan/40 transition-all cursor-pointer">
+            <div class="w-9 h-9 rounded-lg bg-brand-cyan/15 border border-brand-cyan/30 flex items-center justify-center shrink-0">
+              <i data-lucide="inbox" class="w-4 h-4 text-brand-cyan"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <div class="text-xs font-bold text-white">Запросы из банка</div>
+                <span class="text-[9px] font-extrabold text-brand-cyan bg-brand-cyan/10 border border-brand-cyan/30 px-1.5 py-0.5 rounded">0</span>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-0.5 truncate">Все запросы обработаны</div>
+            </div>
+            <i data-lucide="check" class="w-4 h-4 text-brand-green shrink-0 mt-1"></i>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- ПРОГРЕСС РЕЙДА -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="bg-brand-surface border border-brand-border rounded-2xl shadow-lg overflow-hidden">
+      <div class="p-5 border-b border-brand-border flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 class="font-bold text-white text-sm flex items-center gap-2">
+            <i data-lucide="skull" class="w-4 h-4 text-brand-red"></i>
+            Прогресс рейда • Цитадель Бездны
+          </h3>
+          <p class="text-[11px] text-slate-400 mt-0.5">Сезон «Пылающие земли» • обновлено 2 часа назад</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="text-right">
+            <div class="text-sm font-extrabold text-white">7/10 <span class="text-xs text-slate-400 font-medium">боссов</span></div>
+            <div class="text-[10px] text-brand-amber font-bold">Прогресс 70%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-5">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+
+          <div class="p-3 rounded-xl bg-brand-green/5 border border-brand-green/30 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-extrabold text-brand-green uppercase tracking-wider">Фаза 1</span>
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-green"></i>
+            </div>
+            <div class="text-xs font-bold text-white leading-tight">Страж Врат</div>
+            <div class="text-[10px] text-brand-green font-semibold">✓ Первое убийство • 3 попытки</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-brand-green/5 border border-brand-green/30 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-extrabold text-brand-green uppercase tracking-wider">Фаза 1</span>
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-green"></i>
+            </div>
+            <div class="text-xs font-bold text-white leading-tight">Пламенный Колосс</div>
+            <div class="text-[10px] text-brand-green font-semibold">✓ Первое убийство • 2 попытки</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-brand-green/5 border border-brand-green/30 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-extrabold text-brand-green uppercase tracking-wider">Фаза 2</span>
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-green"></i>
+            </div>
+            <div class="text-xs font-bold text-white leading-tight">Хранитель Душ</div>
+            <div class="text-[10px] text-brand-green font-semibold">✓ Первое убийство • 7 попыток</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-brand-green/5 border border-brand-green/30 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-extrabold text-brand-green uppercase tracking-wider">Фаза 2</span>
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-green"></i>
+            </div>
+            <div class="text-xs font-bold text-white leading-tight">Тень Бездны</div>
+            <div class="text-[10px] text-brand-green font-semibold">✓ Первое убийство • 11 попыток</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-brand-green/5 border border-brand-green/30 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-extrabold text-brand-green uppercase tracking-wider">Фаза 3</span>
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-green"></i>
+            </div>
+            <div class="text-xs font-bold text-white leading-tight">Пожиратель</div>
+            <div class="text-[10px] text-brand-green font-semibold">✓ Первое убийство • 18 попыток</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-brand-green/5 border border-brand-green/30 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-extrabold text-brand-green uppercase tracking-wider">Фаза 3</span>
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-green"></i>
+            </div>
+            <div class="text-xs font-bold text-white leading-tight">Близнецы Хаоса</div>
+            <div class="text-[10px] text-brand-green font-semibold">✓ Первое убийство • 24 попытки</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-brand-green/5 border border-brand-green/30 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-extrabold text-brand-green uppercase tracking-wider">Фаза 4</span>
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-green"></i>
+            </div>
+            <div class="text-xs font-bold text-white leading-tight">Лорд-Жрец</div>
+            <div class="text-[10px] text-brand-green font-semibold">✓ Первое убийство • 31 попытка</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-brand-amber/5 border border-brand-amber/40 space-y-1.5 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-8 h-8 bg-brand-amber/20 rounded-bl-2xl flex items-center justify-center">
+              <i data-lucide="loader" class="w-3.5 h-3.5 text-brand-amber animate-spin"></i>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-extrabold text-brand-amber uppercase tracking-wider">Фаза 4</span>
+            </div>
+            <div class="text-xs font-bold text-white leading-tight">Архидемон</div>
+            <div class="text-[10px] text-brand-amber font-semibold">Прогресс: 45% HP • 12 попыток</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-brand-surface border border-brand-border space-y-1.5 opacity-60">
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-extrabold text-slate-500 uppercase tracking-wider">Финал</span>
+              <i data-lucide="lock" class="w-3.5 h-3.5 text-slate-500"></i>
+            </div>
+            <div class="text-xs font-bold text-slate-400 leading-tight">Аватара Бездны</div>
+            <div class="text-[10px] text-slate-500 font-medium">Закрыто до убийства Архидемона</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-brand-surface border border-brand-border space-y-1.5 opacity-60">
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-extrabold text-slate-500 uppercase tracking-wider">Финал</span>
+              <i data-lucide="lock" class="w-3.5 h-3.5 text-slate-500"></i>
+            </div>
+            <div class="text-xs font-bold text-slate-400 leading-tight">Сердце Гибели</div>
+            <div class="text-[10px] text-slate-500 font-medium">Мифический босс сезона</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Инициализация иконок Lucide
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+  </script>
+
+</body>
+</html>

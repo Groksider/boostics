@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Обзор кабинета — AETHERIA</title>
+  
+  <!-- Подключение Tailwind CSS и иконок Lucide -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Подключение шрифтов -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Конфигурация темы Tailwind -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#0a0d14',
+              surface: '#111625',
+              card: '#161d31',
+              border: '#232d4b',
+              purple: '#7c3aed',
+              cyan: '#06b6d4',
+              accent: '#6366f1',
+              green: '#10b981',
+              amber: '#f59e0b',
+              red: '#ef4444',
+              blue: '#2563EB',
+              blueHover: '#1D4ED8',
+              yellow: '#FACC15',
+              muted: '#64748B'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+            jakarta: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background-color: #0a0d14; color: #e2e8f0; }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .custom-scrollbar::-webkit-scrollbar { height: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #232d4b; border-radius: 9999px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748B; }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col font-sans">
+  
+  <!-- Обертка контента -->
+  <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-[#0a0d14]">
+    
+    <section id="screen-overview" class="screen-view space-y-6 max-w-[1400px] mx-auto">
+
+      <!-- Заголовок и главные действия -->
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h2 class="text-2xl font-display font-bold text-white">Обзор кабинета</h2>
+          <p class="text-sm text-slate-400 mt-1">Сводка по материалам, публикациям и активности хранилища</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="createNew()" class="bg-brand-purple hover:bg-brand-purple/85 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-lg shadow-brand-purple/20">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i> Создать материал
+          </button>
+          <button onclick="switchTab('wall')" class="bg-brand-surface border border-brand-border hover:border-brand-green/60 text-slate-300 hover:text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all">
+            <i data-lucide="layout-template" class="w-4 h-4 text-brand-green"></i> На стену
+          </button>
+        </div>
+      </div>
+
+      <!-- Основная статистика (Верхний ряд) -->
+      <div id="stats-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
+
+      <!-- Хранилище: Последние материалы -->
+      <div class="w-full">
+        <div class="bg-brand-surface border border-brand-border rounded-2xl shadow-lg overflow-hidden">
+          <div class="px-5 py-4 border-b border-brand-border bg-brand-card flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="history" class="w-4 h-4 text-brand-cyan"></i>
+              <h3 class="font-bold text-white text-sm">Последние изменения</h3>
+            </div>
+            <button onclick="switchTab('library')" class="text-[11px] font-bold text-brand-cyan hover:underline">Всё хранилище →</button>
+          </div>
+          <div id="recent-list" class="divide-y divide-brand-border/60"></div>
+        </div>
+      </div>
+
+      <!-- ================= БЛОК: РАДАР АКТИВНОСТИ ================= -->
+      <div class="bg-brand-surface border border-brand-border rounded-2xl shadow-lg p-5 sm:p-6 relative overflow-hidden group">
+        
+        <!-- Декоративное фоновое свечение (эффект радара) -->
+        <div class="absolute -top-20 -right-20 w-64 h-64 bg-brand-cyan/5 rounded-full blur-3xl group-hover:bg-brand-cyan/10 transition-all duration-700 pointer-events-none"></div>
+
+        <!-- Красивый заголовок блока -->
+        <div class="flex items-center justify-between mb-6 relative z-10 border-b border-brand-border/60 pb-4">
+          <div class="flex items-center gap-3">
+            <!-- Иконка с анимацией пульсации -->
+            <div class="relative flex h-9 w-9 items-center justify-center rounded-xl bg-brand-cyan/10 border border-brand-cyan/20 text-brand-cyan shrink-0">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-xl bg-brand-cyan opacity-20"></span>
+              <i data-lucide="radar" class="w-5 h-5 relative z-10"></i>
+            </div>
+            <div>
+              <h3 class="font-display font-bold text-white text-lg tracking-wide">Радар активности</h3>
+              <p class="text-[11px] text-slate-400 font-medium mt-0.5">Сводка по присутствию и вовлеченности состава</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Шапка статистики -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5 mb-6 relative z-10">
+          <div class="flex items-center gap-3 px-5 py-3 bg-brand-card border border-brand-border rounded-xl text-2xl font-display font-bold text-white shadow-inner">
+            <i data-lucide="users" class="w-6 h-6 text-brand-cyan"></i>
+            99<span class="text-slate-500 text-lg -ml-1">/100</span>
+          </div>
+          <div class="text-sm font-medium space-y-1.5">
+            <div class="flex items-center gap-2 text-slate-400">
+              <i data-lucide="activity" class="w-4 h-4 text-brand-green"></i> 
+              Были в сети: <span class="text-white font-bold">36</span>
+            </div>
+            <div class="flex items-center gap-2 text-slate-400">
+              <i data-lucide="eye" class="w-4 h-4 text-brand-purple"></i> 
+              Ознакомились с событиями: <span class="text-white font-bold">54 чел.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Интерактивные вкладки в стиле Базы Знаний (Pill Style) -->
+        <div class="inline-flex bg-brand-dark p-1 sm:p-1.5 rounded-full border border-brand-border shrink-0 relative z-10 w-full sm:w-auto overflow-x-auto custom-scrollbar mb-5">
+          <button onclick="switchRadarTab('tasks')" id="radar-tab-tasks" class="px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold rounded-full transition-all shadow-sm bg-brand-surface text-brand-cyan flex items-center gap-2 shrink-0 border border-brand-border">
+            <i data-lucide="check-square" class="w-4 h-4"></i>
+            Доска задач
+          </button>
+          <button onclick="switchRadarTab('events')" id="radar-tab-events" class="px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold rounded-full transition-all text-slate-400 hover:text-white flex items-center gap-2 shrink-0 border border-transparent">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+            События
+          </button>
+          <button onclick="switchRadarTab('kb')" id="radar-tab-kb" class="px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold rounded-full transition-all text-slate-400 hover:text-white flex items-center gap-2 shrink-0 border border-transparent">
+            <i data-lucide="book-open" class="w-4 h-4"></i>
+            База знаний
+          </button>
+        </div>
+
+        <!-- Контейнеры с карточками (Переключаемые) -->
+        <div class="relative z-10 min-h-[160px]">
+          
+          <!-- ВКЛАДКА 1: Доска задач -->
+          <div id="radar-content-tasks" class="flex flex-col gap-3 lg:grid lg:grid-cols-2 lg:gap-4 animate-fade-in">
+            <!-- Карточка: Сбор -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-brand-card border border-brand-border hover:border-brand-red/40 transition-colors group cursor-pointer">
+              <div class="w-12 h-12 rounded-xl bg-brand-red/10 border border-brand-red/20 flex items-center justify-center text-brand-red shrink-0">
+                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-1.5">
+                  <h3 class="text-sm font-bold text-white truncate group-hover:text-brand-red transition-colors">Уважаемые викинги, сбор...</h3>
+                  <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-brand-red/15 text-brand-red border border-brand-red/30 whitespace-nowrap">СРОЧНО</span>
+                </div>
+                <div class="flex items-center gap-4 text-[11px] font-medium text-slate-400">
+                  <span class="flex items-center gap-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5 text-slate-500"></i> Прочитали: <span class="text-slate-200">45</span></span>
+                  <span class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-brand-green"></i> Подтвердили: <span class="text-slate-200">32</span></span>
+                </div>
+              </div>
+            </div>
+            <!-- Карточка: Голосование -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-brand-card border border-brand-border hover:border-brand-yellow/40 transition-colors group cursor-pointer">
+              <div class="w-12 h-12 rounded-xl bg-brand-yellow/10 border border-brand-yellow/20 flex items-center justify-center text-brand-yellow shrink-0">
+                <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-1.5">
+                  <h3 class="text-sm font-bold text-white truncate group-hover:text-brand-yellow transition-colors">Переход на лут DKP</h3>
+                  <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-brand-yellow/15 text-brand-yellow border border-brand-yellow/30 whitespace-nowrap">ГОЛОСОВАНИЕ</span>
+                </div>
+                <div class="flex items-center gap-4 text-[11px] font-medium text-slate-400">
+                  <span class="flex items-center gap-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5 text-slate-500"></i> Прочитали: <span class="text-slate-200">50</span></span>
+                  <span class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-brand-green"></i> Подтвердили: <span class="text-slate-200">35</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ВКЛАДКА 2: События -->
+          <div id="radar-content-events" class="hidden flex-col gap-3 lg:grid lg:grid-cols-2 lg:gap-4 animate-fade-in">
+            <!-- Карточка: Идет сейчас -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-brand-card border border-brand-border hover:border-brand-green/40 transition-colors group cursor-pointer">
+              <div class="w-12 h-12 rounded-xl bg-brand-green/10 border border-brand-green/20 flex items-center justify-center text-brand-green shrink-0 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-xl bg-brand-green opacity-20"></span>
+                <i data-lucide="swords" class="w-5 h-5 relative z-10"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-1.5">
+                  <h3 class="text-sm font-bold text-white truncate group-hover:text-brand-green transition-colors">Осада Цитадели Бездны</h3>
+                  <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-brand-green/15 text-brand-green border border-brand-green/30 whitespace-nowrap">ИДЕТ СЕЙЧАС</span>
+                </div>
+                <div class="flex items-center gap-4 text-[11px] font-medium text-slate-400">
+                  <span class="flex items-center gap-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5 text-slate-500"></i> Прочитали: <span class="text-slate-200">22</span></span>
+                  <span class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-brand-green"></i> Подтвердили: <span class="text-slate-200">18</span></span>
+                </div>
+              </div>
+            </div>
+            <!-- Карточка: Скоро -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-brand-card border border-brand-border hover:border-brand-blue/40 transition-colors group cursor-pointer">
+              <div class="w-12 h-12 rounded-xl bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center text-brand-blue shrink-0">
+                <i data-lucide="calendar-clock" class="w-5 h-5"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-1.5">
+                  <h3 class="text-sm font-bold text-white truncate group-hover:text-brand-blue transition-colors">Война Гильдий (Замок)</h3>
+                  <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-brand-blue/15 text-brand-blue border border-brand-blue/30 whitespace-nowrap">ПТ 21:00</span>
+                </div>
+                <div class="flex items-center gap-4 text-[11px] font-medium text-slate-400">
+                  <span class="flex items-center gap-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5 text-slate-500"></i> Прочитали: <span class="text-slate-200">40</span></span>
+                  <span class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-brand-green"></i> Подтвердили: <span class="text-slate-200">34</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ВКЛАДКА 3: База знаний -->
+          <div id="radar-content-kb" class="hidden flex-col gap-3 lg:grid lg:grid-cols-2 lg:gap-4 animate-fade-in">
+            <!-- Карточка: Видео -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-brand-card border border-brand-border hover:border-brand-purple/40 transition-colors group cursor-pointer">
+              <div class="w-12 h-12 rounded-xl bg-brand-purple/10 border border-brand-purple/20 flex items-center justify-center text-brand-purple shrink-0">
+                <i data-lucide="play-circle" class="w-5 h-5"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-1.5">
+                  <h3 class="text-sm font-bold text-white truncate group-hover:text-brand-purple transition-colors">GTA 5: 15 скрытых механик</h3>
+                  <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-brand-purple/15 text-brand-purple border border-brand-purple/30 whitespace-nowrap">ВИДЕО</span>
+                </div>
+                <div class="flex items-center gap-4 text-[11px] font-medium text-slate-400">
+                  <span class="flex items-center gap-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5 text-slate-500"></i> Прочитали: <span class="text-slate-200">120</span></span>
+                  <span class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-brand-green"></i> Подтвердили: <span class="text-slate-200">95</span></span>
+                </div>
+              </div>
+            </div>
+            <!-- Карточка: Статья -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-brand-card border border-brand-border hover:border-brand-accent/40 transition-colors group cursor-pointer">
+              <div class="w-12 h-12 rounded-xl bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent shrink-0">
+                <i data-lucide="book-open" class="w-5 h-5"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-1.5">
+                  <h3 class="text-sm font-bold text-white truncate group-hover:text-brand-accent transition-colors">Baldur's Gate 3: Концовки</h3>
+                  <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-brand-accent/15 text-brand-accent border border-brand-accent/30 whitespace-nowrap">СТАТЬЯ</span>
+                </div>
+                <div class="flex items-center gap-4 text-[11px] font-medium text-slate-400">
+                  <span class="flex items-center gap-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5 text-slate-500"></i> Прочитали: <span class="text-slate-200">84</span></span>
+                  <span class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-brand-green"></i> Подтвердили: <span class="text-slate-200">70</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      <!-- ================= КОНЕЦ БЛОКА ================= -->
+
+      <!-- ================= БЛОК ИСТЕКАЮЩИХ ЗАДАЧ ================= -->
+      <div class="bg-brand-surface border border-brand-amber/40 rounded-2xl shadow-lg shadow-brand-amber/5 overflow-hidden">
+        
+        <!-- Шапка блока -->
+        <div class="px-5 py-4 border-b border-brand-border bg-brand-card flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="timer" class="w-4 h-4 text-brand-amber"></i>
+            <h3 class="font-bold text-white text-sm">Истекают менее чем через 12 часов</h3>
+          </div>
+          <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-brand-amber/15 text-brand-amber border border-brand-amber/30">
+            ВНИМАНИЕ
+          </span>
+        </div>
+        
+        <!-- Список задач -->
+        <div class="divide-y divide-brand-border/60" id="expiring-tasks-list">
+          
+          <!-- Карточка 1: Инструкция -->
+          <div class="p-4 hover:bg-brand-card/60 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="w-9 h-9 rounded-xl bg-brand-purple/15 border border-brand-purple/30 flex items-center justify-center text-brand-purple shrink-0 mt-0.5">
+                <i data-lucide="book-open" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-white truncate">Инструкция: Получение зелий у Ведьмы в Катакомбах</h4>
+                <div class="flex items-center gap-3 mt-1.5 text-[11px] font-medium text-slate-400">
+                  <span class="flex items-center gap-1.5 text-brand-amber font-mono bg-brand-amber/10 px-1.5 py-0.5 rounded border border-brand-amber/20">
+                    <i data-lucide="clock" class="w-3 h-3"></i> <span class="timer-display">11:20:00</span>
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <i data-lucide="users" class="w-3 h-3 text-slate-500"></i> Прочитали: 18/24
+                  </span>
+                </div>
+              </div>
+            </div>
+            <!-- Кнопка продления -->
+            <button onclick="extendTaskTime(this, 86400)" class="shrink-0 w-full sm:w-auto bg-brand-card border border-brand-border hover:border-brand-amber/60 hover:text-brand-amber text-slate-300 px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Продлить (+24ч)
+            </button>
+          </div>
+
+          <!-- Карточка 2: Голосование -->
+          <div class="p-4 hover:bg-brand-card/60 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="w-9 h-9 rounded-xl bg-brand-cyan/15 border border-brand-cyan/30 flex items-center justify-center text-brand-cyan shrink-0 mt-0.5">
+                <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-white truncate">Голосование: Переход на систему лута DKP с аукционом</h4>
+                <div class="flex items-center gap-3 mt-1.5 text-[11px] font-medium text-slate-400">
+                  <span class="flex items-center gap-1.5 text-brand-red font-mono bg-brand-red/10 px-1.5 py-0.5 rounded border border-brand-red/20">
+                    <i data-lucide="clock" class="w-3 h-3"></i> <span class="timer-display">02:15:00</span>
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <i data-lucide="users" class="w-3 h-3 text-slate-500"></i> Голосов: 30/35
+                  </span>
+                </div>
+              </div>
+            </div>
+            <!-- Кнопка продления -->
+            <button onclick="extendTaskTime(this, 86400)" class="shrink-0 w-full sm:w-auto bg-brand-card border border-brand-border hover:border-brand-amber/60 hover:text-brand-amber text-slate-300 px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Продлить (+24ч)
+            </button>
+          </div>
+
+        </div>
+      </div>
+      <!-- ================= КОНЕЦ БЛОКА ИСТЕКАЮЩИХ ЗАДАЧ ================= -->
+
+    </section>
+  </main>
+
+  <!-- JS логика -->
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+  </style>
+  
+  <script>
+    function createNew(type) { alert('Откроется редактор: ' + (type || 'article')); }
+    function switchTab(tab) { alert('Переход в раздел: ' + tab); }
+    function viewItem(id) { alert('Откроется просмотр: ' + id); }
+
+    const TYPES = {
+      article: { label: 'Статья',     icon: 'book-open',    color: 'brand-accent', hex: '#6366f1' },
+      video:   { label: 'Видео',      icon: 'play-circle',  color: 'brand-red',    hex: '#ef4444' },
+      art:     { label: 'Арт',        icon: 'palette',      color: 'brand-purple', hex: '#7c3aed' },
+      calc:    { label: 'Калькулятор',icon: 'calculator',   color: 'brand-cyan',   hex: '#06b6d4' },
+      soft:    { label: 'Софт',       icon: 'cpu',          color: 'indigo',       hex: '#818cf8' },
+      event:   { label: 'Событие',    icon: 'calendar',     color: 'brand-amber',  hex: '#f59e0b' }
+    };
+
+    const items = [
+      { id: '1', type: 'video', title: 'GTA 5: 15 скрытых механик', author: 'RockstarPRO', status: 'published', targets: ['wiki'], updatedAt: new Date().toISOString() },
+      { id: '2', type: 'article', title: 'Baldur\'s Gate 3: Аналитическая статья', author: 'Astarion_X', status: 'published', targets: ['wiki'], updatedAt: new Date(Date.now() - 3600000).toISOString() },
+      { id: '3', type: 'calc', title: 'Калькулятор билда: Оптимизатор DPS', author: 'GuildDev', status: 'published', targets: ['wiki'], updatedAt: new Date(Date.now() - 7200000).toISOString() },
+      { id: '4', type: 'event', title: 'Осада Цитадели Бездны (Финал)', author: 'Valerius', status: 'draft', targets: [], updatedAt: new Date(Date.now() - 86400000).toISOString() }
+    ];
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (str) => String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    
+    function renderOverview() {
+      const total = 14;
+      const published = 9;
+      const drafts = 5;
+      const onWall = 7;
+
+      $('#stats-grid').innerHTML = [
+        { label: 'Всего материалов', value: total, icon: 'database', color: 'brand-purple', sub: 'в хранилище' },
+        { label: 'Опубликовано', value: published, icon: 'check-circle-2', color: 'brand-green', sub: 'видно соклановцам' },
+        { label: 'Черновики', value: drafts, icon: 'file-edit', color: 'brand-amber', sub: 'в работе' },
+        { label: 'На стене', value: onWall, icon: 'layout-template', color: 'brand-cyan', sub: 'активных публикаций' }
+      ].map(s =>
+        '<div class="p-5 rounded-2xl bg-brand-surface border border-brand-border shadow-lg relative overflow-hidden group hover:border-' + s.color + '/50 transition-all">' +
+          '<div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-' + s.color + '/10 blur-2xl group-hover:bg-' + s.color + '/20 transition-all"></div>' +
+          '<div class="relative">' +
+            '<div class="flex items-center justify-between mb-3">' +
+              '<div class="w-9 h-9 rounded-xl bg-' + s.color + '/15 border border-' + s.color + '/30 flex items-center justify-center text-' + s.color + '">' +
+                '<i data-lucide="' + s.icon + '" class="w-4 h-4"></i>' +
+              '</div>' +
+              '<span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">' + esc(s.sub) + '</span>' +
+            '</div>' +
+            '<div class="text-3xl font-display font-extrabold text-white leading-none">' + s.value + '</div>' +
+            '<div class="text-[11px] text-slate-400 mt-1.5 font-semibold">' + esc(s.label) + '</div>' +
+          '</div>' +
+        '</div>'
+      ).join('');
+
+      $('#recent-list').innerHTML = items.map(it => {
+        const meta = TYPES[it.type] || TYPES.article;
+        const statusChip = it.status === 'published'
+          ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-green/15 text-brand-green border border-brand-green/30">ОПУБЛ.</span>'
+          : '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-amber/15 text-brand-amber border border-brand-amber/30">ЧЕРНОВИК</span>';
+
+        return '<button onclick="viewItem(\'' + it.id + '\')" class="w-full flex items-center gap-3.5 p-3.5 hover:bg-brand-card/60 transition-colors text-left group">' +
+          '<div class="w-9 h-9 rounded-xl bg-' + meta.color + '/15 border border-' + meta.color + '/30 flex items-center justify-center text-' + meta.color + ' shrink-0">' +
+            '<i data-lucide="' + meta.icon + '" class="w-4 h-4"></i>' +
+          '</div>' +
+          '<div class="min-w-0 flex-1">' +
+            '<div class="text-xs font-bold text-white truncate group-hover:text-brand-cyan transition-colors">' + esc(it.title) + '</div>' +
+            '<div class="text-[10px] text-slate-500 mt-0.5 flex items-center gap-2">' +
+              '<span>' + esc(meta.label) + '</span>' +
+              '<span class="text-slate-600">•</span>' +
+              '<span>' + esc(it.author) + '</span>' +
+              '<span class="text-slate-600">•</span>' +
+              '<span>только что</span>' +
+            '</div>' +
+          '</div>' +
+          statusChip +
+        '</button>';
+      }).join('');
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // Логика переключения табов в Радаре
+    window.switchRadarTab = function(tabName) {
+      const tabs = ['tasks', 'events', 'kb'];
+      
+      tabs.forEach(t => {
+        const btn = document.getElementById(`radar-tab-${t}`);
+        const content = document.getElementById(`radar-content-${t}`);
+        
+        if (t === tabName) {
+          // Активный таб
+          btn.className = 'px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold rounded-full transition-all shadow-sm bg-brand-surface text-brand-cyan flex items-center gap-2 shrink-0 border border-brand-border';
+          if(content) {
+            content.classList.remove('hidden');
+            content.classList.add('flex', 'lg:grid'); // Возвращаем классы для сетки
+          }
+        } else {
+          // Неактивный таб
+          btn.className = 'px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold rounded-full transition-all text-slate-400 hover:text-white flex items-center gap-2 shrink-0 border border-transparent';
+          if(content) {
+            content.classList.add('hidden');
+            content.classList.remove('flex', 'lg:grid');
+          }
+        }
+      });
+    }
+
+    // Функция продления задачи
+    function extendTaskTime(buttonElement, secondsToAdd) {
+      const card = buttonElement.closest('.p-4');
+      const timerDisplay = card.querySelector('.timer-display');
+      if (!timerDisplay) return;
+
+      const timeParts = timerDisplay.textContent.split(':');
+      let currentSeconds = (parseInt(timeParts[0], 10) * 3600) + (parseInt(timeParts[1], 10) * 60) + parseInt(timeParts[2], 10);
+      let newTotalSeconds = currentSeconds + secondsToAdd;
+
+      const h = Math.floor(newTotalSeconds / 3600);
+      const m = Math.floor((newTotalSeconds % 3600) / 60);
+      const s = newTotalSeconds % 60;
+      
+      timerDisplay.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+
+      const originalText = buttonElement.innerHTML;
+      buttonElement.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5 text-brand-green"></i> Продлено';
+      buttonElement.classList.add('border-brand-green', 'text-brand-green');
+      if (window.lucide) lucide.createIcons();
+
+      setTimeout(() => {
+        buttonElement.innerHTML = originalText;
+        buttonElement.classList.remove('border-brand-green', 'text-brand-green');
+        if (window.lucide) lucide.createIcons();
+      }, 2000);
+    }
+
+    document.addEventListener('DOMContentLoaded', renderOverview);
+  </script>
+</body>
+</html>

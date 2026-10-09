@@ -1,0 +1,2547 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AETHERIA — Кабинет управления контентом</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#0a0d14',
+              surface: '#111625',
+              card: '#161d31',
+              border: '#232d4b',
+              purple: '#7c3aed',
+              cyan: '#06b6d4',
+              accent: '#6366f1',
+              green: '#10b981',
+              amber: '#f59e0b',
+              red: '#ef4444',
+              blue: '#2563EB',
+              blueHover: '#1D4ED8',
+              yellow: '#FACC15',
+              muted: '#64748B'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+            jakarta: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          boxShadow: {
+            'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.04)',
+            'card-hover': '0 16px 32px -4px rgba(37, 99, 235, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background-color: #0a0d14; color: #e2e8f0; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0a0d14; }
+    ::-webkit-scrollbar-thumb { background: #232d4b; border-radius: 6px; }
+    ::-webkit-scrollbar-thumb:hover { background: #2f3c63; }
+    .glass-panel { background: rgba(22, 29, 49, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(35, 45, 75, 0.8); }
+
+    .no-select { user-select: none; -webkit-user-select: none; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up { animation: fadeInUp 0.3s ease-out forwards; }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(24px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .animate-toast { animation: slideInRight 0.28s cubic-bezier(.22,1,.36,1) forwards; }
+
+    @keyframes pulseRing {
+      0% { box-shadow: 0 0 0 0 rgba(124,58,237,.5); }
+      70% { box-shadow: 0 0 0 12px rgba(124,58,237,0); }
+      100% { box-shadow: 0 0 0 0 rgba(124,58,237,0); }
+    }
+    .pulse-ring { animation: pulseRing 2s infinite; }
+
+    input[type="range"] { accent-color: #06b6d4; }
+
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .chip-scroll::-webkit-scrollbar { height: 4px; }
+    .chip-scroll::-webkit-scrollbar-thumb { background: #232d4b; border-radius: 999px; }
+
+    .switch { width: 40px; height: 22px; border-radius: 999px; background: #232d4b; position: relative; transition: .22s; cursor: pointer; border: 1px solid #2f3c63; flex-shrink: 0; }
+    .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #64748b; transition: .22s; }
+    .switch.on { background: rgba(124,58,237,.35); border-color: rgba(124,58,237,.7); }
+    .switch.on::after { left: 20px; background: #7c3aed; }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col h-screen overflow-hidden font-sans">
+
+  <!-- ================= ШАПКА ================= -->
+  <header class="z-40 w-full glass-panel h-16 flex items-center justify-between px-4 sm:px-6 shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-purple to-brand-cyan flex items-center justify-center shadow-lg shadow-brand-purple/20">
+        <i data-lucide="shield" class="w-5 h-5 text-white"></i>
+      </div>
+      <div class="leading-tight">
+        <span class="font-display font-bold text-base sm:text-lg tracking-wider text-white block">AETHERIA</span>
+        <span class="text-[9px] sm:text-[10px] text-brand-cyan font-semibold uppercase tracking-widest block">Content Control Cabinet</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 sm:gap-3">
+      <button onclick="openExport()" class="hidden md:flex items-center gap-2 bg-brand-surface border border-brand-border hover:border-brand-cyan/60 text-slate-300 hover:text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all">
+        <i data-lucide="download" class="w-3.5 h-3.5 text-brand-cyan"></i>
+        Экспорт JSON
+      </button>
+
+      <button onclick="createNew()" class="flex items-center gap-2 bg-brand-purple hover:bg-brand-purple/85 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-lg shadow-brand-purple/25 active:scale-95">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        <span class="hidden sm:inline">Новый материал</span>
+        <span class="sm:hidden">Создать</span>
+      </button>
+
+      <div class="hidden sm:flex items-center gap-2.5 pl-2 pr-3.5 py-1 bg-brand-surface border border-brand-border rounded-full shadow-inner">
+        <img src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=80&auto=format&fit=crop" class="w-8 h-8 rounded-full object-cover ring-2 ring-brand-purple">
+        <div class="text-xs font-bold leading-tight">
+          <span class="text-white block">Valerius</span>
+          <span class="text-[10px] text-brand-cyan font-medium block">Guild Master</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= КАРКАС ================= -->
+  <div class="flex-1 flex w-full max-w-[1780px] mx-auto overflow-hidden">
+
+    <!-- ---------- САЙДБАР ---------- -->
+    <aside class="w-20 lg:w-72 p-3 lg:p-4 border-r border-brand-border bg-brand-dark/95 shrink-0 flex flex-col justify-between no-select">
+      <nav class="space-y-1.5">
+
+        <button onclick="switchTab('overview')" id="nav-overview" class="nav-item w-full flex items-center gap-3 px-3 lg:px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-brand-card transition-all justify-center lg:justify-start">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-brand-cyan shrink-0"></i>
+          <span class="hidden lg:inline">Обзор</span>
+        </button>
+
+        <button onclick="switchTab('library')" id="nav-library" class="nav-item w-full flex items-center justify-between px-3 lg:px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-brand-card transition-all">
+          <div class="flex items-center gap-3">
+            <i data-lucide="database" class="w-4 h-4 text-brand-purple shrink-0"></i>
+            <span class="hidden lg:inline">Хранилище</span>
+          </div>
+          <span id="nav-library-count" class="hidden lg:inline-block bg-brand-card border border-brand-border text-slate-400 text-[10px] px-1.5 py-0.5 rounded">0</span>
+        </button>
+
+        <button onclick="switchTab('editor')" id="nav-editor" class="nav-item w-full flex items-center gap-3 px-3 lg:px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-brand-card transition-all justify-center lg:justify-start">
+          <i data-lucide="square-pen" class="w-4 h-4 text-brand-amber shrink-0"></i>
+          <span class="hidden lg:inline">Редактор</span>
+        </button>
+
+        <button onclick="switchTab('wall')" id="nav-wall" class="nav-item w-full flex items-center justify-between px-3 lg:px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-brand-card transition-all">
+          <div class="flex items-center gap-3">
+            <i data-lucide="layout-template" class="w-4 h-4 text-brand-green shrink-0"></i>
+            <span class="hidden lg:inline">Стена публикаций</span>
+          </div>
+          <span id="nav-wall-count" class="hidden lg:inline-block bg-brand-green/15 border border-brand-green/30 text-brand-green text-[10px] font-bold px-1.5 py-0.5 rounded">0</span>
+        </button>
+
+        <button onclick="switchTab('software')" id="nav-software" class="nav-item w-full flex items-center justify-between px-3 lg:px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-brand-card transition-all">
+          <div class="flex items-center gap-3">
+            <i data-lucide="cpu" class="w-4 h-4 text-indigo-400 shrink-0"></i>
+            <span class="hidden lg:inline">Софт гильдии</span>
+          </div>
+          <span id="nav-soft-count" class="hidden lg:inline-block bg-indigo-500/15 border border-indigo-400/30 text-indigo-300 text-[10px] font-bold px-1.5 py-0.5 rounded">0</span>
+        </button>
+
+      </nav>
+
+      <!-- Инфо-виджет -->
+      <div class="space-y-2 pt-4 border-t border-brand-border/70">
+        <div class="hidden lg:block p-3 bg-brand-surface border border-brand-border rounded-xl shadow-sm space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Хранилище</span>
+            <span id="storage-badge" class="text-[10px] font-mono text-brand-cyan">0 КБ</span>
+          </div>
+          <div class="w-full h-1.5 bg-brand-dark rounded-full overflow-hidden">
+            <div id="storage-bar" class="h-full bg-gradient-to-r from-brand-purple to-brand-cyan transition-all duration-500" style="width:2%"></div>
+          </div>
+          <p class="text-[10px] text-slate-500 leading-snug">Данные сохраняются в localStorage браузера</p>
+        </div>
+
+        <div class="hidden lg:flex items-center gap-2.5 p-3 bg-brand-surface border border-brand-border rounded-xl">
+          <span class="w-2.5 h-2.5 rounded-full bg-brand-green animate-pulse shrink-0"></span>
+          <div class="min-w-0">
+            <div class="text-[11px] font-semibold text-white leading-tight truncate">Синхронизация</div>
+            <div class="text-[10px] text-slate-400 leading-tight truncate">Valhalla-EU • активна</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ---------- КОНТЕНТ ---------- -->
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-[#0a0d14]">
+
+      <!-- ============ 1. ОБЗОР ============ -->
+      <section id="screen-overview" class="screen-view hidden space-y-6 max-w-[1400px] mx-auto">
+
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-display font-bold text-white">Обзор кабинета</h2>
+            <p class="text-sm text-slate-400 mt-1">Сводка по материалам, публикациям и активности хранилища</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="createNew()" class="bg-brand-purple hover:bg-brand-purple/85 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-lg shadow-brand-purple/20">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i> Создать материал
+            </button>
+            <button onclick="switchTab('wall')" class="bg-brand-surface border border-brand-border hover:border-brand-green/60 text-slate-300 hover:text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all">
+              <i data-lucide="layout-template" class="w-4 h-4 text-brand-green"></i> На стену
+            </button>
+          </div>
+        </div>
+
+        <!-- Статистика -->
+        <div id="stats-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          <!-- Последние материалы -->
+          <div class="lg:col-span-2 bg-brand-surface border border-brand-border rounded-2xl shadow-lg overflow-hidden">
+            <div class="px-5 py-4 border-b border-brand-border bg-brand-card flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="history" class="w-4 h-4 text-brand-cyan"></i>
+                <h3 class="font-bold text-white text-sm">Последние изменения</h3>
+              </div>
+              <button onclick="switchTab('library')" class="text-[11px] font-bold text-brand-cyan hover:underline">Всё хранилище →</button>
+            </div>
+            <div id="recent-list" class="divide-y divide-brand-border/60"></div>
+          </div>
+
+          <!-- Распределение по типам -->
+          <div class="bg-brand-surface border border-brand-border rounded-2xl shadow-lg overflow-hidden">
+            <div class="px-5 py-4 border-b border-brand-border bg-brand-card flex items-center gap-2">
+              <i data-lucide="pie-chart" class="w-4 h-4 text-brand-purple"></i>
+              <h3 class="font-bold text-white text-sm">Состав хранилища</h3>
+            </div>
+            <div id="type-breakdown" class="p-5 space-y-4"></div>
+          </div>
+        </div>
+
+        <!-- Быстрые действия -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <button onclick="createNew('article')" class="group p-5 rounded-2xl bg-brand-surface border border-brand-border hover:border-brand-accent/60 transition-all text-left shadow-lg">
+            <div class="w-10 h-10 rounded-xl bg-brand-accent/15 border border-brand-accent/30 flex items-center justify-center text-brand-accent mb-3 group-hover:scale-110 transition-transform">
+              <i data-lucide="book-open" class="w-5 h-5"></i>
+            </div>
+            <div class="text-sm font-bold text-white">Новая статья</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">Текстовый гайд в Базу знаний</div>
+          </button>
+
+          <button onclick="createNew('video')" class="group p-5 rounded-2xl bg-brand-surface border border-brand-border hover:border-brand-red/60 transition-all text-left shadow-lg">
+            <div class="w-10 h-10 rounded-xl bg-brand-red/15 border border-brand-red/30 flex items-center justify-center text-brand-red mb-3 group-hover:scale-110 transition-transform">
+              <i data-lucide="play-circle" class="w-5 h-5"></i>
+            </div>
+            <div class="text-sm font-bold text-white">Новое видео</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">Видеоразбор с таймкодами</div>
+          </button>
+
+          <button onclick="createNew('calc')" class="group p-5 rounded-2xl bg-brand-surface border border-brand-border hover:border-brand-cyan/60 transition-all text-left shadow-lg">
+            <div class="w-10 h-10 rounded-xl bg-brand-cyan/15 border border-brand-cyan/30 flex items-center justify-center text-brand-cyan mb-3 group-hover:scale-110 transition-transform">
+              <i data-lucide="calculator" class="w-5 h-5"></i>
+            </div>
+            <div class="text-sm font-bold text-white">Калькулятор / Софт</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">Утилита гильдии или карта</div>
+          </button>
+
+          <button onclick="switchTab('editor'); setEditorType('event');" class="group p-5 rounded-2xl bg-brand-surface border border-brand-border hover:border-brand-purple/60 transition-all text-left shadow-lg">
+            <div class="w-10 h-10 rounded-xl bg-brand-purple/15 border border-brand-purple/30 flex items-center justify-center text-brand-purple mb-3 group-hover:scale-110 transition-transform">
+              <i data-lucide="calendar-plus" class="w-5 h-5"></i>
+            </div>
+            <div class="text-sm font-bold text-white">Событие гильдии</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">Рейд, PvP или обучение</div>
+          </button>
+        </div>
+
+      </section>
+
+      <!-- ============ 2. ХРАНИЛИЩЕ ============ -->
+      <section id="screen-library" class="screen-view hidden space-y-6 max-w-[1600px] mx-auto">
+
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-display font-bold text-white">Хранилище материалов</h2>
+            <p class="text-sm text-slate-400 mt-1">Все статьи, видео, арты, калькуляторы и софт гильдии в одном месте</p>
+          </div>
+          <button onclick="createNew()" class="bg-brand-purple hover:bg-brand-purple/85 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-lg shadow-brand-purple/20 w-fit">
+            <i data-lucide="plus" class="w-4 h-4"></i> Добавить материал
+          </button>
+        </div>
+
+        <!-- Панель фильтров -->
+        <div class="bg-brand-surface/95 border border-brand-border rounded-2xl p-4 shadow-lg flex flex-col lg:flex-row lg:items-center gap-3">
+
+          <div class="flex items-center bg-brand-card border border-brand-border rounded-xl pl-3.5 pr-1.5 py-1.5 focus-within:border-brand-cyan transition-all flex-1 min-w-[200px]">
+            <i data-lucide="search" class="h-4 w-4 text-slate-500 shrink-0 mr-2"></i>
+            <input type="text" id="lib-search" oninput="libraryFilters.search = this.value; renderLibrary();"
+              placeholder="Поиск по названию, описанию, игре, тегам..."
+              class="bg-transparent font-medium text-xs text-white outline-none w-full placeholder-slate-500" />
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <select id="lib-type" onchange="libraryFilters.type = this.value; renderLibrary();"
+              class="bg-brand-card border border-brand-border text-slate-200 text-xs font-semibold rounded-xl px-3 py-2.5 outline-none focus:border-brand-purple cursor-pointer">
+              <option value="all">Все типы</option>
+              <option value="article">Статьи</option>
+              <option value="video">Видео</option>
+              <option value="art">Арты</option>
+              <option value="calc">Калькуляторы</option>
+              <option value="soft">Софт гильдии</option>
+              <option value="event">События</option>
+            </select>
+
+            <select id="lib-status" onchange="libraryFilters.status = this.value; renderLibrary();"
+              class="bg-brand-card border border-brand-border text-slate-200 text-xs font-semibold rounded-xl px-3 py-2.5 outline-none focus:border-brand-purple cursor-pointer">
+              <option value="all">Любой статус</option>
+              <option value="published">Опубликовано</option>
+              <option value="draft">Черновик</option>
+            </select>
+
+            <select id="lib-sort" onchange="libraryFilters.sort = this.value; renderLibrary();"
+              class="bg-brand-card border border-brand-border text-slate-200 text-xs font-semibold rounded-xl px-3 py-2.5 outline-none focus:border-brand-purple cursor-pointer">
+              <option value="new">Сначала новые</option>
+              <option value="old">Сначала старые</option>
+              <option value="title">По алфавиту</option>
+              <option value="views">По популярности</option>
+            </select>
+
+            <button onclick="resetLibraryFilters()" class="px-3 py-2.5 rounded-xl bg-brand-card border border-brand-border text-slate-400 hover:text-white hover:border-brand-red/50 text-xs font-semibold transition-all flex items-center gap-1.5">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Сброс
+            </button>
+          </div>
+        </div>
+
+        <div id="lib-counter" class="text-xs text-slate-400 font-medium"></div>
+
+        <div id="library-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
+
+      </section>
+
+      <!-- ============ 3. РЕДАКТОР ============ -->
+      <section id="screen-editor" class="screen-view hidden max-w-[1600px] mx-auto">
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 id="editor-heading" class="text-2xl font-display font-bold text-white">Новый материал</h2>
+            <p id="editor-subheading" class="text-sm text-slate-400 mt-1">Заполните карточку и выберите, куда её опубликовать</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="switchTab('library')" class="px-4 py-2.5 rounded-xl bg-brand-card border border-brand-border text-slate-300 hover:text-white text-xs font-bold transition-all flex items-center gap-2">
+              <i data-lucide="x" class="w-4 h-4"></i> Отмена
+            </button>
+            <button onclick="saveItem(false)" class="px-4 py-2.5 rounded-xl bg-brand-surface border border-brand-border hover:border-brand-amber/60 text-slate-200 hover:text-white text-xs font-bold transition-all flex items-center gap-2">
+              <i data-lucide="save" class="w-4 h-4 text-brand-amber"></i> Сохранить черновик
+            </button>
+            <button onclick="saveItem(true)" class="px-4 py-2.5 rounded-xl bg-brand-purple hover:bg-brand-purple/85 text-white text-xs font-bold transition-all shadow-lg shadow-brand-purple/25 flex items-center gap-2 active:scale-95">
+              <i data-lucide="send" class="w-4 h-4"></i> Опубликовать
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-6 items-start">
+
+          <!-- ---------- ФОРМА ---------- -->
+          <div class="space-y-5">
+
+            <!-- Тип материала -->
+            <div class="bg-brand-surface border border-brand-border rounded-2xl p-5 shadow-lg space-y-4">
+              <div class="flex items-center gap-2 pb-3 border-b border-brand-border/70">
+                <i data-lucide="shapes" class="w-4 h-4 text-brand-purple"></i>
+                <h3 class="font-bold text-white text-sm">Тип материала</h3>
+              </div>
+
+              <div id="type-picker" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5"></div>
+
+              <div class="hidden">
+                <input type="hidden" id="f-type" value="article">
+              </div>
+            </div>
+
+            <!-- Основное -->
+            <div class="bg-brand-surface border border-brand-border rounded-2xl p-5 shadow-lg space-y-4">
+              <div class="flex items-center gap-2 pb-3 border-b border-brand-border/70">
+                <i data-lucide="file-text" class="w-4 h-4 text-brand-cyan"></i>
+                <h3 class="font-bold text-white text-sm">Основная информация</h3>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Заголовок <span class="text-brand-red">*</span></label>
+                <input id="f-title" oninput="updateEditorPreview()" type="text" placeholder="Например: Полный разбор Цитадели Бездны"
+                  class="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-purple transition-all placeholder-slate-500">
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Краткое описание</label>
+                <textarea id="f-excerpt" oninput="updateEditorPreview()" rows="3" placeholder="О чём этот материал? 1–2 предложения для карточки."
+                  class="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-purple transition-all placeholder-slate-500 resize-none"></textarea>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Игра / Проект</label>
+                  <input id="f-game" oninput="updateEditorPreview()" type="text" placeholder="GTA 5"
+                    class="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-purple transition-all placeholder-slate-500">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Патч / Версия</label>
+                  <input id="f-patch" type="text" placeholder="v1.68 Online"
+                    class="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-purple transition-all placeholder-slate-500">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Сложность</label>
+                  <select id="f-difficulty"
+                    class="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-purple transition-all cursor-pointer">
+                    <option value="beginner">Для новичка</option>
+                    <option value="intermediate" selected>Опытный игрок</option>
+                    <option value="pro">Профи / Хардкор</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Автор</label>
+                  <input id="f-author" oninput="updateEditorPreview()" type="text" placeholder="Valerius"
+                    class="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-purple transition-all placeholder-slate-500">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Теги (через запятую)</label>
+                  <input id="f-tags" type="text" placeholder="рейд, тактика, хардкор"
+                    class="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-purple transition-all placeholder-slate-500">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Ссылка на обложку (URL)</label>
+                <div class="flex gap-2">
+                  <input id="f-image" oninput="updateEditorPreview()" type="text" placeholder="https://..."
+                    class="flex-1 bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-purple transition-all placeholder-slate-500">
+                  <button onclick="pickRandomImage()" class="px-3.5 rounded-xl bg-brand-card border border-brand-border text-slate-400 hover:text-brand-cyan hover:border-brand-cyan/50 transition-all" title="Случайная обложка">
+                    <i data-lucide="shuffle" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Тип-специфичные поля -->
+            <div id="block-video" class="hidden bg-brand-surface border border-brand-border rounded-2xl p-5 shadow-lg space-y-4">
+              <div class="flex items-center gap-2 pb-3 border-b border-brand-border/70">
+                <i data-lucide="play-circle" class="w-4 h-4 text-brand-red"></i>
+                <h3 class="font-bold text-white text-sm">Параметры видео</h3>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">URL видеофайла / стрима</label>
+                  <input id="f-video-url" type="text" placeholder="https://.../video.mp4"
+                    class="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-red transition-all placeholder-slate-500">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Длительность</label>
+                  <input id="f-video-duration" type="text" placeholder="14:25"
+                    class="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-red transition-all placeholder-slate-500">
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Таймкоды (по одному на строку: <span class="font-mono text-brand-cyan">0:00 | Вступление</span>)</label>
+                <textarea id="f-video-chapters" rows="3" placeholder="0:00 | Вступление и механики&#10;2:15 | Трюки и ключевые точки"
+                  class="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-xs font-mono text-white outline-none focus:border-brand-red transition-all placeholder-slate-500 resize-none"></textarea>
+              </div>
+            </div>
+
+            <div id="block-calc" class="hidden bg-brand-surface border border-brand-border rounded-2xl p-5 shadow-lg space-y-4">
+              <div class="flex items-center gap-2 pb-3 border-b border-brand-border/70">
+                <i data-lucide="calculator" class="w-4 h-4 text-brand-cyan"></i>
+                <h3 class="font-bold text-white text-sm">Параметры утилиты / софта</h3>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Ссылка / эндпоинт утилиты</label>
+                  <input id="f-calc-url" type="text" placeholder="calc.html или https://..."
+                    class="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-cyan transition-all placeholder-slate-500">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Версия софта</label>
+                  <input id="f-calc-version" type="text" placeholder="v2.4 Софт"
+                    class="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-cyan transition-all placeholder-slate-500">
+                </div>
+              </div>
+              <div class="flex items-center justify-between bg-brand-card/70 border border-brand-border rounded-xl p-3.5">
+                <div>
+                  <div class="text-xs font-bold text-white">Выбор гильдии</div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">Отметить как рекомендованный инструмент</div>
+                </div>
+                <div id="sw-guildpick" class="switch" onclick="toggleSwitch(this)"></div>
+              </div>
+            </div>
+
+            <div id="block-article" class="bg-brand-surface border border-brand-border rounded-2xl p-5 shadow-lg space-y-4">
+              <div class="flex items-center gap-2 pb-3 border-b border-brand-border/70">
+                <i data-lucide="align-left" class="w-4 h-4 text-brand-accent"></i>
+                <h3 class="font-bold text-white text-sm">Текст материала</h3>
+              </div>
+              <textarea id="f-body" rows="8" placeholder="Полный текст статьи, гайда или инструкции. Поддерживается перенос строк."
+                class="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-accent transition-all placeholder-slate-500 resize-y leading-relaxed"></textarea>
+            </div>
+
+            <!-- Публикация -->
+            <div class="bg-brand-surface border border-brand-border rounded-2xl p-5 shadow-lg space-y-4">
+              <div class="flex items-center gap-2 pb-3 border-b border-brand-border/70">
+                <i data-lucide="radio-tower" class="w-4 h-4 text-brand-green"></i>
+                <h3 class="font-bold text-white text-sm">Куда публикуем</h3>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <label class="cursor-pointer">
+                  <input type="checkbox" id="t-wiki" class="peer sr-only" onchange="onTargetChange()">
+                  <div class="p-4 rounded-xl border border-brand-border bg-brand-card peer-checked:border-brand-purple peer-checked:bg-brand-purple/15 transition-all h-full">
+                    <i data-lucide="book-open" class="w-5 h-5 text-brand-purple mb-2"></i>
+                    <div class="text-xs font-bold text-white">База знаний</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">Wiki: статьи, видео, арты, софт</div>
+                  </div>
+                </label>
+
+                <label class="cursor-pointer">
+                  <input type="checkbox" id="t-events" class="peer sr-only" onchange="onTargetChange()">
+                  <div class="p-4 rounded-xl border border-brand-border bg-brand-card peer-checked:border-brand-red peer-checked:bg-brand-red/15 transition-all h-full">
+                    <i data-lucide="calendar" class="w-5 h-5 text-brand-red mb-2"></i>
+                    <div class="text-xs font-bold text-white">События</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">Рейды, PvP, обучение</div>
+                  </div>
+                </label>
+
+                <label class="cursor-pointer">
+                  <input type="checkbox" id="t-moments" class="peer sr-only" onchange="onTargetChange()">
+                  <div class="p-4 rounded-xl border border-brand-border bg-brand-card peer-checked:border-brand-amber peer-checked:bg-brand-amber/15 transition-all h-full">
+                    <i data-lucide="sparkles" class="w-5 h-5 text-brand-amber mb-2"></i>
+                    <div class="text-xs font-bold text-white">Яркие моменты</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">Скриншоты и клипы</div>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Настройки Wiki -->
+              <div id="block-wiki" class="hidden bg-brand-card/60 border border-brand-purple/30 rounded-xl p-4 space-y-3 animate-fade-in-up">
+                <div class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-brand-purple">
+                  <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Настройки Базы знаний
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Категория</label>
+                    <select id="f-wiki-category" class="w-full bg-brand-dark border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-purple cursor-pointer">
+                      <option value="tutorials">Гайды и обучение</option>
+                      <option value="technical">Технический раздел</option>
+                      <option value="knowledge_base">База знаний / карты</option>
+                      <option value="tools">Инструменты</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Тип софта</label>
+                    <select id="f-wiki-soft" class="w-full bg-brand-dark border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-purple cursor-pointer">
+                      <option value="">— не софт —</option>
+                      <option value="calculator">Калькулятор билдов</option>
+                      <option value="map">Интерактивная карта</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Настройки События -->
+              <div id="block-event" class="hidden bg-brand-card/60 border border-brand-red/30 rounded-xl p-4 space-y-3 animate-fade-in-up">
+                <div class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-brand-red">
+                  <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Настройки события
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Тип события</label>
+                    <select id="f-ev-category" class="w-full bg-brand-dark border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-red cursor-pointer">
+                      <option value="РЕЙД">Рейд</option>
+                      <option value="PvP ТУРНИР">PvP Турнир</option>
+                      <option value="ОБУЧЕНИЕ">Обучение</option>
+                      <option value="КРАФТ">Крафт / Сбор</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Дата</label>
+                    <input id="f-ev-date" type="date" class="w-full bg-brand-dark border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-red">
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Время (МСК)</label>
+                    <input id="f-ev-time" type="time" class="w-full bg-brand-dark border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-red">
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Лимит участников</label>
+                    <input id="f-ev-members" type="text" placeholder="20" class="w-full bg-brand-dark border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-red placeholder-slate-500">
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Уже записано</label>
+                    <input id="f-ev-joined" type="text" placeholder="18" class="w-full bg-brand-dark border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white outline-none focus:border-brand-red placeholder-slate-500">
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Требования к участникам</label>
+                  <textarea id="f-ev-requirements" rows="2" placeholder="GearScore 420+, Discord с микрофоном..."
+                    class="w-full bg-brand-dark border border-brand-border rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-brand-red placeholder-slate-500 resize-none"></textarea>
+                </div>
+
+                <div>
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Чек-лист подготовки (по одному пункту на строку)</label>
+                  <textarea id="f-ev-checklist" rows="4" placeholder="Зелье защиты от магии тьмы (x5)&#10;Рейдовая еда на выносливость (x4)"
+                    class="w-full bg-brand-dark border border-brand-border rounded-xl px-3.5 py-2.5 text-xs font-mono text-white outline-none focus:border-brand-red placeholder-slate-500 resize-none"></textarea>
+                </div>
+
+                <div>
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Тактические фазы (формат: <span class="font-mono text-brand-cyan">Фаза 1 | Описание</span>)</label>
+                  <textarea id="f-ev-tactics" rows="4" placeholder="Фаза 1 (100% – 70%) | Смена танков на 3-х стаках..."
+                    class="w-full bg-brand-dark border border-brand-border rounded-xl px-3.5 py-2.5 text-xs font-mono text-white outline-none focus:border-brand-red placeholder-slate-500 resize-none"></textarea>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ---------- ПРЕВЬЮ ---------- -->
+          <div class="xl:sticky xl:top-0 space-y-4">
+            <div class="bg-brand-surface border border-brand-border rounded-2xl shadow-xl overflow-hidden">
+              <div class="px-4 py-3 bg-brand-card border-b border-brand-border flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="eye" class="w-4 h-4 text-brand-cyan"></i>
+                  <span class="font-bold text-white text-xs">Живое превью</span>
+                </div>
+                <span id="preview-status" class="text-[10px] font-bold px-2 py-0.5 rounded border bg-brand-amber/15 text-brand-amber border-brand-amber/30">Черновик</span>
+              </div>
+              <div id="editor-preview" class="p-4"></div>
+            </div>
+
+            <div class="bg-brand-surface border border-brand-border rounded-2xl p-4 shadow-lg space-y-2.5">
+              <div class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                <i data-lucide="info" class="w-3.5 h-3.5 text-brand-cyan"></i> Подсказка
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Материал можно опубликовать сразу в несколько разделов. Например, видео-гайд — в <b class="text-brand-purple">Базу знаний</b>, а анонс рейда — в <b class="text-brand-red">События</b>.
+              </p>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Черновики не появляются на стене, но остаются в хранилище для дальнейшей доработки.
+              </p>
+            </div>
+
+            <button onclick="duplicateCurrent()" id="btn-duplicate" class="hidden w-full py-2.5 rounded-xl bg-brand-card border border-brand-border hover:border-brand-cyan/60 text-slate-300 hover:text-white text-xs font-bold transition-all flex items-center justify-center gap-2">
+              <i data-lucide="copy" class="w-4 h-4"></i> Дублировать материал
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ============ 4. СТЕНА ПУБЛИКАЦИЙ ============ -->
+      <section id="screen-wall" class="screen-view hidden space-y-6 max-w-[1600px] mx-auto">
+
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-display font-bold text-white">Стена публикаций</h2>
+            <p class="text-sm text-slate-400 mt-1">Управляйте тем, что видят соклановцы в каждом разделе тимхаба</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="openWallPicker()" class="bg-brand-green hover:bg-brand-green/85 text-zinc-950 px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all shadow-lg shadow-brand-green/20 active:scale-95">
+              <i data-lucide="plus" class="w-4 h-4"></i> Добавить на стену
+            </button>
+          </div>
+        </div>
+
+        <!-- Переключатель стен -->
+        <div class="flex items-center gap-2 flex-wrap bg-brand-surface border border-brand-border rounded-2xl p-2">
+          <button onclick="setWallTarget('wiki')" id="walltab-wiki" class="wall-tab flex-1 min-w-[140px] px-4 py-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+            <i data-lucide="book-open" class="w-4 h-4"></i> База знаний
+            <span id="wallcount-wiki" class="text-[10px] px-1.5 py-0.5 rounded bg-black/25">0</span>
+          </button>
+          <button onclick="setWallTarget('events')" id="walltab-events" class="wall-tab flex-1 min-w-[140px] px-4 py-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+            <i data-lucide="calendar" class="w-4 h-4"></i> События
+            <span id="wallcount-events" class="text-[10px] px-1.5 py-0.5 rounded bg-black/25">0</span>
+          </button>
+          <button onclick="setWallTarget('moments')" id="walltab-moments" class="wall-tab flex-1 min-w-[140px] px-4 py-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+            <i data-lucide="sparkles" class="w-4 h-4"></i> Яркие моменты
+            <span id="wallcount-moments" class="text-[10px] px-1.5 py-0.5 rounded bg-black/25">0</span>
+          </button>
+        </div>
+
+        <div id="wall-hint" class="text-xs text-slate-400 font-medium"></div>
+
+        <div id="wall-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
+
+      </section>
+
+      <!-- ============ 5. СОФТ ГИЛЬДИИ ============ -->
+      <section id="screen-software" class="screen-view hidden space-y-6 max-w-[1400px] mx-auto">
+
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-display font-bold text-white">Софт гильдии</h2>
+            <p class="text-sm text-slate-400 mt-1">Калькуляторы, интерактивные карты и внутренние утилиты</p>
+          </div>
+          <button onclick="createNew('calc')" class="bg-brand-cyan hover:bg-brand-cyan/85 text-zinc-950 px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all shadow-lg shadow-brand-cyan/20 w-fit active:scale-95">
+            <i data-lucide="plus" class="w-4 h-4"></i> Добавить утилиту
+          </button>
+        </div>
+
+        <div id="software-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= МОДАЛКА: ВЫБОР МАТЕРИАЛА ДЛЯ СТЕНЫ ================= -->
+  <div id="wall-picker-modal" class="fixed inset-0 z-[80] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 opacity-0 transition-opacity duration-200">
+    <div id="wall-picker-content" class="bg-brand-surface border border-brand-border rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden scale-95 transition-transform duration-200">
+      <div class="p-5 border-b border-brand-border bg-brand-card flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-brand-green/20 border border-brand-green/40 flex items-center justify-center text-brand-green">
+            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-base">Добавить на стену</h3>
+            <p id="wall-picker-subtitle" class="text-xs text-slate-400 mt-0.5">Раздел: База знаний</p>
+          </div>
+        </div>
+        <button onclick="closeWallPicker()" class="w-8 h-8 rounded-lg bg-brand-surface hover:bg-brand-border border border-brand-border flex items-center justify-center text-slate-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-4 border-b border-brand-border/70">
+        <div class="flex items-center bg-brand-card border border-brand-border rounded-xl pl-3.5 pr-3 py-2 focus-within:border-brand-cyan transition-all">
+          <i data-lucide="search" class="h-4 w-4 text-slate-500 shrink-0 mr-2"></i>
+          <input id="wall-picker-search" oninput="renderWallPicker()" type="text" placeholder="Поиск материала..."
+            class="bg-transparent font-medium text-xs text-white outline-none w-full placeholder-slate-500" />
+        </div>
+      </div>
+
+      <div id="wall-picker-list" class="p-4 space-y-2.5 overflow-y-auto flex-1"></div>
+
+      <div class="p-4 border-t border-brand-border bg-brand-card/60 flex items-center justify-between">
+        <span id="wall-picker-counter" class="text-xs text-slate-400">0 материалов доступно</span>
+        <button onclick="closeWallPicker()" class="px-4 py-2 rounded-xl bg-brand-purple hover:bg-brand-purple/85 text-white text-xs font-bold transition-colors">Готово</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= МОДАЛКА: ПРОСМОТР МАТЕРИАЛА ================= -->
+  <div id="view-modal" class="fixed inset-0 z-[85] bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4 opacity-0 transition-opacity duration-200">
+    <div id="view-modal-content" class="bg-brand-surface border border-brand-border rounded-2xl w-full max-w-3xl max-h-[88vh] flex flex-col shadow-2xl overflow-hidden scale-95 transition-transform duration-200">
+      <div class="relative h-52 shrink-0 overflow-hidden bg-brand-dark">
+        <img id="vm-image" src="" class="w-full h-full object-cover opacity-70">
+        <div class="absolute inset-0 bg-gradient-to-t from-brand-surface via-brand-surface/40 to-transparent"></div>
+        <button onclick="closeViewModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 border border-white/10 flex items-center justify-center text-white transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+        <div class="absolute bottom-4 left-5 right-5">
+          <div id="vm-badges" class="flex items-center gap-2 mb-2 flex-wrap"></div>
+          <h3 id="vm-title" class="text-xl font-display font-bold text-white leading-tight"></h3>
+        </div>
+      </div>
+      <div class="p-5 overflow-y-auto flex-1 space-y-4">
+        <div id="vm-targets" class="flex items-center gap-2 flex-wrap"></div>
+        <p id="vm-excerpt" class="text-sm text-slate-300 leading-relaxed"></p>
+        <div id="vm-body" class="text-xs text-slate-400 leading-relaxed whitespace-pre-line bg-brand-card/60 border border-brand-border rounded-xl p-4"></div>
+        <div id="vm-event" class="hidden bg-brand-card/60 border border-brand-red/30 rounded-xl p-4 space-y-3"></div>
+      </div>
+      <div class="p-4 border-t border-brand-border bg-brand-card/60 flex items-center justify-between gap-3">
+        <button onclick="closeViewModal()" class="px-4 py-2 rounded-xl bg-brand-surface border border-brand-border hover:border-slate-500 text-slate-300 hover:text-white text-xs font-bold transition-all">Закрыть</button>
+        <div id="vm-actions" class="flex items-center gap-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= МОДАЛКА: ЭКСПОРТ ================= -->
+  <div id="export-modal" class="fixed inset-0 z-[85] bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4 opacity-0 transition-opacity duration-200">
+    <div id="export-modal-content" class="bg-brand-surface border border-brand-border rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden scale-95 transition-transform duration-200">
+      <div class="p-5 border-b border-brand-border bg-brand-card flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-brand-cyan/20 border border-brand-cyan/40 flex items-center justify-center text-brand-cyan">
+            <i data-lucide="code-2" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-base">Экспорт контента</h3>
+            <p class="text-xs text-slate-400 mt-0.5">JSON всех опубликованных материалов</p>
+          </div>
+        </div>
+        <button onclick="closeExport()" class="w-8 h-8 rounded-lg bg-brand-surface hover:bg-brand-border border border-brand-border flex items-center justify-center text-slate-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="p-5 overflow-y-auto flex-1">
+        <pre id="export-pre" class="text-[11px] font-mono text-brand-cyan bg-brand-dark border border-brand-border rounded-xl p-4 overflow-x-auto whitespace-pre leading-relaxed"></pre>
+      </div>
+      <div class="p-4 border-t border-brand-border bg-brand-card/60 flex items-center justify-between gap-3">
+        <span class="text-xs text-slate-400">Скопируйте и вставьте в <span class="font-mono text-brand-cyan">MOCK_ARTICLES</span> или <span class="font-mono text-brand-cyan">eventsData</span> основного файла</span>
+        <button onclick="copyExport()" class="px-4 py-2 rounded-xl bg-brand-cyan text-zinc-950 text-xs font-extrabold transition-all hover:bg-brand-cyan/85 active:scale-95 flex items-center gap-2">
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i> Копировать
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= МОДАЛКА: ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ ================= -->
+  <div id="confirm-modal" class="fixed inset-0 z-[90] bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4 opacity-0 transition-opacity duration-200">
+    <div id="confirm-modal-content" class="bg-brand-surface border border-brand-red/40 rounded-2xl w-full max-w-md p-6 shadow-2xl scale-95 transition-transform duration-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-11 h-11 rounded-xl bg-brand-red/15 border border-brand-red/40 flex items-center justify-center text-brand-red shrink-0">
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-white text-base">Удалить материал?</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Действие нельзя отменить</p>
+        </div>
+      </div>
+      <p id="confirm-text" class="text-xs text-slate-300 bg-brand-card/70 border border-brand-border rounded-xl p-3.5 mb-5 leading-relaxed"></p>
+      <div class="flex items-center justify-end gap-2">
+        <button onclick="closeConfirm()" class="px-4 py-2.5 rounded-xl bg-brand-card border border-brand-border hover:border-slate-500 text-slate-300 hover:text-white text-xs font-bold transition-all">Отмена</button>
+        <button id="confirm-yes" class="px-4 py-2.5 rounded-xl bg-brand-red hover:bg-brand-red/85 text-white text-xs font-bold transition-all active:scale-95">Удалить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ТОСТЫ ================= -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-[120] space-y-2.5 pointer-events-none"></div>
+
+  <!-- ================= JAVASCRIPT ================= -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ============================================================
+       КОНСТАНТЫ И СЛОВАРИ
+       ============================================================ */
+    const LS_KEY = 'aetheria_cabinet_v1';
+
+    const TYPES = {
+      article: { label: 'Статья',     icon: 'book-open',    color: 'brand-accent', hex: '#6366f1' },
+      video:   { label: 'Видео',      icon: 'play-circle',  color: 'brand-red',    hex: '#ef4444' },
+      art:     { label: 'Арт',        icon: 'palette',      color: 'brand-purple', hex: '#7c3aed' },
+      calc:    { label: 'Калькулятор',icon: 'calculator',   color: 'brand-cyan',   hex: '#06b6d4' },
+      soft:    { label: 'Софт',       icon: 'cpu',          color: 'indigo',       hex: '#818cf8' },
+      event:   { label: 'Событие',    icon: 'calendar',     color: 'brand-amber',  hex: '#f59e0b' }
+    };
+
+    const DIFFICULTY = {
+      beginner:     { label: 'Новичок', color: 'text-emerald-400', dot: 'bg-emerald-400' },
+      intermediate: { label: 'Опытный', color: 'text-amber-400',   dot: 'bg-amber-400' },
+      pro:          { label: 'Профи',   color: 'text-rose-400',    dot: 'bg-rose-500' }
+    };
+
+    const TARGETS = {
+      wiki:    { label: 'База знаний',    icon: 'book-open', color: 'brand-purple', hex: '#7c3aed' },
+      events:  { label: 'События',        icon: 'calendar',  color: 'brand-red',    hex: '#ef4444' },
+      moments: { label: 'Яркие моменты',  icon: 'sparkles',  color: 'brand-amber',  hex: '#f59e0b' }
+    };
+
+    const FALLBACK_IMG = 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop';
+
+    const RANDOM_IMAGES = [
+      'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/capsule_616x353.jpg',
+      'https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/capsule_616x353.jpg',
+      'https://cdn.cloudflare.steamstatic.com/steam/apps/271590/capsule_616x353.jpg',
+      'https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/capsule_616x353.jpg',
+      'https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/capsule_616x353.jpg',
+      'https://cdn.cloudflare.steamstatic.com/steam/apps/730/capsule_616x353.jpg',
+      'https://cdn.cloudflare.steamstatic.com/steam/apps/2358720/capsule_616x353.jpg',
+      'https://cdn.cloudflare.steamstatic.com/steam/apps/553850/capsule_616x353.jpg',
+      'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1542751110-97427bbecf20?w=800&auto=format&fit=crop'
+    ];
+
+    /* ============================================================
+       СОСТОЯНИЕ
+       ============================================================ */
+    let items = [];
+    let editingId = null;
+    let currentType = 'article';
+    let wallTarget = 'wiki';
+    let wallPickerSearch = '';
+    let libraryFilters = { search: '', type: 'all', status: 'all', sort: 'new' };
+    let pendingDeleteId = null;
+    let viewItemId = null;
+
+    /* ============================================================
+       УТИЛИТЫ
+       ============================================================ */
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+    function esc(str) {
+      return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function uid(prefix) {
+      return (prefix || 'itm') + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    }
+
+    function nowISO() { return new Date().toISOString(); }
+
+    function formatDate(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      const months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+      const diff = Math.floor((Date.now() - d.getTime()) / 60000);
+      if (diff < 1) return 'только что';
+      if (diff < 60) return diff + ' мин назад';
+      if (diff < 1440) return Math.floor(diff / 60) + ' ч назад';
+      if (diff < 10080) return Math.floor(diff / 1440) + ' дн назад';
+      return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+    }
+
+    function formatFullDate(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      const pad = n => String(n).padStart(2, '0');
+      return pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + d.getFullYear() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
+    function formatViews(n) {
+      n = Number(n) || 0;
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+      return String(n);
+    }
+
+    function toLines(text) {
+      return String(text || '').split('\n').map(s => s.trim()).filter(Boolean);
+    }
+
+    function parsePairs(text) {
+      return toLines(text).map(line => {
+        const idx = line.indexOf('|');
+        if (idx === -1) return { step: line, desc: '' };
+        return { step: line.slice(0, idx).trim(), desc: line.slice(idx + 1).trim() };
+      });
+    }
+
+    function pairsToText(arr) {
+      return (arr || []).map(p => p.step + ' | ' + p.desc).join('\n');
+    }
+
+    function refreshIcons() {
+      if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+    }
+
+    /* ============================================================
+       ТОСТЫ
+       ============================================================ */
+    function toast(message, kind) {
+      kind = kind || 'success';
+      const palette = {
+        success: { icon: 'check-circle-2', color: 'text-brand-green', border: 'border-brand-green/40', bg: 'bg-brand-green/10' },
+        error:   { icon: 'x-circle',       color: 'text-brand-red',   border: 'border-brand-red/40',   bg: 'bg-brand-red/10' },
+        info:    { icon: 'info',           color: 'text-brand-cyan',  border: 'border-brand-cyan/40',  bg: 'bg-brand-cyan/10' },
+        warn:    { icon: 'alert-triangle', color: 'text-brand-amber', border: 'border-brand-amber/40', bg: 'bg-brand-amber/10' }
+      }[kind] || {};
+
+      const el = document.createElement('div');
+      el.className = 'animate-toast pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-surface border ' + palette.border + ' shadow-2xl min-w-[260px] max-w-[360px]';
+      el.innerHTML =
+        '<div class="w-8 h-8 rounded-lg ' + palette.bg + ' border ' + palette.border + ' flex items-center justify-center ' + palette.color + ' shrink-0">' +
+          '<i data-lucide="' + palette.icon + '" class="w-4 h-4"></i>' +
+        '</div>' +
+        '<span class="text-xs font-semibold text-white leading-snug">' + esc(message) + '</span>';
+
+      const container = $('#toast-container');
+      container.appendChild(el);
+      refreshIcons();
+
+      setTimeout(() => {
+        el.style.transition = 'opacity .25s, transform .25s';
+        el.style.opacity = '0';
+        el.style.transform = 'translateX(24px)';
+        setTimeout(() => el.remove(), 260);
+      }, 2600);
+    }
+
+    /* ============================================================
+       ХРАНИЛИЩЕ (localStorage)
+       ============================================================ */
+    function seedItems() {
+      const t = Date.now();
+      const day = 86400000;
+
+      return [
+        {
+          id: 'itm_seed_1',
+          type: 'video',
+          title: 'GTA 5: 15 скрытых механик, трюков с физикой и секретных локаций',
+          excerpt: 'Большой эксклюзивный видеогайд по Лос-Сантосу. Разбираем скрытый потенциал кастомизации транспорта, прыжки на суперкарах и глитчи.',
+          body: '',
+          game: 'GTA 5',
+          patch: 'v1.68 Online',
+          difficulty: 'intermediate',
+          author: 'RockstarPRO',
+          tags: ['видео', 'механики', 'трюки'],
+          image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/271590/capsule_616x353.jpg',
+          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+          videoDuration: '14:25',
+          videoChapters: [
+            { step: '0:00', desc: 'Вступление и механики' },
+            { step: '2:15', desc: 'Трюки и ключевые точки' },
+            { step: '6:40', desc: 'Наглядная демонстрация' }
+          ],
+          calcUrl: '',
+          calcVersion: '',
+          guildPick: true,
+          status: 'published',
+          targets: ['wiki'],
+          wiki: { category: 'tutorials', softType: '' },
+          event: null,
+          views: 67300,
+          createdAt: new Date(t - 2 * day).toISOString(),
+          updatedAt: new Date(t - 2 * day).toISOString()
+        },
+        {
+          id: 'itm_seed_2',
+          type: 'article',
+          title: 'Baldur\'s Gate 3: Аналитическая статья о скрытых концовках спутников',
+          excerpt: 'Разбираем неочевидные триггеры одобрения в 1-м и 2-м актах, которые фатально предопределяют судьбу Шедоухарт и Астариона.',
+          body: 'Акт I. Первое, что определяет ветку — момент с гоблинским лагерем. Если вы спасаете пленников до разговора с Минтарой, флаг «милосердие» фиксируется навсегда.\n\nАкт II. Сцена у Мрачных Пределов. Молчание в диалоге с Шедоухарт даёт +2 к доверию, но закрывает путь к «Тёмной жрице».\n\nАкт III. Финальный выбор у Мозга. Только при 90+ одобрении Астарион соглашается на ритуал без принуждения.',
+          game: 'Baldurs Gate 3',
+          patch: 'v5.0 Patch',
+          difficulty: 'pro',
+          author: 'Astarion_X',
+          tags: ['лор', 'концовки', 'спутники'],
+          image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/capsule_616x353.jpg',
+          videoUrl: '', videoDuration: '', videoChapters: [],
+          calcUrl: '', calcVersion: '', guildPick: false,
+          status: 'published',
+          targets: ['wiki'],
+          wiki: { category: 'tutorials', softType: '' },
+          event: null,
+          views: 22400,
+          createdAt: new Date(t - 5 * day).toISOString(),
+          updatedAt: new Date(t - 5 * day).toISOString()
+        },
+        {
+          id: 'itm_seed_3',
+          type: 'art',
+          title: 'Elden Ring: Интерактивная карта Междуземья и арт всех реликвий',
+          excerpt: 'Высокодетализированный арт-постер и наглядная инфографика Земли Теней со всеми ключевыми точками и обелисками.',
+          body: '',
+          game: 'Elden Ring',
+          patch: 'v1.14 DLC',
+          difficulty: 'beginner',
+          author: 'VaatiGG',
+          tags: ['карта', 'арт', 'DLC'],
+          image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/capsule_616x353.jpg',
+          videoUrl: '', videoDuration: '', videoChapters: [],
+          calcUrl: '', calcVersion: '', guildPick: true,
+          status: 'published',
+          targets: ['wiki', 'moments'],
+          wiki: { category: 'knowledge_base', softType: 'map' },
+          event: null,
+          views: 94200,
+          createdAt: new Date(t - 7 * day).toISOString(),
+          updatedAt: new Date(t - 7 * day).toISOString()
+        },
+        {
+          id: 'itm_seed_4',
+          type: 'calc',
+          title: 'Калькулятор билда: Оптимизатор DPS, критов и характеристик',
+          excerpt: 'Интерактивная утилита для расчета софт-капов, крит-множителей и симуляции урона рейдовых умений.',
+          body: '',
+          game: 'MMO Tool',
+          patch: 'v2.4 Софт',
+          difficulty: 'intermediate',
+          author: 'GuildDev',
+          tags: ['софт', 'dps', 'билды'],
+          image: 'https://images.unsplash.com/photo-1542751110-97427bbecf20?w=800&auto=format&fit=crop',
+          videoUrl: '', videoDuration: '', videoChapters: [],
+          calcUrl: 'calc.html',
+          calcVersion: 'v2.4',
+          guildPick: true,
+          status: 'published',
+          targets: ['wiki'],
+          wiki: { category: 'tools', softType: 'calculator' },
+          event: null,
+          views: 98100,
+          createdAt: new Date(t - 9 * day).toISOString(),
+          updatedAt: new Date(t - 9 * day).toISOString()
+        },
+        {
+          id: 'itm_seed_5',
+          type: 'event',
+          title: 'Осада Цитадели Бездны (Финал)',
+          excerpt: 'Сбор мейн-состава для закрытия финального босса 3-го крыла. Обязательное знание механик.',
+          body: '',
+          game: 'Aetheria Online',
+          patch: 'Сезон 4',
+          difficulty: 'pro',
+          author: 'Valerius',
+          tags: ['рейд', 'финал', 'цитадель'],
+          image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop',
+          videoUrl: '', videoDuration: '', videoChapters: [],
+          calcUrl: '', calcVersion: '', guildPick: false,
+          status: 'published',
+          targets: ['events', 'wiki'],
+          wiki: { category: 'tutorials', softType: '' },
+          event: {
+            category: 'РЕЙД',
+            date: new Date(t + 1 * day).toISOString().slice(0, 10),
+            time: '20:00',
+            membersLimit: '20',
+            membersJoined: '18',
+            requirements: 'GearScore от 420+, Discord с микрофоном, установленный аддон BossTracker.',
+            checklist: [
+              'Зелье защиты от магии тьмы (x5)',
+              'Настой титанической концентрации / стойкости (x3)',
+              'Рейдовая еда на выносливость и крит. урон +120 (x4)',
+              'Запасные свитки воскрешения и ремкомплекты (x2)'
+            ],
+            tactics: [
+              { step: 'Фаза 1 (100% – 70%)', desc: 'Смена танков строго на 3-х стаках «Раскола душ». РДД закрывают фиолетовые порталы Бездны.' },
+              { step: 'Фаза 2 (70% – 30%)', desc: 'Смещение рейда по часовой стрелке при касте «Оскверненной волны». Героизм на 50% HP.' },
+              { step: 'Фаза 3 (30% – 0%)', desc: 'Максимальный бурст. Стягиваемся под золотой купол паладина.' }
+            ]
+          },
+          views: 3120,
+          createdAt: new Date(t - 1 * day).toISOString(),
+          updatedAt: new Date(t - 1 * day).toISOString()
+        },
+        {
+          id: 'itm_seed_6',
+          type: 'video',
+          title: 'Cyberpunk 2077: Сравнение графических модов и трассировки в 4K',
+          excerpt: 'Кинематографичное сравнение ночного Найт-Сити с фотореалистичными текстурами и максимальным овердрайвом.',
+          body: '',
+          game: 'Cyberpunk 2077',
+          patch: 'v2.12',
+          difficulty: 'intermediate',
+          author: 'DigitalDreams',
+          tags: ['графика', 'моды', '4K'],
+          image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/capsule_616x353.jpg',
+          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+          videoDuration: '18:50',
+          videoChapters: [
+            { step: '0:00', desc: 'Настройки и пресеты' },
+            { step: '4:30', desc: 'Сравнение текстур' },
+            { step: '11:10', desc: 'Трассировка путей' }
+          ],
+          calcUrl: '', calcVersion: '', guildPick: true,
+          status: 'draft',
+          targets: [],
+          wiki: { category: 'technical', softType: '' },
+          event: null,
+          views: 0,
+          createdAt: new Date(t - 3 * 3600000).toISOString(),
+          updatedAt: new Date(t - 3 * 3600000).toISOString()
+        }
+      ];
+    }
+
+    function loadItems() {
+      try {
+        const raw = localStorage.getItem(LS_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length) return parsed;
+        }
+      } catch (e) { console.warn('Не удалось прочитать хранилище', e); }
+      return seedItems();
+    }
+
+    function persist() {
+      try {
+        localStorage.setItem(LS_KEY, JSON.stringify(items));
+        updateStorageWidget();
+      } catch (e) {
+        toast('Не удалось сохранить: хранилище переполнено', 'error');
+      }
+    }
+
+    function updateStorageWidget() {
+      const bytes = new Blob([JSON.stringify(items)]).size;
+      const kb = bytes / 1024;
+      const badge = $('#storage-badge');
+      const bar = $('#storage-bar');
+      if (badge) badge.textContent = kb < 1024 ? kb.toFixed(1) + ' КБ' : (kb / 1024).toFixed(2) + ' МБ';
+      if (bar) bar.style.width = Math.min(100, Math.max(2, (kb / 512) * 100)) + '%';
+    }
+
+    /* ============================================================
+       НАВИГАЦИЯ
+       ============================================================ */
+    function switchTab(screen) {
+      $$('.screen-view').forEach(s => s.classList.add('hidden'));
+      const target = $('#screen-' + screen);
+      if (target) {
+        target.classList.remove('hidden');
+        target.classList.add('animate-fade-in-up');
+        setTimeout(() => target.classList.remove('animate-fade-in-up'), 320);
+      }
+
+      $$('.nav-item').forEach(btn => {
+        btn.classList.remove('bg-brand-purple/20', 'text-white', 'border', 'border-brand-purple/40');
+        btn.classList.add('text-slate-400');
+      });
+      const navBtn = $('#nav-' + screen);
+      if (navBtn) {
+        navBtn.classList.add('bg-brand-purple/20', 'text-white', 'border', 'border-brand-purple/40');
+        navBtn.classList.remove('text-slate-400');
+      }
+
+      if (screen === 'overview') renderOverview();
+      if (screen === 'library') renderLibrary();
+      if (screen === 'wall') renderWall();
+      if (screen === 'software') renderSoftware();
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      refreshIcons();
+    }
+
+    /* ============================================================
+       ОБЗОР
+       ============================================================ */
+    function renderOverview() {
+      const total = items.length;
+      const published = items.filter(i => i.status === 'published').length;
+      const drafts = items.filter(i => i.status === 'draft').length;
+      const onWall = items.filter(i => i.status === 'published' && i.targets && i.targets.length).length;
+
+      const stats = [
+        { label: 'Всего материалов', value: total, icon: 'database', color: 'brand-purple', sub: 'в хранилище' },
+        { label: 'Опубликовано', value: published, icon: 'check-circle-2', color: 'brand-green', sub: 'видно соклановцам' },
+        { label: 'Черновики', value: drafts, icon: 'file-edit', color: 'brand-amber', sub: 'в работе' },
+        { label: 'На стене', value: onWall, icon: 'layout-template', color: 'brand-cyan', sub: 'активных публикаций' }
+      ];
+
+      $('#stats-grid').innerHTML = stats.map(s =>
+        '<div class="p-5 rounded-2xl bg-brand-surface border border-brand-border shadow-lg relative overflow-hidden group hover:border-' + s.color + '/50 transition-all">' +
+          '<div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-' + s.color + '/10 blur-2xl group-hover:bg-' + s.color + '/20 transition-all"></div>' +
+          '<div class="relative">' +
+            '<div class="flex items-center justify-between mb-3">' +
+              '<div class="w-9 h-9 rounded-xl bg-' + s.color + '/15 border border-' + s.color + '/30 flex items-center justify-center text-' + s.color + '">' +
+                '<i data-lucide="' + s.icon + '" class="w-4 h-4"></i>' +
+              '</div>' +
+              '<span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">' + esc(s.sub) + '</span>' +
+            '</div>' +
+            '<div class="text-3xl font-display font-extrabold text-white leading-none">' + s.value + '</div>' +
+            '<div class="text-[11px] text-slate-400 mt-1.5 font-semibold">' + esc(s.label) + '</div>' +
+          '</div>' +
+        '</div>'
+      ).join('');
+
+      // Последние
+      const recent = items.slice().sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).slice(0, 6);
+      const recentEl = $('#recent-list');
+
+      if (!recent.length) {
+        recentEl.innerHTML = '<div class="p-8 text-center text-xs text-slate-500">Материалов пока нет</div>';
+      } else {
+        recentEl.innerHTML = recent.map(it => {
+          const meta = TYPES[it.type] || TYPES.article;
+          const statusChip = it.status === 'published'
+            ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-green/15 text-brand-green border border-brand-green/30">ОПУБЛ.</span>'
+            : '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-amber/15 text-brand-amber border border-brand-amber/30">ЧЕРНОВИК</span>';
+
+          return '<button onclick="viewItem(\'' + it.id + '\')" class="w-full flex items-center gap-3.5 p-3.5 hover:bg-brand-card/60 transition-colors text-left group">' +
+            '<div class="w-9 h-9 rounded-xl bg-' + meta.color + '/15 border border-' + meta.color + '/30 flex items-center justify-center text-' + meta.color + ' shrink-0">' +
+              '<i data-lucide="' + meta.icon + '" class="w-4 h-4"></i>' +
+            '</div>' +
+            '<div class="min-w-0 flex-1">' +
+              '<div class="text-xs font-bold text-white truncate group-hover:text-brand-cyan transition-colors">' + esc(it.title) + '</div>' +
+              '<div class="text-[10px] text-slate-500 mt-0.5 flex items-center gap-2">' +
+                '<span>' + esc(meta.label) + '</span>' +
+                '<span class="text-slate-600">•</span>' +
+                '<span>' + esc(it.author || 'без автора') + '</span>' +
+                '<span class="text-slate-600">•</span>' +
+                '<span>' + formatDate(it.updatedAt) + '</span>' +
+              '</div>' +
+            '</div>' +
+            statusChip +
+          '</button>';
+        }).join('');
+      }
+
+      // Распределение по типам
+      const counts = {};
+      items.forEach(i => { counts[i.type] = (counts[i.type] || 0) + 1; });
+      const maxCount = Math.max(1, ...Object.values(counts));
+
+      const breakdownEl = $('#type-breakdown');
+      const keys = Object.keys(TYPES);
+      const rows = keys.map(k => {
+        const c = counts[k] || 0;
+        const meta = TYPES[k];
+        const pct = (c / maxCount) * 100;
+        return '<div>' +
+          '<div class="flex items-center justify-between mb-1.5">' +
+            '<div class="flex items-center gap-2">' +
+              '<i data-lucide="' + meta.icon + '" class="w-3.5 h-3.5 text-' + meta.color + '"></i>' +
+              '<span class="text-[11px] font-semibold text-slate-300">' + esc(meta.label) + '</span>' +
+            '</div>' +
+            '<span class="text-[11px] font-mono font-bold text-white">' + c + '</span>' +
+          '</div>' +
+          '<div class="w-full h-1.5 bg-brand-dark rounded-full overflow-hidden">' +
+            '<div class="h-full rounded-full transition-all duration-700" style="width:' + (c ? Math.max(6, pct) : 0) + '%; background:' + meta.hex + '"></div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      breakdownEl.innerHTML = rows;
+
+      updateSidebarCounters();
+      refreshIcons();
+    }
+
+    function updateSidebarCounters() {
+      const libCount = $('#nav-library-count');
+      if (libCount) libCount.textContent = items.length;
+
+      const wallCount = items.filter(i => i.status === 'published' && i.targets && i.targets.length).length;
+      const wc = $('#nav-wall-count');
+      if (wc) wc.textContent = wallCount;
+
+      const softCount = items.filter(i => i.type === 'calc' || i.type === 'soft').length;
+      const sc = $('#nav-soft-count');
+      if (sc) sc.textContent = softCount;
+    }
+
+    /* ============================================================
+       ХРАНИЛИЩЕ
+       ============================================================ */
+    function resetLibraryFilters() {
+      libraryFilters = { search: '', type: 'all', status: 'all', sort: 'new' };
+      $('#lib-search').value = '';
+      $('#lib-type').value = 'all';
+      $('#lib-status').value = 'all';
+      $('#lib-sort').value = 'new';
+      renderLibrary();
+      toast('Фильтры сброшены', 'info');
+    }
+
+    function getFilteredItems() {
+      let list = items.slice();
+
+      if (libraryFilters.search.trim()) {
+        const q = libraryFilters.search.toLowerCase();
+        list = list.filter(i =>
+          (i.title || '').toLowerCase().includes(q) ||
+          (i.excerpt || '').toLowerCase().includes(q) ||
+          (i.game || '').toLowerCase().includes(q) ||
+          (i.author || '').toLowerCase().includes(q) ||
+          (i.tags || []).join(' ').toLowerCase().includes(q)
+        );
+      }
+
+      if (libraryFilters.type !== 'all') list = list.filter(i => i.type === libraryFilters.type);
+      if (libraryFilters.status !== 'all') list = list.filter(i => i.status === libraryFilters.status);
+
+      const sort = libraryFilters.sort;
+      if (sort === 'new') list.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+      if (sort === 'old') list.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
+      if (sort === 'title') list.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+      if (sort === 'views') list.sort((a, b) => (b.views || 0) - (a.views || 0));
+
+      return list;
+    }
+
+    function renderLibrary() {
+      const list = getFilteredItems();
+      const grid = $('#library-grid');
+      const counter = $('#lib-counter');
+
+      counter.innerHTML = 'Найдено <b class="text-white">' + list.length + '</b> из <b class="text-white">' + items.length + '</b> материалов';
+
+      if (!list.length) {
+        grid.className = 'block';
+        grid.innerHTML =
+          '<div class="h-72 border-2 border-dashed border-brand-border rounded-3xl flex flex-col items-center justify-center p-8 text-center bg-brand-surface/50">' +
+            '<div class="w-14 h-14 rounded-2xl bg-brand-card border border-brand-border flex items-center justify-center text-slate-500 mb-4">' +
+              '<i data-lucide="file-search" class="w-6 h-6"></i>' +
+            '</div>' +
+            '<h3 class="text-white font-bold text-base">Ничего не найдено</h3>' +
+            '<p class="text-xs text-slate-500 mt-1.5 max-w-xs">Измените параметры фильтров или создайте новый материал</p>' +
+            '<button onclick="createNew()" class="mt-5 px-4 py-2.5 rounded-xl bg-brand-purple hover:bg-brand-purple/85 text-white text-xs font-bold transition-all flex items-center gap-2">' +
+              '<i data-lucide="plus" class="w-4 h-4"></i> Создать материал' +
+            '</button>' +
+          '</div>';
+        refreshIcons();
+        return;
+      }
+
+      grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5';
+      grid.innerHTML = list.map(renderLibraryCard).join('');
+      refreshIcons();
+    }
+
+    function renderLibraryCard(it) {
+      const meta = TYPES[it.type] || TYPES.article;
+      const diff = DIFFICULTY[it.difficulty] || DIFFICULTY.intermediate;
+      const isPublished = it.status === 'published';
+
+      const targetChips = (it.targets || []).map(t => {
+        const tm = TARGETS[t];
+        if (!tm) return '';
+        return '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded border border-' + tm.color + '/40 text-' + tm.color + ' bg-' + tm.color + '/10">' + esc(tm.label) + '</span>';
+      }).join('');
+
+      const img = it.image || FALLBACK_IMG;
+
+      return '<article class="group/card bg-brand-surface border border-brand-border rounded-2xl overflow-hidden flex flex-col shadow-lg hover:border-' + meta.color + '/60 transition-all duration-300">' +
+
+        '<div class="relative h-40 overflow-hidden bg-brand-dark shrink-0">' +
+          '<img src="' + esc(img) + '" onerror="this.onerror=null;this.src=\'' + FALLBACK_IMG + '\'" class="w-full h-full object-cover opacity-75 group-hover/card:opacity-95 group-hover/card:scale-105 transition-all duration-500" alt="">' +
+          '<div class="absolute inset-0 bg-gradient-to-t from-brand-surface via-transparent to-black/40"></div>' +
+
+          '<div class="absolute top-3 left-3 flex items-center gap-1.5">' +
+            '<span class="px-2 py-1 rounded-lg text-[9px] font-extrabold uppercase tracking-wider text-white shadow-md" style="background:' + meta.hex + '">' + esc(meta.label) + '</span>' +
+          '</div>' +
+
+          '<div class="absolute top-3 right-3">' +
+            (isPublished
+              ? '<span class="px-2 py-1 rounded-lg bg-brand-green/90 text-zinc-950 text-[9px] font-extrabold uppercase tracking-wider shadow-md flex items-center gap-1"><i data-lucide="check" class="w-2.5 h-2.5"></i>Опубл.</span>'
+              : '<span class="px-2 py-1 rounded-lg bg-brand-amber/90 text-zinc-950 text-[9px] font-extrabold uppercase tracking-wider shadow-md flex items-center gap-1"><i data-lucide="pencil" class="w-2.5 h-2.5"></i>Черновик</span>') +
+          '</div>' +
+
+          '<div class="absolute bottom-3 left-3 right-3 flex items-center justify-between">' +
+            '<span class="text-[10px] font-extrabold text-white uppercase tracking-wider drop-shadow">' + esc(it.game || '—') + '</span>' +
+            '<span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-black/70 border border-white/10 text-slate-200">' + esc(it.patch || '—') + '</span>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="p-4 flex-1 flex flex-col gap-3">' +
+          '<div>' +
+            '<h3 class="text-[13px] font-bold text-white leading-snug line-clamp-2 group-hover/card:text-' + meta.color + ' transition-colors">' + esc(it.title || 'Без названия') + '</h3>' +
+            '<p class="text-[11px] text-slate-400 leading-relaxed line-clamp-2 mt-1.5">' + esc(it.excerpt || 'Описание не заполнено') + '</p>' +
+          '</div>' +
+
+          '<div class="flex items-center gap-2 flex-wrap">' +
+            '<span class="flex items-center gap-1 text-[10px] font-semibold ' + diff.color + '">' +
+              '<span class="w-1.5 h-1.5 rounded-full ' + diff.dot + '"></span>' + esc(diff.label) +
+            '</span>' +
+            '<span class="text-slate-600 text-[10px]">•</span>' +
+            '<span class="text-[10px] text-slate-400 flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i>' + formatViews(it.views) + '</span>' +
+            '<span class="text-slate-600 text-[10px]">•</span>' +
+            '<span class="text-[10px] text-slate-400">' + formatDate(it.updatedAt) + '</span>' +
+          '</div>' +
+
+          (targetChips ? '<div class="flex items-center gap-1.5 flex-wrap">' + targetChips + '</div>' : '') +
+
+          '<div class="mt-auto pt-3 border-t border-brand-border/60 flex items-center gap-1.5">' +
+            '<button onclick="viewItem(\'' + it.id + '\')" title="Просмотр" class="flex-1 py-2 rounded-lg bg-brand-card border border-brand-border hover:border-brand-cyan/60 text-slate-300 hover:text-brand-cyan text-[11px] font-bold transition-all flex items-center justify-center gap-1.5">' +
+              '<i data-lucide="eye" class="w-3.5 h-3.5"></i> Смотр.' +
+            '</button>' +
+            '<button onclick="openEditor(\'' + it.id + '\')" title="Редактировать" class="flex-1 py-2 rounded-lg bg-brand-card border border-brand-border hover:border-brand-purple/60 text-slate-300 hover:text-brand-purple text-[11px] font-bold transition-all flex items-center justify-center gap-1.5">' +
+              '<i data-lucide="square-pen" class="w-3.5 h-3.5"></i> Правка' +
+            '</button>' +
+            '<button onclick="toggleItemStatus(\'' + it.id + '\')" title="' + (isPublished ? 'Снять с публикации' : 'Опубликовать') + '" class="w-9 h-9 rounded-lg bg-brand-card border border-brand-border hover:border-brand-green/60 text-slate-400 hover:text-brand-green transition-all flex items-center justify-center shrink-0">' +
+              '<i data-lucide="' + (isPublished ? 'eye-off' : 'upload') + '" class="w-3.5 h-3.5"></i>' +
+            '</button>' +
+            '<button onclick="confirmDelete(\'' + it.id + '\')" title="Удалить" class="w-9 h-9 rounded-lg bg-brand-card border border-brand-border hover:border-brand-red/60 text-slate-400 hover:text-brand-red transition-all flex items-center justify-center shrink-0">' +
+              '<i data-lucide="trash-2" class="w-3.5 h-3.5"></i>' +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    }
+
+    /* ============================================================
+       РЕДАКТОР
+       ============================================================ */
+    function renderTypePicker() {
+      const picker = $('#type-picker');
+      picker.innerHTML = Object.keys(TYPES).map(key => {
+        const meta = TYPES[key];
+        const active = currentType === key;
+        return '<button type="button" onclick="setEditorType(\'' + key + '\')" ' +
+          'class="p-3 rounded-xl border text-left transition-all ' +
+          (active
+            ? 'bg-' + meta.color + '/15 border-' + meta.color + '/60 shadow-md'
+            : 'bg-brand-card border-brand-border hover:border-slate-500/60') + '">' +
+          '<i data-lucide="' + meta.icon + '" class="w-4 h-4 mb-2 ' + (active ? 'text-' + meta.color : 'text-slate-500') + '"></i>' +
+          '<div class="text-[11px] font-bold ' + (active ? 'text-white' : 'text-slate-400') + '">' + esc(meta.label) + '</div>' +
+        '</button>';
+      }).join('');
+      refreshIcons();
+    }
+
+    function setEditorType(type) {
+      currentType = type;
+      $('#f-type').value = type;
+      renderTypePicker();
+
+      const isVideo = type === 'video';
+      const isCalc = type === 'calc' || type === 'soft';
+      const isEvent = type === 'event';
+      const isArticle = type === 'article';
+
+      $('#block-video').classList.toggle('hidden', !isVideo);
+      $('#block-calc').classList.toggle('hidden', !isCalc);
+      $('#block-article').classList.toggle('hidden', isEvent);
+
+      // Автовыбор целевых разделов
+      if (isEvent) {
+        $('#t-events').checked = true;
+      }
+      onTargetChange();
+      updateEditorPreview();
+    }
+
+    function onTargetChange() {
+      const wikiOn = $('#t-wiki').checked;
+      const eventsOn = $('#t-events').checked;
+      const momentsOn = $('#t-moments').checked;
+
+      $('#block-wiki').classList.toggle('hidden', !wikiOn);
+      $('#block-event').classList.toggle('hidden', !eventsOn);
+
+      updatePreviewStatus();
+    }
+
+    function updatePreviewStatus() {
+      const anyTarget = $('#t-wiki').checked || $('#t-events').checked || $('#t-moments').checked;
+      const badge = $('#preview-status');
+      if (anyTarget) {
+        badge.textContent = 'К публикации';
+        badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded border bg-brand-green/15 text-brand-green border-brand-green/30';
+      } else {
+        badge.textContent = 'Черновик';
+        badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded border bg-brand-amber/15 text-brand-amber border-brand-amber/30';
+      }
+    }
+
+    function toggleSwitch(el) {
+      el.classList.toggle('on');
+    }
+
+    function pickRandomImage() {
+      const url = RANDOM_IMAGES[Math.floor(Math.random() * RANDOM_IMAGES.length)];
+      $('#f-image').value = url;
+      updateEditorPreview();
+      toast('Случайная обложка подставлена', 'info');
+    }
+
+    function createNew(type) {
+      editingId = null;
+      resetEditorForm();
+      if (type) setEditorType(type);
+      else setEditorType('article');
+
+      $('#editor-heading').textContent = 'Новый материал';
+      $('#editor-subheading').textContent = 'Заполните карточку и выберите, куда её опубликовать';
+      $('#btn-duplicate').classList.add('hidden');
+
+      switchTab('editor');
+      updateEditorPreview();
+    }
+
+    function resetEditorForm() {
+      $('#f-title').value = '';
+      $('#f-excerpt').value = '';
+      $('#f-game').value = '';
+      $('#f-patch').value = '';
+      $('#f-difficulty').value = 'intermediate';
+      $('#f-author').value = 'Valerius';
+      $('#f-tags').value = '';
+      $('#f-image').value = '';
+      $('#f-body').value = '';
+      $('#f-video-url').value = '';
+      $('#f-video-duration').value = '';
+      $('#f-video-chapters').value = '';
+      $('#f-calc-url').value = '';
+      $('#f-calc-version').value = '';
+      $('#f-wiki-category').value = 'tutorials';
+      $('#f-wiki-soft').value = '';
+      $('#f-ev-category').value = 'РЕЙД';
+      $('#f-ev-date').value = '';
+      $('#f-ev-time').value = '20:00';
+      $('#f-ev-members').value = '20';
+      $('#f-ev-joined').value = '0';
+      $('#f-ev-requirements').value = '';
+      $('#f-ev-checklist').value = '';
+      $('#f-ev-tactics').value = '';
+      $('#t-wiki').checked = false;
+      $('#t-events').checked = false;
+      $('#t-moments').checked = false;
+      $('#sw-guildpick').classList.remove('on');
+      onTargetChange();
+    }
+
+    function openEditor(id) {
+      const it = items.find(i => i.id === id);
+      if (!it) return;
+
+      editingId = id;
+      resetEditorForm();
+
+      $('#f-title').value = it.title || '';
+      $('#f-excerpt').value = it.excerpt || '';
+      $('#f-game').value = it.game || '';
+      $('#f-patch').value = it.patch || '';
+      $('#f-difficulty').value = it.difficulty || 'intermediate';
+      $('#f-author').value = it.author || '';
+      $('#f-tags').value = (it.tags || []).join(', ');
+      $('#f-image').value = it.image || '';
+      $('#f-body').value = it.body || '';
+      $('#f-video-url').value = it.videoUrl || '';
+      $('#f-video-duration').value = it.videoDuration || '';
+      $('#f-video-chapters').value = (it.videoChapters || []).map(c => c.step + ' | ' + c.desc).join('\n');
+      $('#f-calc-url').value = it.calcUrl || '';
+      $('#f-calc-version').value = it.calcVersion || '';
+      if (it.guildPick) $('#sw-guildpick').classList.add('on');
+
+      if (it.wiki) {
+        $('#f-wiki-category').value = it.wiki.category || 'tutorials';
+        $('#f-wiki-soft').value = it.wiki.softType || '';
+      }
+
+      if (it.event) {
+        $('#f-ev-category').value = it.event.category || 'РЕЙД';
+        $('#f-ev-date').value = it.event.date || '';
+        $('#f-ev-time').value = it.event.time || '20:00';
+        $('#f-ev-members').value = it.event.membersLimit || '';
+        $('#f-ev-joined').value = it.event.membersJoined || '';
+        $('#f-ev-requirements').value = it.event.requirements || '';
+        $('#f-ev-checklist').value = (it.event.checklist || []).join('\n');
+        $('#f-ev-tactics').value = pairsToText(it.event.tactics);
+      }
+
+      const targets = it.targets || [];
+      $('#t-wiki').checked = targets.includes('wiki');
+      $('#t-events').checked = targets.includes('events');
+      $('#t-moments').checked = targets.includes('moments');
+
+      setEditorType(it.type || 'article');
+
+      $('#editor-heading').textContent = 'Редактирование материала';
+      $('#editor-subheading').textContent = 'ID: ' + it.id + ' • обновлён ' + formatFullDate(it.updatedAt);
+      $('#btn-duplicate').classList.remove('hidden');
+      $('#btn-duplicate').onclick = () => duplicateItem(it.id);
+
+      switchTab('editor');
+      updateEditorPreview();
+    }
+
+    function collectFormData() {
+      const type = $('#f-type').value;
+      const targets = [];
+      if ($('#t-wiki').checked) targets.push('wiki');
+      if ($('#t-events').checked) targets.push('events');
+      if ($('#t-moments').checked) targets.push('moments');
+
+      const isEvent = type === 'event';
+      const isVideo = type === 'video';
+      const isCalc = type === 'calc' || type === 'soft';
+
+      const data = {
+        type: type,
+        title: $('#f-title').value.trim(),
+        excerpt: $('#f-excerpt').value.trim(),
+        body: $('#f-body').value.trim(),
+        game: $('#f-game').value.trim(),
+        patch: $('#f-patch').value.trim(),
+        difficulty: $('#f-difficulty').value,
+        author: $('#f-author').value.trim() || 'Valerius',
+        tags: $('#f-tags').value.split(',').map(s => s.trim()).filter(Boolean),
+        image: $('#f-image').value.trim() || FALLBACK_IMG,
+        targets: targets,
+        guildPick: $('#sw-guildpick').classList.contains('on')
+      };
+
+      if (isVideo) {
+        data.videoUrl = $('#f-video-url').value.trim();
+        data.videoDuration = $('#f-video-duration').value.trim();
+        data.videoChapters = parsePairs($('#f-video-chapters').value);
+      } else {
+        data.videoUrl = '';
+        data.videoDuration = '';
+        data.videoChapters = [];
+      }
+
+      if (isCalc) {
+        data.calcUrl = $('#f-calc-url').value.trim();
+        data.calcVersion = $('#f-calc-version').value.trim();
+      } else {
+        data.calcUrl = '';
+        data.calcVersion = '';
+      }
+
+      if (targets.includes('wiki')) {
+        data.wiki = {
+          category: $('#f-wiki-category').value,
+          softType: $('#f-wiki-soft').value
+        };
+      } else {
+        data.wiki = { category: 'tutorials', softType: '' };
+      }
+
+      if (targets.includes('events') || isEvent) {
+        data.event = {
+          category: $('#f-ev-category').value,
+          date: $('#f-ev-date').value,
+          time: $('#f-ev-time').value,
+          membersLimit: $('#f-ev-members').value.trim() || '20',
+          membersJoined: $('#f-ev-joined').value.trim() || '0',
+          requirements: $('#f-ev-requirements').value.trim(),
+          checklist: toLines($('#f-ev-checklist').value),
+          tactics: parsePairs($('#f-ev-tactics').value)
+        };
+      } else {
+        data.event = null;
+      }
+
+      return data;
+    }
+
+    function validateForm(data) {
+      const errors = [];
+      if (!data.title) errors.push('Укажите заголовок материала');
+      if (!data.excerpt) errors.push('Добавьте краткое описание');
+      if (data.type === 'video' && !data.videoUrl) errors.push('Для видео нужна ссылка на файл');
+      if (data.targets.includes('events') && !data.event) errors.push('Заполните параметры события');
+      if (data.targets.includes('events') && data.event && !data.event.date) errors.push('Укажите дату события');
+      return errors;
+    }
+
+    function saveItem(publish) {
+      const data = collectFormData();
+      const errors = validateForm(data);
+
+      if (errors.length) {
+        toast(errors[0], 'error');
+        return;
+      }
+
+      if (publish) {
+        data.status = 'published';
+        if (!data.targets.length) {
+          data.targets = ['wiki'];
+        }
+      } else {
+        data.status = 'draft';
+      }
+
+      if (editingId) {
+        const idx = items.findIndex(i => i.id === editingId);
+        if (idx !== -1) {
+          items[idx] = Object.assign({}, items[idx], data, {
+            updatedAt: nowISO()
+          });
+          toast(publish ? 'Материал обновлён и опубликован' : 'Черновик сохранён', 'success');
+        }
+      } else {
+        const newItem = Object.assign({
+          id: uid('itm'),
+          views: 0,
+          createdAt: nowISO()
+        }, data, { updatedAt: nowISO() });
+
+        items.unshift(newItem);
+        editingId = newItem.id;
+        toast(publish ? 'Материал опубликован на стену' : 'Черновик создан', 'success');
+      }
+
+      persist();
+      updateSidebarCounters();
+      switchTab('library');
+    }
+
+    function duplicateCurrent() {
+      if (editingId) duplicateItem(editingId);
+    }
+
+    function duplicateItem(id) {
+      const it = items.find(i => i.id === id);
+      if (!it) return;
+
+      const copy = JSON.parse(JSON.stringify(it));
+      copy.id = uid('itm');
+      copy.title = copy.title + ' (копия)';
+      copy.status = 'draft';
+      copy.views = 0;
+      copy.createdAt = nowISO();
+      copy.updatedAt = nowISO();
+
+      items.unshift(copy);
+      persist();
+      updateSidebarCounters();
+      renderLibrary();
+      toast('Создана копия материала', 'info');
+    }
+
+    function toggleItemStatus(id) {
+      const it = items.find(i => i.id === id);
+      if (!it) return;
+
+      if (it.status === 'published') {
+        it.status = 'draft';
+        toast('Материал снят с публикации', 'warn');
+      } else {
+        it.status = 'published';
+        if (!it.targets || !it.targets.length) it.targets = ['wiki'];
+        toast('Материал опубликован', 'success');
+      }
+
+      it.updatedAt = nowISO();
+      persist();
+      renderLibrary();
+      updateSidebarCounters();
+    }
+
+    /* ---------- Превью в редакторе ---------- */
+    function updateEditorPreview() {
+      const data = collectFormData();
+      const meta = TYPES[data.type] || TYPES.article;
+      const diff = DIFFICULTY[data.difficulty] || DIFFICULTY.intermediate;
+      const img = data.image || FALLBACK_IMG;
+
+      const targetChips = data.targets.map(t => {
+        const tm = TARGETS[t];
+        return '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded border border-' + tm.color + '/40 text-' + tm.color + ' bg-' + tm.color + '/10">' + esc(tm.label) + '</span>';
+      }).join('');
+
+      $('#editor-preview').innerHTML =
+        '<div class="rounded-2xl overflow-hidden border border-brand-border bg-brand-card">' +
+          '<div class="relative h-32 overflow-hidden bg-brand-dark">' +
+            '<img src="' + esc(img) + '" onerror="this.onerror=null;this.src=\'' + FALLBACK_IMG + '\'" class="w-full h-full object-cover opacity-80">' +
+            '<div class="absolute inset-0 bg-gradient-to-t from-brand-card via-transparent to-transparent"></div>' +
+            '<span class="absolute top-2.5 left-2.5 px-2 py-1 rounded-lg text-[9px] font-extrabold uppercase tracking-wider text-white" style="background:' + meta.hex + '">' + esc(meta.label) + '</span>' +
+            (data.game ? '<span class="absolute bottom-2.5 left-2.5 text-[10px] font-extrabold text-white uppercase tracking-wider drop-shadow">' + esc(data.game) + '</span>' : '') +
+            (data.patch ? '<span class="absolute bottom-2.5 right-2.5 text-[9px] font-mono px-1.5 py-0.5 rounded bg-black/70 border border-white/10 text-slate-200">' + esc(data.patch) + '</span>' : '') +
+          '</div>' +
+          '<div class="p-3.5 space-y-2.5">' +
+            '<h4 class="text-[13px] font-bold text-white leading-snug line-clamp-2">' + esc(data.title || 'Заголовок материала') + '</h4>' +
+            '<p class="text-[11px] text-slate-400 leading-relaxed line-clamp-3">' + esc(data.excerpt || 'Здесь появится краткое описание материала...') + '</p>' +
+            '<div class="flex items-center gap-2 pt-2 border-t border-brand-border/60">' +
+              '<span class="text-[10px] font-semibold ' + diff.color + ' flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full ' + diff.dot + '"></span>' + esc(diff.label) + '</span>' +
+              '<span class="text-slate-600 text-[10px]">•</span>' +
+              '<span class="text-[10px] text-slate-400 truncate">' + esc(data.author) + '</span>' +
+            '</div>' +
+            (targetChips ? '<div class="flex items-center gap-1.5 flex-wrap pt-1">' + targetChips + '</div>' : '<div class="text-[10px] text-slate-500 italic pt-1">Разделы публикации не выбраны</div>') +
+          '</div>' +
+        '</div>';
+
+      updatePreviewStatus();
+      refreshIcons();
+    }
+
+    /* ============================================================
+       СТЕНА ПУБЛИКАЦИЙ
+       ============================================================ */
+    function setWallTarget(target) {
+      wallTarget = target;
+      renderWall();
+    }
+
+    function renderWall() {
+      const tm = TARGETS[wallTarget];
+
+      // Подсветка табов
+      ['wiki', 'events', 'moments'].forEach(t => {
+        const btn = $('#walltab-' + t);
+        if (!btn) return;
+        const meta = TARGETS[t];
+        const isActive = t === wallTarget;
+        btn.className = 'wall-tab flex-1 min-w-[140px] px-4 py-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ' +
+          (isActive
+            ? 'bg-' + meta.color + '/20 text-white border border-' + meta.color + '/50 shadow-md'
+            : 'text-slate-400 hover:text-white hover:bg-brand-card border border-transparent');
+      });
+
+      // Счётчики
+      ['wiki', 'events', 'moments'].forEach(t => {
+        const c = items.filter(i => i.status === 'published' && (i.targets || []).includes(t)).length;
+        const el = $('#wallcount-' + t);
+        if (el) el.textContent = c;
+      });
+
+      const list = items.filter(i => i.status === 'published' && (i.targets || []).includes(wallTarget));
+
+      const hint = $('#wall-hint');
+      hint.innerHTML = 'Раздел <b class="text-white">' + esc(tm.label) + '</b> — опубликовано <b class="text-white">' + list.length + '</b> материалов. ' +
+        'Снятые с публикации материалы остаются в хранилище.';
+
+      const grid = $('#wall-grid');
+
+      if (!list.length) {
+        grid.className = 'block';
+        grid.innerHTML =
+          '<div class="h-64 border-2 border-dashed border-brand-border rounded-3xl flex flex-col items-center justify-center p-8 text-center bg-brand-surface/50">' +
+            '<div class="w-14 h-14 rounded-2xl bg-brand-card border border-brand-border flex items-center justify-center text-' + tm.color + ' mb-4">' +
+              '<i data-lucide="' + tm.icon + '" class="w-6 h-6"></i>' +
+            '</div>' +
+            '<h3 class="text-white font-bold text-base">Стена пуста</h3>' +
+            '<p class="text-xs text-slate-500 mt-1.5 max-w-sm">В разделе «' + esc(tm.label) + '» пока нет опубликованных материалов</p>' +
+            '<button onclick="openWallPicker()" class="mt-5 px-4 py-2.5 rounded-xl bg-brand-purple hover:bg-brand-purple/85 text-white text-xs font-bold transition-all flex items-center gap-2">' +
+              '<i data-lucide="plus" class="w-4 h-4"></i> Добавить материал' +
+            '</button>' +
+          '</div>';
+        refreshIcons();
+        return;
+      }
+
+      grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5';
+      grid.innerHTML = list.map(it => renderWallCard(it)).join('');
+      refreshIcons();
+    }
+
+    function renderWallCard(it) {
+      const meta = TYPES[it.type] || TYPES.article;
+      const tm = TARGETS[wallTarget];
+      const img = it.image || FALLBACK_IMG;
+
+      let extra = '';
+      if (wallTarget === 'events' && it.event) {
+        const ev = it.event;
+        extra =
+          '<div class="flex items-center justify-between text-[10px] text-slate-400 pt-2 border-t border-brand-border/50">' +
+            '<span class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3 text-brand-cyan"></i>' + esc(ev.date || '—') + ' ' + esc(ev.time || '') + '</span>' +
+            '<span class="flex items-center gap-1 font-bold text-brand-green"><i data-lucide="users" class="w-3 h-3"></i>' + esc(ev.membersJoined || '0') + '/' + esc(ev.membersLimit || '0') + '</span>' +
+          '</div>';
+      } else if (wallTarget === 'wiki') {
+        const cat = (it.wiki && it.wiki.category) || 'tutorials';
+        const catLabels = { tutorials: 'Гайды', technical: 'Технический', knowledge_base: 'База знаний', tools: 'Инструменты' };
+        extra =
+          '<div class="flex items-center gap-2 text-[10px] text-slate-400 pt-2 border-t border-brand-border/50">' +
+            '<span class="flex items-center gap-1"><i data-lucide="folder" class="w-3 h-3 text-brand-purple"></i>' + esc(catLabels[cat] || cat) + '</span>' +
+            '<span class="text-slate-600">•</span>' +
+            '<span class="flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i>' + formatViews(it.views) + '</span>' +
+          '</div>';
+      } else {
+        extra =
+          '<div class="flex items-center gap-2 text-[10px] text-slate-400 pt-2 border-t border-brand-border/50">' +
+            '<span class="flex items-center gap-1"><i data-lucide="user" class="w-3 h-3 text-brand-amber"></i>' + esc(it.author) + '</span>' +
+            '<span class="text-slate-600">•</span>' +
+            '<span>' + formatDate(it.updatedAt) + '</span>' +
+          '</div>';
+      }
+
+      return '<article class="group/card bg-brand-surface border border-brand-border rounded-2xl overflow-hidden flex flex-col shadow-lg hover:border-' + tm.color + '/60 transition-all duration-300 relative">' +
+
+        '<div class="absolute top-3 right-3 z-20">' +
+          '<button onclick="removeFromWall(\'' + it.id + '\')" title="Убрать со стены" ' +
+            'class="w-8 h-8 rounded-lg bg-black/70 hover:bg-brand-red border border-white/10 text-white transition-all flex items-center justify-center active:scale-90">' +
+            '<i data-lucide="minus" class="w-4 h-4"></i>' +
+          '</button>' +
+        '</div>' +
+
+        '<div class="relative h-36 overflow-hidden bg-brand-dark shrink-0">' +
+          '<img src="' + esc(img) + '" onerror="this.onerror=null;this.src=\'' + FALLBACK_IMG + '\'" class="w-full h-full object-cover opacity-80 group-hover/card:scale-105 transition-transform duration-500">' +
+          '<div class="absolute inset-0 bg-gradient-to-t from-brand-surface via-transparent to-black/30"></div>' +
+          '<span class="absolute top-3 left-3 px-2 py-1 rounded-lg text-[9px] font-extrabold uppercase tracking-wider text-white shadow-md" style="background:' + meta.hex + '">' + esc(meta.label) + '</span>' +
+          (it.guildPick ? '<span class="absolute bottom-3 left-3 px-2 py-0.5 rounded-md bg-brand-purple/90 text-white text-[9px] font-extrabold uppercase tracking-wider flex items-center gap-1"><i data-lucide="badge-check" class="w-2.5 h-2.5"></i>Выбор гильдии</span>' : '') +
+        '</div>' +
+
+        '<div class="p-4 flex-1 flex flex-col gap-2.5">' +
+          '<h3 class="text-[13px] font-bold text-white leading-snug line-clamp-2">' + esc(it.title) + '</h3>' +
+          '<p class="text-[11px] text-slate-400 leading-relaxed line-clamp-2">' + esc(it.excerpt) + '</p>' +
+          '<div class="mt-auto space-y-2.5">' +
+            extra +
+            '<div class="flex items-center gap-1.5">' +
+              '<button onclick="viewItem(\'' + it.id + '\')" class="flex-1 py-2 rounded-lg bg-brand-card border border-brand-border hover:border-brand-cyan/60 text-slate-300 hover:text-brand-cyan text-[11px] font-bold transition-all flex items-center justify-center gap-1.5">' +
+                '<i data-lucide="eye" class="w-3.5 h-3.5"></i> Просмотр' +
+              '</button>' +
+              '<button onclick="openEditor(\'' + it.id + '\')" class="w-9 h-9 rounded-lg bg-brand-card border border-brand-border hover:border-brand-purple/60 text-slate-400 hover:text-brand-purple transition-all flex items-center justify-center shrink-0">' +
+                '<i data-lucide="square-pen" class="w-3.5 h-3.5"></i>' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    }
+
+    function removeFromWall(id) {
+      const it = items.find(i => i.id === id);
+      if (!it) return;
+
+      it.targets = (it.targets || []).filter(t => t !== wallTarget);
+      if (!it.targets.length) it.status = 'draft';
+      it.updatedAt = nowISO();
+
+      persist();
+      renderWall();
+      updateSidebarCounters();
+      toast('Материал убран со стены «' + TARGETS[wallTarget].label + '»', 'info');
+    }
+
+    /* ---------- Пикер для стены ---------- */
+    function openWallPicker() {
+      wallPickerSearch = '';
+      const input = $('#wall-picker-search');
+      if (input) input.value = '';
+      $('#wall-picker-subtitle').textContent = 'Раздел: ' + TARGETS[wallTarget].label;
+      renderWallPicker();
+
+      const modal = $('#wall-picker-modal');
+      const content = $('#wall-picker-content');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      void modal.offsetWidth;
+      modal.classList.remove('opacity-0');
+      content.classList.remove('scale-95');
+      content.classList.add('scale-100');
+      refreshIcons();
+    }
+
+    function closeWallPicker() {
+      const modal = $('#wall-picker-modal');
+      const content = $('#wall-picker-content');
+      modal.classList.add('opacity-0');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }, 200);
+    }
+
+    function renderWallPicker() {
+      const q = wallPickerSearch.toLowerCase();
+      const candidates = items.filter(i => {
+        if ((i.targets || []).includes(wallTarget) && i.status === 'published') return false;
+        if (q && !((i.title || '').toLowerCase().includes(q) || (i.game || '').toLowerCase().includes(q))) return false;
+        return true;
+      });
+
+      $('#wall-picker-counter').textContent = candidates.length + ' материалов доступно';
+
+      const listEl = $('#wall-picker-list');
+
+      if (!candidates.length) {
+        listEl.innerHTML =
+          '<div class="py-12 text-center">' +
+            '<div class="w-12 h-12 rounded-2xl bg-brand-card border border-brand-border flex items-center justify-center text-slate-500 mx-auto mb-3">' +
+              '<i data-lucide="check-circle-2" class="w-5 h-5"></i>' +
+            '</div>' +
+            '<p class="text-xs font-bold text-white">Все материалы уже на стене</p>' +
+            '<p class="text-[11px] text-slate-500 mt-1">Или ничего не найдено по запросу</p>' +
+          '</div>';
+        refreshIcons();
+        return;
+      }
+
+      listEl.innerHTML = candidates.map(it => {
+        const meta = TYPES[it.type] || TYPES.article;
+        const onOtherWalls = (it.targets || []).filter(t => t !== wallTarget);
+
+        const chips = onOtherWalls.map(t => {
+          const tm = TARGETS[t];
+          return '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded border border-' + tm.color + '/40 text-' + tm.color + ' bg-' + tm.color + '/10">' + esc(tm.label) + '</span>';
+        }).join('');
+
+        return '<div class="flex items-center gap-3 p-3 rounded-xl bg-brand-card border border-brand-border hover:border-brand-green/50 transition-all">' +
+          '<img src="' + esc(it.image || FALLBACK_IMG) + '" onerror="this.onerror=null;this.src=\'' + FALLBACK_IMG + '\'" class="w-14 h-11 rounded-lg object-cover shrink-0 ring-1 ring-brand-border">' +
+          '<div class="min-w-0 flex-1">' +
+            '<div class="flex items-center gap-2 mb-0.5">' +
+              '<span class="text-[9px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded" style="color:' + meta.hex + '; background:' + meta.hex + '22">' + esc(meta.label) + '</span>' +
+              (it.status === 'draft' ? '<span class="text-[9px] font-bold text-brand-amber">черновик</span>' : '') +
+            '</div>' +
+            '<div class="text-xs font-bold text-white truncate">' + esc(it.title) + '</div>' +
+            '<div class="text-[10px] text-slate-500 truncate mt-0.5">' + esc(it.game || '—') + ' • ' + esc(it.author || '—') + '</div>' +
+            (chips ? '<div class="flex items-center gap-1 mt-1.5 flex-wrap">' + chips + '</div>' : '') +
+          '</div>' +
+          '<button onclick="addToWall(\'' + it.id + '\')" class="px-3 py-2 rounded-lg bg-brand-green hover:bg-brand-green/85 text-zinc-950 text-[11px] font-extrabold transition-all active:scale-95 shrink-0 flex items-center gap-1.5">' +
+            '<i data-lucide="plus" class="w-3.5 h-3.5"></i> Добавить' +
+          '</button>' +
+        '</div>';
+      }).join('');
+
+      refreshIcons();
+    }
+
+    function addToWall(id) {
+      const it = items.find(i => i.id === id);
+      if (!it) return;
+
+      it.targets = it.targets || [];
+      if (!it.targets.includes(wallTarget)) it.targets.push(wallTarget);
+      it.status = 'published';
+      it.updatedAt = nowISO();
+
+      if (wallTarget === 'events' && !it.event) {
+        it.event = {
+          category: 'РЕЙД',
+          date: new Date().toISOString().slice(0, 10),
+          time: '20:00',
+          membersLimit: '20',
+          membersJoined: '0',
+          requirements: '',
+          checklist: [],
+          tactics: []
+        };
+      }
+
+      persist();
+      renderWallPicker();
+      renderWall();
+      updateSidebarCounters();
+      toast('Материал добавлен на стену', 'success');
+    }
+
+    /* ============================================================
+       СОФТ ГИЛЬДИИ
+       ============================================================ */
+    function renderSoftware() {
+      const softItems = items.filter(i => i.type === 'calc' || i.type === 'soft');
+      const grid = $('#software-grid');
+
+      if (!softItems.length) {
+        grid.innerHTML =
+          '<div class="md:col-span-2 xl:col-span-3 h-64 border-2 border-dashed border-brand-border rounded-3xl flex flex-col items-center justify-center p-8 text-center bg-brand-surface/50">' +
+            '<div class="w-14 h-14 rounded-2xl bg-brand-card border border-brand-border flex items-center justify-center text-brand-cyan mb-4">' +
+              '<i data-lucide="cpu" class="w-6 h-6"></i>' +
+            '</div>' +
+            '<h3 class="text-white font-bold text-base">Софт не добавлен</h3>' +
+            '<p class="text-xs text-slate-500 mt-1.5 max-w-sm">Добавьте калькуляторы, интерактивные карты или внутренние утилиты гильдии</p>' +
+            '<button onclick="createNew(\'calc\')" class="mt-5 px-4 py-2.5 rounded-xl bg-brand-cyan text-zinc-950 text-xs font-extrabold transition-all hover:bg-brand-cyan/85 flex items-center gap-2">' +
+              '<i data-lucide="plus" class="w-4 h-4"></i> Добавить утилиту' +
+            '</button>' +
+          '</div>';
+        refreshIcons();
+        return;
+      }
+
+      grid.innerHTML = softItems.map(it => {
+        const isPublished = it.status === 'published';
+        const onWiki = (it.targets || []).includes('wiki');
+
+        return '<div class="bg-brand-surface border border-brand-border rounded-2xl p-5 shadow-lg hover:border-brand-cyan/50 transition-all flex flex-col">' +
+          '<div class="flex items-start justify-between gap-3 mb-4">' +
+            '<div class="w-12 h-12 rounded-2xl bg-brand-cyan/15 border border-brand-cyan/30 flex items-center justify-center text-brand-cyan shrink-0">' +
+              '<i data-lucide="' + (it.type === 'calc' ? 'calculator' : 'cpu') + '" class="w-6 h-6"></i>' +
+            '</div>' +
+            '<div class="flex items-center gap-1.5 flex-wrap justify-end">' +
+              (isPublished
+                ? '<span class="text-[9px] font-bold px-2 py-0.5 rounded bg-brand-green/15 text-brand-green border border-brand-green/30">ОПУБЛИКОВАНО</span>'
+                : '<span class="text-[9px] font-bold px-2 py-0.5 rounded bg-brand-amber/15 text-brand-amber border border-brand-amber/30">ЧЕРНОВИК</span>') +
+              (it.guildPick ? '<span class="text-[9px] font-bold px-2 py-0.5 rounded bg-brand-purple/15 text-brand-purple border border-brand-purple/30">ВЫБОР ГИЛЬДИИ</span>' : '') +
+            '</div>' +
+          '</div>' +
+
+          '<h3 class="text-sm font-bold text-white leading-snug mb-2 line-clamp-2">' + esc(it.title) + '</h3>' +
+          '<p class="text-[11px] text-slate-400 leading-relaxed line-clamp-3 mb-4 flex-1">' + esc(it.excerpt) + '</p>' +
+
+          '<div class="grid grid-cols-2 gap-2 mb-4 text-[10px]">' +
+            '<div class="bg-brand-card border border-brand-border rounded-lg px-2.5 py-1.5">' +
+              '<div class="text-slate-500 font-bold uppercase tracking-wider text-[9px]">Версия</div>' +
+              '<div class="text-white font-mono font-bold mt-0.5">' + esc(it.calcVersion || it.patch || '—') + '</div>' +
+            '</div>' +
+            '<div class="bg-brand-card border border-brand-border rounded-lg px-2.5 py-1.5">' +
+              '<div class="text-slate-500 font-bold uppercase tracking-wider text-[9px]">Тип</div>' +
+              '<div class="text-white font-bold mt-0.5">' + (it.wiki && it.wiki.softType === 'map' ? 'Карта' : 'Утилита') + '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<div class="flex items-center gap-1.5 mt-auto pt-3 border-t border-brand-border/60">' +
+            (it.calcUrl
+              ? '<a href="' + esc(it.calcUrl) + '" target="_blank" class="flex-1 py-2 rounded-lg bg-brand-cyan text-zinc-950 text-[11px] font-extrabold transition-all hover:bg-brand-cyan/85 flex items-center justify-center gap-1.5 active:scale-95"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> Открыть</a>'
+              : '<button disabled class="flex-1 py-2 rounded-lg bg-brand-card border border-brand-border text-slate-600 text-[11px] font-bold cursor-not-allowed flex items-center justify-center gap-1.5"><i data-lucide="link-2-off" class="w-3.5 h-3.5"></i> Нет ссылки</button>') +
+            '<button onclick="toggleSoftOnWiki(\'' + it.id + '\')" title="' + (onWiki ? 'Убрать из Базы знаний' : 'Опубликовать в Базу знаний') + '" class="w-9 h-9 rounded-lg bg-brand-card border border-brand-border hover:border-brand-purple/60 text-slate-400 hover:text-brand-purple transition-all flex items-center justify-center shrink-0">' +
+              '<i data-lucide="' + (onWiki ? 'book-minus' : 'book-plus') + '" class="w-3.5 h-3.5"></i>' +
+            '</button>' +
+            '<button onclick="openEditor(\'' + it.id + '\')" class="w-9 h-9 rounded-lg bg-brand-card border border-brand-border hover:border-brand-cyan/60 text-slate-400 hover:text-brand-cyan transition-all flex items-center justify-center shrink-0">' +
+              '<i data-lucide="square-pen" class="w-3.5 h-3.5"></i>' +
+            '</button>' +
+            '<button onclick="confirmDelete(\'' + it.id + '\')" class="w-9 h-9 rounded-lg bg-brand-card border border-brand-border hover:border-brand-red/60 text-slate-400 hover:text-brand-red transition-all flex items-center justify-center shrink-0">' +
+              '<i data-lucide="trash-2" class="w-3.5 h-3.5"></i>' +
+            '</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      refreshIcons();
+    }
+
+    function toggleSoftOnWiki(id) {
+      const it = items.find(i => i.id === id);
+      if (!it) return;
+
+      it.targets = it.targets || [];
+      if (it.targets.includes('wiki')) {
+        it.targets = it.targets.filter(t => t !== 'wiki');
+        if (!it.targets.length) it.status = 'draft';
+        toast('Утилита убрана из Базы знаний', 'info');
+      } else {
+        it.targets.push('wiki');
+        it.status = 'published';
+        if (!it.wiki) it.wiki = { category: 'tools', softType: 'calculator' };
+        toast('Утилита опубликована в Базе знаний', 'success');
+      }
+
+      it.updatedAt = nowISO();
+      persist();
+      renderSoftware();
+      updateSidebarCounters();
+    }
+
+    /* ============================================================
+       ПРОСМОТР МАТЕРИАЛА
+       ============================================================ */
+    function viewItem(id) {
+      const it = items.find(i => i.id === id);
+      if (!it) return;
+
+      viewItemId = id;
+      const meta = TYPES[it.type] || TYPES.article;
+      const diff = DIFFICULTY[it.difficulty] || DIFFICULTY.intermediate;
+
+      $('#vm-image').src = it.image || FALLBACK_IMG;
+      $('#vm-title').textContent = it.title || 'Без названия';
+
+      $('#vm-badges').innerHTML =
+        '<span class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider text-white shadow-md" style="background:' + meta.hex + '">' + esc(meta.label) + '</span>' +
+        (it.status === 'published'
+          ? '<span class="px-2.5 py-1 rounded-lg bg-brand-green/90 text-zinc-950 text-[10px] font-extrabold uppercase tracking-wider">Опубликовано</span>'
+          : '<span class="px-2.5 py-1 rounded-lg bg-brand-amber/90 text-zinc-950 text-[10px] font-extrabold uppercase tracking-wider">Черновик</span>') +
+        '<span class="px-2.5 py-1 rounded-lg bg-black/60 border border-white/10 text-[10px] font-bold text-slate-200">' + esc(it.game || '—') + '</span>' +
+        '<span class="px-2.5 py-1 rounded-lg bg-black/60 border border-white/10 text-[10px] font-mono text-slate-200">' + esc(it.patch || '—') + '</span>';
+
+      const targetChips = (it.targets || []).map(t => {
+        const tm = TARGETS[t];
+        return '<span class="text-[10px] font-bold px-2.5 py-1 rounded-lg border border-' + tm.color + '/40 text-' + tm.color + ' bg-' + tm.color + '/10 flex items-center gap-1.5"><i data-lucide="' + tm.icon + '" class="w-3 h-3"></i>' + esc(tm.label) + '</span>';
+      }).join('');
+
+      $('#vm-targets').innerHTML = targetChips || '<span class="text-[11px] text-slate-500 italic">Материал не опубликован ни в один раздел</span>';
+      $('#vm-excerpt').textContent = it.excerpt || 'Описание отсутствует';
+
+      const bodyEl = $('#vm-body');
+      if (it.body) {
+        bodyEl.classList.remove('hidden');
+        bodyEl.textContent = it.body;
+      } else {
+        bodyEl.classList.add('hidden');
+      }
+
+      // Мета-строка
+      const metaRow = document.createElement('div');
+      metaRow.className = 'flex items-center gap-3 flex-wrap text-[11px] text-slate-400 pt-2 border-t border-brand-border';
+      metaRow.innerHTML =
+        '<span class="flex items-center gap-1.5"><i data-lucide="user" class="w-3.5 h-3.5 text-brand-cyan"></i>' + esc(it.author || '—') + '</span>' +
+        '<span class="text-slate-600">•</span>' +
+        '<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ' + diff.dot + '"></span>' + esc(diff.label) + '</span>' +
+        '<span class="text-slate-600">•</span>' +
+        '<span class="flex items-center gap-1.5"><i data-lucide="eye" class="w-3.5 h-3.5"></i>' + formatViews(it.views) + '</span>' +
+        '<span class="text-slate-600">•</span>' +
+        '<span class="flex items-center gap-1.5"><i data-lucide="calendar-clock" class="w-3.5 h-3.5"></i>' + formatFullDate(it.updatedAt) + '</span>';
+
+      const existingMeta = $('#vm-body').nextElementSibling;
+      if (existingMeta && existingMeta.classList.contains('vm-meta-row')) existingMeta.remove();
+      metaRow.classList.add('vm-meta-row');
+      $('#vm-body').insertAdjacentElement('afterend', metaRow);
+
+      // Блок события
+      const evEl = $('#vm-event');
+      if (it.event) {
+        evEl.classList.remove('hidden');
+        const check = (it.event.checklist || []).map(c =>
+          '<li class="flex items-start gap-2 text-[11px] text-slate-300"><i data-lucide="check" class="w-3.5 h-3.5 text-brand-green mt-0.5 shrink-0"></i>' + esc(c) + '</li>'
+        ).join('');
+        const tac = (it.event.tactics || []).map(t =>
+          '<div class="bg-brand-dark/50 border border-brand-border/60 rounded-lg p-3">' +
+            '<div class="text-[11px] font-bold text-brand-red mb-1">' + esc(t.step) + '</div>' +
+            '<div class="text-[11px] text-slate-400 leading-relaxed">' + esc(t.desc) + '</div>' +
+          '</div>'
+        ).join('');
+
+        evEl.innerHTML =
+          '<div class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-brand-red">' +
+            '<i data-lucide="calendar" class="w-3.5 h-3.5"></i> Событие • ' + esc(it.event.category) +
+          '</div>' +
+          '<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">' +
+            '<div class="bg-brand-dark/50 rounded-lg p-2.5"><div class="text-slate-500 font-bold text-[9px] uppercase">Дата</div><div class="text-white font-mono mt-0.5">' + esc(it.event.date || '—') + '</div></div>' +
+            '<div class="bg-brand-dark/50 rounded-lg p-2.5"><div class="text-slate-500 font-bold text-[9px] uppercase">Время</div><div class="text-white font-mono mt-0.5">' + esc(it.event.time || '—') + '</div></div>' +
+            '<div class="bg-brand-dark/50 rounded-lg p-2.5"><div class="text-slate-500 font-bold text-[9px] uppercase">Лимит</div><div class="text-white font-mono mt-0.5">' + esc(it.event.membersLimit || '—') + '</div></div>' +
+            '<div class="bg-brand-dark/50 rounded-lg p-2.5"><div class="text-slate-500 font-bold text-[9px] uppercase">Записано</div><div class="text-brand-green font-mono mt-0.5">' + esc(it.event.membersJoined || '0') + '</div></div>' +
+          '</div>' +
+          (it.event.requirements ? '<div class="bg-brand-amber/10 border border-brand-amber/30 rounded-lg p-3 text-[11px] text-slate-300"><b class="text-brand-amber">Требования:</b> ' + esc(it.event.requirements) + '</div>' : '') +
+          (check ? '<div><div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Чек-лист подготовки</div><ul class="space-y-1.5">' + check + '</ul></div>' : '') +
+          (tac ? '<div><div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Тактические фазы</div><div class="space-y-2">' + tac + '</div></div>' : '');
+      } else {
+        evEl.classList.add('hidden');
+      }
+
+      $('#vm-actions').innerHTML =
+        '<button onclick="closeViewModal(); openEditor(\'' + it.id + '\')" class="px-4 py-2 rounded-xl bg-brand-purple hover:bg-brand-purple/85 text-white text-xs font-bold transition-all flex items-center gap-2">' +
+          '<i data-lucide="square-pen" class="w-3.5 h-3.5"></i> Редактировать' +
+        '</button>' +
+        '<button onclick="closeViewModal(); toggleItemStatus(\'' + it.id + '\')" class="px-4 py-2 rounded-xl bg-brand-surface border border-brand-border hover:border-brand-green/60 text-slate-300 hover:text-brand-green text-xs font-bold transition-all flex items-center gap-2">' +
+          '<i data-lucide="' + (it.status === 'published' ? 'eye-off' : 'upload') + '" class="w-3.5 h-3.5"></i>' + (it.status === 'published' ? 'Снять' : 'Опубликовать') +
+        '</button>';
+
+      const modal = $('#view-modal');
+      const content = $('#view-modal-content');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      void modal.offsetWidth;
+      modal.classList.remove('opacity-0');
+      content.classList.remove('scale-95');
+      content.classList.add('scale-100');
+      refreshIcons();
+    }
+
+    function closeViewModal() {
+      const modal = $('#view-modal');
+      const content = $('#view-modal-content');
+      modal.classList.add('opacity-0');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }, 200);
+    }
+
+    /* ============================================================
+       УДАЛЕНИЕ
+       ============================================================ */
+    function confirmDelete(id) {
+      const it = items.find(i => i.id === id);
+      if (!it) return;
+
+      pendingDeleteId = id;
+      $('#confirm-text').innerHTML = 'Материал <b class="text-white">«' + esc(it.title) + '»</b> будет удалён из хранилища и со всех стен без возможности восстановления.';
+
+      const modal = $('#confirm-modal');
+      const content = $('#confirm-modal-content');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      void modal.offsetWidth;
+      modal.classList.remove('opacity-0');
+      content.classList.remove('scale-95');
+      content.classList.add('scale-100');
+
+      $('#confirm-yes').onclick = () => {
+        items = items.filter(i => i.id !== pendingDeleteId);
+        persist();
+        closeConfirm();
+        renderLibrary();
+        renderWall();
+        renderSoftware();
+        updateSidebarCounters();
+        toast('Материал удалён', 'warn');
+      };
+
+      refreshIcons();
+    }
+
+    function closeConfirm() {
+      const modal = $('#confirm-modal');
+      const content = $('#confirm-modal-content');
+      modal.classList.add('opacity-0');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }, 200);
+      pendingDeleteId = null;
+    }
+
+    /* ============================================================
+       ЭКСПОРТ
+       ============================================================ */
+    function openExport() {
+      const published = items.filter(i => i.status === 'published');
+
+      const wikiExport = published.filter(i => (i.targets || []).includes('wiki')).map(i => ({
+        id: i.id,
+        title: i.title,
+        excerpt: i.excerpt,
+        category: (i.wiki && i.wiki.category) || 'tutorials',
+        game: { id: (i.game || '').toLowerCase().replace(/\s+/g, '_'), name: i.game || '' },
+        patch_version: i.patch || '',
+        is_fresh: true,
+        author: { username: i.author || 'Guild' },
+        views_count: i.views || 0,
+        read_time_minutes: i.videoDuration ? parseInt(i.videoDuration, 10) || 5 : 5,
+        image_url: i.image,
+        contentType: i.type === 'calc' || i.type === 'soft' ? 'calculator' : i.type,
+        video_url: i.videoUrl || '',
+        video_duration: i.videoDuration || '',
+        difficulty: i.difficulty,
+        softType: (i.wiki && i.wiki.softType) || null,
+        isGuildPick: !!i.guildPick
+      }));
+
+      const eventsExport = published.filter(i => (i.targets || []).includes('events') && i.event).map(i => ({
+        id: i.id,
+        title: i.title,
+        category: i.event.category,
+        timeTag: (i.event.date || '') + ' ' + (i.event.time || ''),
+        members: (i.event.membersJoined || '0') + '/' + (i.event.membersLimit || '0'),
+        excerpt: i.excerpt,
+        image: i.image,
+        requirements: i.event.requirements,
+        checklist: i.event.checklist,
+        tactics: i.event.tactics
+      }));
+
+      const momentsExport = published.filter(i => (i.targets || []).includes('moments')).map(i => ({
+        id: i.id,
+        title: i.title,
+        image_url: i.image,
+        excerpt: i.excerpt,
+        author: i.author,
+        created_at: i.createdAt,
+        reactions: { '🔥': 0, '❤️': 0, '🚀': 0, '⚡': 0, '🏆': 0, '💎': 0 },
+        userReactions: {}
+      }));
+
+      const payload = {
+        exportedAt: nowISO(),
+        total: published.length,
+        MOCK_ARTICLES: wikiExport,
+        eventsData: eventsExport,
+        MOMENTS_DATA: momentsExport
+      };
+
+      $('#export-pre').textContent = JSON.stringify(payload, null, 2);
+
+      const modal = $('#export-modal');
+      const content = $('#export-modal-content');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      void modal.offsetWidth;
+      modal.classList.remove('opacity-0');
+      content.classList.remove('scale-95');
+      content.classList.add('scale-100');
+      refreshIcons();
+    }
+
+    function closeExport() {
+      const modal = $('#export-modal');
+      const content = $('#export-modal-content');
+      modal.classList.add('opacity-0');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }, 200);
+    }
+
+    function copyExport() {
+      const text = $('#export-pre').textContent;
+      navigator.clipboard.writeText(text)
+        .then(() => toast('JSON скопирован в буфер обмена', 'success'))
+        .catch(() => toast('Не удалось скопировать', 'error'));
+    }
+
+    /* ============================================================
+       ГЛОБАЛЬНЫЕ ОБРАБОТЧИКИ
+       ============================================================ */
+    document.addEventListener('click', (e) => {
+      // Закрытие модалок по клику на фон
+      if (e.target.id === 'wall-picker-modal') closeWallPicker();
+      if (e.target.id === 'view-modal') closeViewModal();
+      if (e.target.id === 'export-modal') closeExport();
+      if (e.target.id === 'confirm-modal') closeConfirm();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeWallPicker();
+        closeViewModal();
+        closeExport();
+        closeConfirm();
+      }
+    });
+
+    // Поиск в пикере
+    document.addEventListener('input', (e) => {
+      if (e.target && e.target.id === 'wall-picker-search') {
+        wallPickerSearch = e.target.value;
+        renderWallPicker();
+      }
+    });
+
+    /* ============================================================
+       ПУБЛИЧНЫЙ API ДЛЯ INLINE-ОБРАБОТЧИКОВ
+       ============================================================ */
+    window.switchTab = switchTab;
+    window.createNew = createNew;
+    window.openEditor = openEditor;
+    window.saveItem = saveItem;
+    window.duplicateItem = duplicateItem;
+    window.duplicateCurrent = duplicateCurrent;
+    window.toggleItemStatus = toggleItemStatus;
+    window.confirmDelete = confirmDelete;
+    window.closeConfirm = closeConfirm;
+    window.viewItem = viewItem;
+    window.closeViewModal = closeViewModal;
+    window.setEditorType = setEditorType;
+    window.onTargetChange = onTargetChange;
+    window.toggleSwitch = toggleSwitch;
+    window.pickRandomImage = pickRandomImage;
+    window.updateEditorPreview = updateEditorPreview;
+    window.renderLibrary = renderLibrary;
+    window.resetLibraryFilters = resetLibraryFilters;
+    window.setWallTarget = setWallTarget;
+    window.openWallPicker = openWallPicker;
+    window.closeWallPicker = closeWallPicker;
+    window.renderWallPicker = renderWallPicker;
+    window.addToWall = addToWall;
+    window.removeFromWall = removeFromWall;
+    window.toggleSoftOnWiki = toggleSoftOnWiki;
+    window.renderSoftware = renderSoftware;
+    window.openExport = openExport;
+    window.closeExport = closeExport;
+    window.copyExport = copyExport;
+
+    /* ============================================================
+       ИНИЦИАЛИЗАЦИЯ
+       ============================================================ */
+    function init() {
+      items = loadItems();
+      persist();
+
+      renderTypePicker();
+      resetEditorForm();
+      setEditorType('article');
+
+      updateSidebarCounters();
+      updateStorageWidget();
+      renderOverview();
+
+      switchTab('overview');
+      refreshIcons();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+  })();
+  </script>
+
+</body>
+</html>
