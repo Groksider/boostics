@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Редактирование статьи — Комбайн</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-white: #FFFFFF;
+    --bg-slate-50: #F8FAFC;
+    --bg-slate-100: #F1F5F9;
+    --bg-slate-200: #E2E8F0;
+    --border-slate: #E2E8F0;
+    --border-soft: #EEF2F6;
+
+    --primary-blue: #2563EB;
+    --primary-blue-light: #3B82F6;
+    --primary-blue-soft: #EFF6FF;
+    --accent-yellow: #F59E0B;
+    --accent-yellow-soft: #FEF9C3;
+    --danger-red: #EF4444;
+    --danger-red-soft: #FEE2E2;
+    --success-green: #10B981;
+    --success-green-soft: #D1FAE5;
+
+    --text-charcoal: #0F172A;
+    --text-slate: #64748B;
+    --text-placeholder: #94A3B8;
+
+    --radius-card: 20px;
+    --radius-box: 14px;
+    --radius-pill: 9999px;
+
+    --shadow-micro: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { height: 100%; }
+
+  body {
+    background-color: var(--bg-slate-100);
+    color: var(--text-charcoal);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  .editor-root {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-slate-100);
+  }
+
+  .editor-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    padding: 16px;
+    gap: 40px;
+  }
+
+  /* =========================================
+     ЛЕВАЯ КОЛОНКА
+     ========================================= */
+  .editor-nav {
+    position: relative;
+    width: 240px;
+    flex-shrink: 0;
+    background-color: transparent;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: none;
+    transition: transform 0.34s cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 0.34s ease,
+                border-radius 0.34s ease,
+                box-shadow 0.34s ease;
+    will-change: transform;
+  }
+
+  .editor-nav-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 4px 8px 24px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .editor-nav-scroll::-webkit-scrollbar { width: 4px; }
+  .editor-nav-scroll::-webkit-scrollbar-thumb { background: var(--bg-slate-200); border-radius: 4px; }
+
+  .checklist,
+  .seo-checklist-block,
+  .sources-checklist-block {
+    background: var(--bg-white);
+    border: 1.5px solid var(--border-slate);
+    border-radius: 14px;
+    padding: 12px 10px;
+    box-shadow: var(--shadow-micro);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    position: relative;
+  }
+
+  .checklist:hover,
+  .seo-checklist-block:hover,
+  .sources-checklist-block:hover {
+    box-shadow: 0 6px 24px -4px rgba(15, 23, 42, 0.08);
+  }
+
+  .checklist.is-controller-active,
+  .seo-checklist-block.is-controller-active,
+  .sources-checklist-block.is-controller-active {
+    border-color: var(--primary-blue-light);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12), 0 6px 20px -4px rgba(15, 23, 42, 0.06);
+  }
+
+  .checklist-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 4px 6px; border-bottom: 1px solid var(--border-soft); }
+  .checklist-title { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-charcoal); }
+  .checklist-score { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 10.5px; font-weight: 800; color: var(--success-green); background-color: var(--success-green-soft); padding: 2px 7px; border-radius: var(--radius-pill); transition: all 0.2s ease; }
+  .checklist-score.is-warn { color: #B45309; background-color: var(--accent-yellow-soft); }
+  .checklist-score.is-fail { color: #B91C1C; background-color: var(--danger-red-soft); }
+
+  .checklist-group-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-placeholder); padding: 6px 6px 0; }
+  .checklist-group-label:first-of-type { padding-top: 2px; }
+  .checklist-items { display: flex; flex-direction: column; gap: 2px; }
+
+  .check-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 6px; border-radius: 8px; transition: background-color 0.15s; }
+  .check-item:hover { background-color: var(--bg-slate-50); }
+  .check-icon { width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; background-color: var(--bg-slate-200); color: var(--bg-white); font-size: 9px; font-weight: 900; line-height: 1; margin-top: 1px; transition: background-color 0.2s ease; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
+  .check-item.is-ok   .check-icon { background-color: var(--success-green); }
+  .check-item.is-warn .check-icon { background-color: var(--accent-yellow); }
+  .check-item.is-fail .check-icon { background-color: var(--danger-red); }
+
+  .check-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .check-label { font-size: 11.5px; font-weight: 600; color: var(--text-charcoal); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .check-value { font-size: 10.5px; font-weight: 500; color: var(--text-placeholder); line-height: 1.3; transition: color 0.2s ease; }
+  .check-item.is-ok   .check-value { color: var(--success-green); }
+  .check-item.is-warn .check-value { color: #B45309; }
+  .check-item.is-fail .check-value { color: var(--danger-red); }
+
+  .checklist-progress { height: 4px; background-color: var(--bg-slate-100); border-radius: 9999px; overflow: hidden; margin: 2px 4px 0; }
+  .checklist-progress-bar { height: 100%; width: 0; background-color: var(--success-green); border-radius: 9999px; transition: width 0.35s ease, background-color 0.35s ease; }
+
+  /* =========================================
+     ЦЕНТРАЛЬНАЯ КОЛОНКА
+     ========================================= */
+  .editor-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-white);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-micro);
+  }
+
+  .panel-toggle {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 64px;
+    background-color: #FFFFFF;
+    border: 1px solid var(--border-slate);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-slate);
+    z-index: 25;
+    padding: 0;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, left 0.34s cubic-bezier(0.4, 0, 0.2, 1), right 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 999px;
+  }
+  .panel-toggle:hover {
+    background-color: var(--primary-blue-soft);
+    color: var(--primary-blue);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.2);
+    border-color: var(--primary-blue-light);
+  }
+  .panel-toggle svg { transition: transform 0.3s ease; }
+
+  .toggle-left { right: -28px; }
+  .toggle-right { left: -28px; }
+
+  .editor-body.hide-left .toggle-left svg { transform: rotate(180deg); }
+  .editor-body.hide-right .toggle-right svg { transform: rotate(180deg); }
+
+  .editor-body.hide-left .editor-nav {
+    transform: translateX(calc(-100% + 60px));
+    pointer-events: none;
+    background-color: var(--bg-white);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-micro);
+  }
+  .editor-body.hide-left .editor-nav .editor-nav-scroll { overflow: hidden; }
+  .editor-body.hide-left .editor-nav .editor-nav-scroll > * { opacity: 0; }
+
+  .editor-body.hide-left .editor-nav .toggle-left {
+    right: 18px;
+    pointer-events: auto;
+  }
+
+  .editor-body.hide-right .editor-side {
+    transform: translateX(calc(100% - 60px));
+    pointer-events: none;
+  }
+  .editor-body.hide-right .editor-side .editor-side-scroll { overflow: hidden; }
+  .editor-body.hide-right .editor-side .editor-side-scroll > * { opacity: 0; }
+
+  .editor-body.hide-right .editor-side .toggle-right {
+    left: 18px;
+    pointer-events: auto;
+  }
+
+  .editor-topbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-slate);
+    background-color: var(--bg-white);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  .editor-main-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 38px 32px;
+  }
+  .editor-main-content::-webkit-scrollbar { width: 4px; }
+  .editor-main-content::-webkit-scrollbar-thumb { background: var(--bg-slate-200); border-radius: 4px; }
+
+  .breadcrumbs { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-slate); flex-shrink: 0; }
+  .breadcrumbs a { color: var(--text-slate); text-decoration: none; font-weight: 500; transition: color 0.15s; }
+  .breadcrumbs a:hover { color: var(--primary-blue); }
+  .breadcrumbs .sep { color: var(--text-placeholder); }
+  .breadcrumbs .current { color: var(--text-charcoal); font-weight: 600; }
+
+  .icon-btn { background: transparent; border: 1.5px solid transparent; border-radius: 10px; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; color: var(--text-slate); cursor: pointer; transition: all 0.15s ease; flex-shrink: 0; }
+  .icon-btn:hover { background-color: var(--bg-slate-100); color: var(--text-charcoal); }
+
+  .topbar-spacer { flex: 1; }
+  .topbar-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  .btn { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 12.5px; font-weight: 700; border: none; border-radius: var(--radius-pill); padding: 8px 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.18s ease; white-space: nowrap; }
+  .btn-secondary { background-color: var(--bg-slate-100); color: var(--text-charcoal); }
+  .btn-secondary:hover { background-color: var(--bg-slate-200); }
+  .btn-primary { background-color: var(--primary-blue); color: var(--bg-white); box-shadow: 0 4px 14px rgba(37, 99, 235, 0.24); }
+  .btn-primary:hover { background-color: var(--primary-blue-light); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3); }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .main-tabs { display: flex; align-items: center; gap: 2px; padding: 3px; background-color: var(--bg-slate-100); border-radius: var(--radius-pill); margin-bottom: 18px; width: fit-content; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .main-tabs::-webkit-scrollbar { display: none; }
+  .main-tab { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 12.5px; font-weight: 700; padding: 6px 14px; border-radius: var(--radius-pill); border: none; background: transparent; color: var(--text-slate); cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .main-tab:hover { color: var(--text-charcoal); }
+  .main-tab.is-active { background-color: var(--bg-white); color: var(--text-charcoal); box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06); }
+  .main-tab .badge { font-size: 10px; font-weight: 800; background-color: var(--primary-blue-soft); color: var(--primary-blue); padding: 1px 6px; border-radius: var(--radius-pill); }
+
+  .tab-page { display: none; }
+  .tab-page.is-active { display: block; }
+
+  .form-group { margin-bottom: 18px; }
+  .form-label { display: inline-flex; align-items: center; gap: 6px; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--text-charcoal); margin-bottom: 8px; }
+  .required-star { color: var(--danger-red); margin-right: 2px; }
+  .info-icon { color: var(--text-placeholder); display: inline-flex; align-items: center; cursor: help; }
+  .input-wrapper { position: relative; display: flex; align-items: center; }
+  .text-input { width: 100%; background-color: var(--bg-slate-50); border: 1.5px solid transparent; border-radius: var(--radius-box); padding: 12px 70px 12px 14px; font-size: 13.5px; font-family: inherit; color: var(--text-charcoal); outline: none; transition: all 0.2s ease; }
+  .text-input::placeholder { color: var(--text-placeholder); }
+  .text-input:focus { background-color: var(--bg-white); border-color: var(--primary-blue-light); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08); }
+  .char-counter { position: absolute; right: 14px; font-size: 11px; font-weight: 500; color: var(--text-placeholder); pointer-events: none; }
+
+  .tiptap-wrapper { background-color: var(--bg-slate-50); border: 1.5px solid var(--border-slate); border-radius: 18px; overflow: hidden; transition: all 0.2s ease; }
+  .tiptap-wrapper:focus-within { background-color: var(--bg-white); border-color: var(--primary-blue-light); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08); }
+  .tiptap-toolbar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; flex-wrap: wrap; gap: 3px; padding: 8px 12px; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(4px); border-bottom: 1px solid var(--border-slate); }
+  .toolbar-btn { background: transparent; border: none; border-radius: 8px; padding: 5px 9px; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 12px; font-weight: 700; color: var(--text-slate); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.15s ease; min-width: 28px; }
+  .toolbar-btn:hover { background-color: var(--bg-slate-100); color: var(--text-charcoal); }
+  .toolbar-btn.is-active { background-color: var(--primary-blue-soft); color: var(--primary-blue); }
+  .toolbar-divider { width: 1px; height: 18px; background-color: var(--border-slate); margin: 0 4px; }
+  .tiptap-content { min-height: 320px; padding: 18px 20px 14px; outline: none; font-size: 14.5px; line-height: 1.65; color: var(--text-charcoal); }
+  .tiptap-content h2 { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 19px; font-weight: 800; letter-spacing: -0.02em; margin: 16px 0 7px; padding: 5px 10px; border-radius: 10px; transition: background-color 0.15s; }
+  .tiptap-content h3 { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; margin: 14px 0 5px; padding: 5px 10px; border-radius: 10px; transition: background-color 0.15s; }
+  .tiptap-content p { font-size: 14px; margin: 0 0 10px; padding: 5px 10px; border-radius: 10px; transition: background-color 0.15s; }
+  .tiptap-content ul, .tiptap-content ol { margin: 0 0 14px 20px; padding-left: 10px; font-size: 14px; }
+  .tiptap-content li { margin-bottom: 6px; }
+  .tiptap-content h2:first-child { margin-top: 0; }
+  .tiptap-content h2:hover, .tiptap-content h3:hover, .tiptap-content p:hover { background-color: rgba(37, 99, 235, 0.04); }
+  .tiptap-footer { display: flex; align-items: center; justify-content: space-between; padding: 7px 16px 10px; font-size: 11.5px; color: var(--text-placeholder); font-weight: 500; gap: 12px; }
+  .tiptap-node-badge { display: inline-flex; align-items: center; gap: 5px; background-color: var(--bg-slate-100); color: var(--text-slate); padding: 2px 9px; border-radius: var(--radius-pill); font-size: 10.5px; font-weight: 600; }
+  .editor-stats { display: flex; align-items: center; gap: 12px; font-size: 11.5px; color: var(--text-placeholder); }
+  .editor-stats span b { color: var(--text-charcoal); font-weight: 600; }
+  .quick-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .quick-btn { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; padding: 5px 11px; border-radius: var(--radius-pill); border: 1px solid var(--border-slate); background-color: var(--bg-white); color: var(--text-slate); cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .quick-btn:hover { border-color: var(--primary-blue-light); color: var(--primary-blue); background-color: var(--primary-blue-soft); }
+
+  /* =========================================
+     ПРАВАЯ КОЛОНКА
+     ========================================= */
+  .editor-side {
+    position: relative;
+    width: 340px;
+    flex-shrink: 0;
+    background-color: var(--bg-white);
+    border-radius: var(--radius-card);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-micro);
+    transition: transform 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+
+  .editor-side-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 20px 16px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border-radius: inherit;
+  }
+
+  .editor-side-scroll::-webkit-scrollbar { width: 4px; }
+  .editor-side-scroll::-webkit-scrollbar-thumb { background: var(--bg-slate-200); border-radius: 4px; }
+
+  .side-section { display: flex; flex-direction: column; gap: 8px; transition: opacity 0.2s ease; }
+  .side-title { position: relative; display: flex; align-items: center; justify-content: space-between; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-placeholder); }
+  .side-title .toggle-mini { text-transform: none; letter-spacing: 0; font-size: 10.5px; font-weight: 700; color: var(--primary-blue); cursor: pointer; }
+  .side-title .preview-btn { display: inline-flex; align-items: center; gap: 4px; text-transform: none; letter-spacing: 0; font-size: 10px; font-weight: 700; color: var(--primary-blue); background: var(--primary-blue-soft); border: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; transition: all 0.15s ease; font-family: inherit; }
+  .side-title .preview-btn:hover { background: var(--primary-blue); color: var(--bg-white); }
+  .side-title .preview-btn svg { width: 12px; height: 12px; }
+  .side-title .side-title-hint { text-transform: none; letter-spacing: 0; font-size: 10.5px; font-weight: 500; color: var(--text-placeholder); }
+
+  .side-title-group { display: inline-flex; align-items: center; gap: 6px; }
+  .status-help-trigger { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; background: var(--bg-slate-200); color: var(--text-slate); font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; user-select: none; }
+  .status-help-trigger:hover { background: var(--primary-blue); color: var(--bg-white); }
+  .status-popover { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--bg-white); border: 1px solid var(--border-slate); border-radius: 12px; padding: 10px 12px; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 4px 10px -2px rgba(15, 23, 42, 0.05); z-index: 30; font-family: 'Inter', sans-serif; text-transform: none; letter-spacing: normal; font-weight: 400; opacity: 0; visibility: hidden; transform: translateY(-4px); transition: all 0.2s ease; pointer-events: none; }
+  .status-popover::before { content: ""; position: absolute; top: -8px; left: 0; right: 0; height: 8px; }
+  .status-help-trigger:hover + .status-popover,
+  .status-popover:hover { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; }
+  .status-popover-list { display: flex; flex-direction: column; gap: 8px; }
+  .status-popover-item { display: flex; align-items: flex-start; gap: 8px; font-size: 11.5px; line-height: 1.4; color: var(--text-slate); }
+  .status-popover-item b { color: var(--text-charcoal); font-weight: 600; }
+  .status-popover-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+  .status-popover-dot.is-draft { background: var(--text-placeholder); }
+  .status-popover-dot.is-upgrade { background: var(--accent-yellow); }
+  .status-popover-dot.is-rejected { background: var(--danger-red); }
+
+  .cover-drop { border: 1.5px dashed var(--border-slate); border-radius: 14px; padding: 20px 12px; text-align: center; color: var(--text-placeholder); font-size: 12px; cursor: pointer; transition: all 0.2s ease; }
+  .cover-drop:hover { border-color: var(--primary-blue-light); background: var(--primary-blue-soft); color: var(--primary-blue); }
+  .cover-drop svg { margin-bottom: 4px; }
+  .cover-hint { font-size: 10.5px; margin-top: 2px; }
+
+  .status-card { background: var(--bg-slate-50); border-radius: 12px; padding: 10px 12px; }
+  .status-row { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text-charcoal); }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-placeholder); }
+  .status-dot.is-published { background-color: var(--success-green); }
+  .status-dot.is-draft { background-color: var(--text-placeholder); }
+  .status-help { font-size: 11.5px; color: var(--text-slate); margin-top: 4px; line-height: 1.45; }
+
+  .channel-list { display: flex; flex-direction: column; gap: 5px; }
+  .channel-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--bg-slate-50); border: 1.5px solid transparent; border-radius: 10px; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all 0.15s ease; color: var(--text-charcoal); }
+  .channel-item.is-active { border-color: var(--primary-blue-light); background: var(--primary-blue-soft); }
+  .channel-item input { display: none; }
+  .channel-check { width: 16px; height: 16px; border: 1.5px solid var(--border-slate); border-radius: 5px; display: inline-flex; align-items: center; justify-content: center; background: var(--bg-white); color: transparent; font-size: 11px; transition: all 0.15s ease; flex-shrink: 0; }
+  .channel-item.is-active .channel-check { background: var(--primary-blue); border-color: var(--primary-blue); color: var(--bg-white); }
+  .channel-name { flex: 1; }
+  .channel-badge { font-size: 9.5px; font-weight: 700; text-transform: uppercase; color: var(--text-placeholder); letter-spacing: 0.05em; }
+  .channel-item.is-active .channel-badge { color: var(--primary-blue); }
+
+  .pub-block { display: flex; flex-direction: column; gap: 12px; background: var(--bg-slate-50); border: 1px solid var(--border-slate); border-radius: 14px; padding: 12px; }
+  .pub-field { display: flex; flex-direction: column; gap: 6px; }
+  .pub-label { font-size: 10.5px; font-weight: 700; color: var(--text-slate); text-transform: uppercase; letter-spacing: 0.04em; }
+  .pub-input { width: 100%; background: var(--bg-white); border: 1.5px solid var(--border-slate); border-radius: 10px; padding: 9px 12px; font-size: 12.5px; font-family: inherit; color: var(--text-charcoal); outline: none; transition: border-color 0.15s ease; }
+  .pub-input:focus { border-color: var(--primary-blue-light); }
+
+  .platform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .platform-chip { display: flex; align-items: center; gap: 7px; padding: 7px 10px; background: var(--bg-white); border: 1.5px solid var(--border-slate); border-radius: 10px; font-size: 12px; font-weight: 600; color: var(--text-slate); cursor: pointer; transition: all 0.15s ease; user-select: none; }
+  .platform-chip:hover { border-color: var(--primary-blue-light); color: var(--text-charcoal); }
+  .platform-chip input { display: none; }
+  .platform-chip svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--text-placeholder); transition: color 0.15s ease; }
+  .platform-chip.is-active { border-color: var(--primary-blue-light); background: var(--primary-blue-soft); color: var(--primary-blue); }
+  .platform-chip.is-active svg { color: var(--primary-blue); }
+
+  .game-dropdown { position: relative; }
+  .game-trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; background: var(--bg-white); border: 1.5px solid var(--border-slate); border-radius: 10px; padding: 9px 12px; font-size: 12.5px; font-family: inherit; color: var(--text-charcoal); cursor: pointer; transition: border-color 0.15s ease; text-align: left; }
+  .game-trigger:hover, .game-dropdown.is-open .game-trigger { border-color: var(--primary-blue-light); }
+  .game-trigger.is-placeholder { color: var(--text-placeholder); }
+  .game-trigger-arrow { color: var(--text-slate); font-size: 12px; transition: transform 0.2s ease; }
+  .game-dropdown.is-open .game-trigger-arrow { transform: rotate(180deg); color: var(--primary-blue); }
+  .game-menu { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--bg-white); border: 1px solid var(--border-slate); border-radius: 12px; padding: 8px; box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.14), 0 4px 10px -2px rgba(15, 23, 42, 0.06); z-index: 25; display: none; flex-direction: column; gap: 6px; }
+  .game-dropdown.is-open .game-menu { display: flex; }
+  .game-search-box { position: relative; display: flex; align-items: center; }
+  .game-search-box svg { position: absolute; left: 9px; width: 13px; height: 13px; color: var(--text-placeholder); pointer-events: none; }
+  .game-search-input { width: 100%; background: var(--bg-slate-50); border: 1.5px solid var(--border-slate); border-radius: 8px; padding: 6px 10px 6px 28px; font-size: 12px; font-family: inherit; color: var(--text-charcoal); outline: none; transition: border-color 0.15s ease; }
+  .game-search-input:focus { border-color: var(--primary-blue-light); background: var(--bg-white); }
+  .game-options { max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+  .game-options::-webkit-scrollbar { width: 4px; }
+  .game-options::-webkit-scrollbar-thumb { background: var(--bg-slate-200); border-radius: 4px; }
+  .game-option { padding: 7px 9px; border-radius: 7px; font-size: 12px; font-weight: 500; color: var(--text-charcoal); cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background 0.12s ease; }
+  .game-option:hover { background: var(--bg-slate-100); }
+  .game-option.is-selected { background: var(--primary-blue-soft); color: var(--primary-blue); font-weight: 600; }
+  .game-empty { padding: 10px 8px; text-align: center; font-size: 11.5px; color: var(--text-placeholder); display: none; }
+
+  .select-wrapper { position: relative; }
+  .select-input { width: 100%; appearance: none; background: var(--bg-white); border: 1.5px solid var(--border-slate); border-radius: 10px; padding: 9px 32px 9px 12px; font-size: 12.5px; font-family: inherit; color: var(--text-charcoal); outline: none; cursor: pointer; transition: border-color 0.15s ease; }
+  .select-input:hover, .select-input:focus { border-color: var(--primary-blue-light); }
+  .select-arrow { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-slate); pointer-events: none; display: flex; }
+
+  .tags-wrapper { display: flex; align-items: flex-start; align-content: flex-start; flex-wrap: wrap; gap: 6px; width: 100%; background: var(--bg-slate-50); border: 1.5px solid var(--border-slate); border-radius: 12px; padding: 10px 12px; min-height: 90px; cursor: text; transition: border-color 0.15s ease, background 0.15s ease; }
+  .tags-wrapper:focus-within { border-color: var(--primary-blue-light); background: var(--bg-white); }
+  .tag-chip { display: inline-flex; align-items: center; gap: 5px; background: var(--primary-blue-soft); color: var(--primary-blue); font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: var(--radius-pill); }
+  .tag-remove { background: none; border: none; color: inherit; cursor: pointer; font-size: 14px; line-height: 1; display: inline-flex; align-items: center; opacity: 0.7; transition: opacity 0.15s ease; }
+  .tag-remove:hover { opacity: 1; }
+  .tags-input { flex: 1 1 100%; width: 100%; min-width: 140px; border: none; background: transparent; font-size: 12.5px; font-family: inherit; color: var(--text-charcoal); padding: 4px 2px; outline: none; }
+
+  .coauthor-row { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 10px; background-color: var(--bg-slate-50); font-size: 12px; }
+  .coauthor-avatar { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #3B82F6, #2563EB); color: var(--bg-white); display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+  .coauthor-name { flex: 1; font-weight: 600; color: var(--text-charcoal); }
+  .coauthor-role { font-size: 10.5px; color: var(--text-slate); font-weight: 500; }
+  .add-coauthor { display: inline-flex; align-items: center; justify-content: center; gap: 5px; border: 1.5px dashed var(--border-slate); border-radius: 10px; padding: 7px; font-size: 11.5px; font-weight: 600; color: var(--text-slate); cursor: pointer; background: transparent; font-family: inherit; transition: all 0.15s; width: 100%; }
+  .add-coauthor:hover { border-color: var(--primary-blue-light); color: var(--primary-blue); background-color: var(--primary-blue-soft); }
+
+  /* =========================================
+     SEO PAGE
+     ========================================= */
+  .seo-page { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+  .seo-page-title { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 2px; }
+  .seo-page-subtitle { font-size: 12.5px; color: var(--text-slate); line-height: 1.5; margin-bottom: 4px; }
+
+  .seo-form-section { background: var(--bg-white); border: 1px solid var(--border-slate); border-radius: 16px; padding: 16px 18px; }
+  .seo-form-section-head { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border-soft); }
+  .seo-form-section-title { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 12.5px; font-weight: 800; color: var(--text-charcoal); display: flex; align-items: center; gap: 8px; }
+  .seo-form-section-title svg { color: var(--primary-blue); flex-shrink: 0; }
+  .seo-form-section-hint { margin-left: auto; font-size: 11px; color: var(--text-placeholder); font-weight: 500; }
+
+  .seo-field-row { margin-bottom: 16px; }
+  .seo-field-row:last-child { margin-bottom: 0; }
+
+  .seo-field-label { display: flex; align-items: center; gap: 6px; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 12px; font-weight: 700; color: var(--text-charcoal); margin-bottom: 6px; }
+  .seo-field-label .req { color: var(--danger-red); }
+  .seo-field-hint { font-size: 11px; color: var(--text-slate); font-weight: 500; line-height: 1.4; margin-top: 6px; }
+
+  .seo-helper-btn { margin-left: auto; font-size: 10.5px; font-weight: 600; color: var(--primary-blue); background: transparent; border: none; cursor: pointer; padding: 3px 7px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; transition: background 0.15s; font-family: inherit; }
+  .seo-helper-btn:hover { background: var(--primary-blue-soft); }
+
+  .seo-counter-pill { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 6px; background: var(--bg-slate-100); color: var(--text-slate); transition: all 0.2s ease; }
+  .seo-counter-pill.is-ok  { background: var(--success-green-soft); color: var(--success-green); }
+  .seo-counter-pill.is-warn { background: var(--accent-yellow-soft); color: #B45309; }
+  .seo-counter-pill.is-fail { background: var(--danger-red-soft); color: #B91C1C; }
+
+  .seo-input, .seo-textarea { width: 100%; background: var(--bg-slate-50); border: 1.5px solid transparent; border-radius: var(--radius-box); padding: 10px 12px; font-size: 13px; font-family: inherit; color: var(--text-charcoal); outline: none; transition: all 0.2s ease; line-height: 1.5; }
+  .seo-textarea { min-height: 80px; resize: vertical; }
+  .seo-input::placeholder, .seo-textarea::placeholder { color: var(--text-placeholder); }
+  .seo-input:focus, .seo-textarea:focus { background: var(--bg-white); border-color: var(--primary-blue-light); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08); }
+
+  .seo-slug-wrapper { display: flex; align-items: stretch; background: var(--bg-slate-50); border: 1.5px solid transparent; border-radius: var(--radius-box); overflow: hidden; transition: all 0.2s ease; }
+  .seo-slug-wrapper:focus-within { background: var(--bg-white); border-color: var(--primary-blue-light); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08); }
+  .seo-slug-prefix { display: inline-flex; align-items: center; padding: 0 12px; font-size: 12px; font-weight: 600; color: var(--text-placeholder); background: var(--bg-slate-100); border-right: 1px solid var(--border-slate); flex-shrink: 0; }
+  .seo-slug-input-field { flex: 1; border: none; background: transparent; padding: 10px 12px; font-size: 13px; font-family: inherit; color: var(--text-charcoal); outline: none; min-width: 0; }
+
+  .seo-cover-field { display: flex; gap: 14px; align-items: flex-start; }
+  .seo-cover-thumb { width: 140px; height: 73px; border-radius: 10px; background: var(--bg-slate-100); border: 1.5px dashed var(--border-slate); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--text-placeholder); cursor: pointer; overflow: hidden; transition: all 0.15s; }
+  .seo-cover-thumb:hover { border-color: var(--primary-blue-light); background: var(--primary-blue-soft); color: var(--primary-blue); }
+  .seo-cover-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .seo-cover-fields { flex: 1; min-width: 0; }
+
+  .bento-wrap { background: linear-gradient(135deg, #EEF2FF 0%, #F8FAFC 100%); border-radius: 12px; padding: 12px; border: 1px solid var(--border-slate); max-width: 500px; }
+  .bento-grid-label { font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-placeholder); margin-bottom: 9px; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
+  .bento-feed { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .bento-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06), 0 4px 12px -4px rgba(15, 23, 42, 0.1); transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer; display: flex; flex-direction: column; }
+  .bento-card:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08), 0 8px 20px -6px rgba(15, 23, 42, 0.14); }
+  .bento-image { position: relative; aspect-ratio: 16 / 10; background-color: #0F172A; background-size: cover; background-position: center; overflow: hidden; }
+  .badge-tl, .badge-tr, .badge-bl { position: absolute; z-index: 2; font-family: 'Inter', sans-serif; font-weight: 700; line-height: 1; font-size: 7.5px; padding: 2px 5px; border-radius: 3px; }
+  .badge-tl { top: 6px; left: 6px; background: white; color: var(--text-charcoal); display: flex; align-items: center; gap: 3px; }
+  .badge-tl::before { content: ''; width: 3px; height: 3px; border-radius: 50%; background: var(--primary-blue); }
+  .badge-tr { top: 6px; right: 6px; background: var(--primary-blue); color: white; text-transform: uppercase; }
+  .badge-bl { bottom: 6px; left: 6px; color: white; text-transform: uppercase; letter-spacing: 0.05em; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+  .bento-image::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.4)); pointer-events: none; }
+  .bento-body { padding: 9px 10px; display: flex; flex-direction: column; flex: 1; }
+  .bento-title { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.3; color: var(--text-charcoal); margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
+  .bento-desc { font-size: 9.5px; color: var(--text-slate); line-height: 1.4; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; flex: 1; }
+  .bento-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 7px; border-top: 1px solid var(--border-soft); }
+  .footer-author-box { display: flex; align-items: center; gap: 4px; }
+  .bento-avatar { width: 14px; height: 14px; border-radius: 50%; background: linear-gradient(135deg, #3B82F6, #2563EB); color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 6px; font-weight: 800; flex-shrink: 0; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
+  .bento-author { font-size: 8.5px; font-weight: 600; color: var(--text-charcoal); max-width: 44px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .footer-stats-box { display: flex; align-items: center; gap: 6px; font-size: 8px; font-weight: 500; color: var(--text-placeholder); }
+  .stat-item { display: flex; align-items: center; gap: 2px; }
+  .stat-item svg { width: 8px; height: 8px; }
+
+  .serp-card { background: var(--bg-white); border: 1px solid var(--border-slate); border-radius: 12px; padding: 14px; max-width: 600px; }
+  .serp-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 11.5px; color: #4D5156; }
+  .serp-favicon { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #3B82F6, #2563EB); display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 800; flex-shrink: 0; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
+  .serp-head-text { display: flex; flex-direction: column; min-width: 0; }
+  .serp-site { font-weight: 500; color: #202124; font-size: 12px; }
+  .serp-url { color: #4D5156; font-size: 11px; margin-top: 0; word-break: break-all; }
+  .serp-title { font-size: 18px; color: #1A0DAB; font-weight: 400; line-height: 1.3; margin: 2px 0 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
+  .serp-desc { font-size: 12.5px; color: #4D5156; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
+  .serp-placeholder { color: #9AA0A6; font-style: italic; }
+
+  .social-tabs { display: flex; gap: 2px; padding: 3px; background: var(--bg-slate-100); border-radius: var(--radius-pill); width: fit-content; margin-bottom: 4px; }
+  .social-tab { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 10.5px; font-weight: 700; padding: 4px 11px; border-radius: var(--radius-pill); border: none; background: transparent; color: var(--text-slate); cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px; }
+  .social-tab.is-active { background: var(--bg-white); color: var(--text-charcoal); box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06); }
+  .social-tab svg { flex-shrink: 0; }
+
+  .og-card { background: var(--bg-white); border: 1px solid var(--border-slate); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04); }
+  .og-image-preview { aspect-ratio: 1.91 / 1; background: var(--bg-slate-100); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; color: var(--text-placeholder); font-size: 10px; font-weight: 500; border-bottom: 1px solid var(--border-soft); text-align: center; padding: 6px; }
+  .og-body { padding: 8px 10px; background: var(--bg-slate-50); }
+  .og-domain { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-placeholder); margin-bottom: 2px; font-weight: 600; }
+  .og-title-prev { font-size: 12px; font-weight: 700; color: var(--text-charcoal); line-height: 1.3; margin-bottom: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
+  .og-desc-prev { font-size: 10.5px; color: var(--text-slate); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
+
+  .discord-wrap { background: #313338; border-radius: 10px; padding: 12px; font-family: 'Inter', 'gg sans', sans-serif; max-width: 400px; }
+  .discord-embed { background: #2B2D31; border-radius: 4px; overflow: hidden; border-left: 3px solid #5865F2; max-width: 100%; }
+  .discord-embed-inner { padding: 10px 12px 10px 11px; display: flex; gap: 10px; align-items: flex-start; }
+  .discord-content { flex: 1; min-width: 0; }
+  .discord-site { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; font-size: 10px; color: #B5BAC1; font-weight: 500; line-height: 1.2; }
+  .discord-favicon { width: 14px; height: 14px; border-radius: 50%; background: linear-gradient(135deg, #3B82F6, #2563EB); display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 8px; font-weight: 800; flex-shrink: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .discord-site-name { line-height: 1; }
+  .discord-title { font-size: 12.5px; font-weight: 700; color: #00A8FC; line-height: 1.3; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
+  .discord-desc { font-size: 11px; color: #DBDEE1; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
+  .discord-image { width: 60px; height: 60px; border-radius: 4px; background: #1E1F22; background-size: cover; background-position: center; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #6D6F78; font-size: 8px; overflow: hidden; }
+
+  .chat-ui-wrapper { background: #E5E7EB; background-image: radial-gradient(#D1D5DB 1px, transparent 0); background-size: 12px 12px; border-radius: 10px; padding: 12px 10px; border: 1px solid var(--border-slate); max-width: 380px; }
+  .chat-message { display: flex; gap: 8px; align-items: flex-end; }
+  .chat-avatar { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-blue-light), var(--primary-blue)); color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .chat-bubble { background: var(--bg-white); border-radius: 14px; border-bottom-left-radius: 4px; padding: 5px; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06); flex: 1; min-width: 0; }
+  .chat-text { font-size: 12px; color: var(--text-charcoal); margin: 3px 5px 6px; line-height: 1.35; }
+  .chat-bubble .og-card { box-shadow: none; border: 1px solid var(--border-slate); border-radius: 8px; }
+
+  /* =========================================
+     ADVANCED PAGE — Источники и Changelog
+     ========================================= */
+  .advanced-page {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .advanced-page-title {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    font-size: 18px; font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 2px;
+  }
+  .advanced-page-subtitle {
+    font-size: 12.5px; color: var(--text-slate);
+    line-height: 1.5;
+    margin-bottom: 4px;
+  }
+
+  .adv-form-section {
+    background: var(--bg-white);
+    border: 1px solid var(--border-slate);
+    border-radius: 16px;
+    padding: 18px 20px;
+  }
+  .adv-form-section-head {
+    display: flex; align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .adv-form-section-title {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    font-size: 13px; font-weight: 800;
+    color: var(--text-charcoal);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .adv-form-section-title svg { color: var(--primary-blue); flex-shrink: 0; }
+  .adv-form-section-hint {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--text-placeholder);
+    font-weight: 500;
+  }
+
+  .adv-input, .adv-textarea, .adv-select {
+    width: 100%;
+    background: var(--bg-slate-50);
+    border: 1.5px solid transparent;
+    border-radius: var(--radius-box);
+    padding: 10px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text-charcoal);
+    outline: none;
+    transition: all 0.2s ease;
+    line-height: 1.5;
+  }
+  .adv-textarea { min-height: 70px; resize: vertical; }
+  .adv-input::placeholder, .adv-textarea::placeholder { color: var(--text-placeholder); }
+  .adv-input:focus, .adv-textarea:focus, .adv-select:focus {
+    background: var(--bg-white);
+    border-color: var(--primary-blue-light);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08);
+  }
+  .adv-select {
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+
+  .adv-btn {
+    padding: 10px 16px;
+    border-radius: var(--radius-box);
+    font-size: 12.5px;
+    font-weight: 700;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: none;
+  }
+  .adv-btn-primary { background: var(--primary-blue); color: white; }
+  .adv-btn-primary:hover { background: var(--primary-blue-light); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+  .adv-btn-secondary { background: var(--bg-slate-100); color: var(--text-charcoal); }
+  .adv-btn-secondary:hover { background: var(--bg-slate-200); }
+
+  .adv-empty-state {
+    padding: 20px;
+    text-align: center;
+    background: var(--bg-slate-50);
+    border: 1px dashed var(--border-slate);
+    border-radius: 12px;
+    font-size: 12px;
+    color: var(--text-placeholder);
+    font-weight: 500;
+  }
+
+  .adv-wiki-toolbar { margin-bottom: 16px; }
+  .adv-btn-wiki-cite {
+    background: var(--bg-white);
+    border: 1px solid var(--border-slate);
+    color: var(--text-charcoal);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12.5px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px;
+    cursor: pointer; transition: all 0.15s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    font-family: inherit;
+  }
+  .adv-btn-wiki-cite:hover {
+    border-color: var(--primary-blue-light);
+    background: var(--primary-blue-soft);
+    color: var(--primary-blue);
+  }
+
+  .adv-cite-dialog {
+    display: none;
+    background: var(--bg-white);
+    border: 1px solid var(--border-slate);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08);
+  }
+  .adv-cite-dialog.is-open { display: block; }
+
+  .adv-cite-header {
+    display: flex; gap: 2px;
+    padding: 12px 14px 0;
+    border-bottom: 1px solid var(--border-soft);
+    background: var(--bg-slate-50);
+  }
+  .adv-cite-tab {
+    padding: 8px 16px;
+    font-size: 12.5px; font-weight: 600;
+    color: var(--text-slate);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .adv-cite-tab:hover { color: var(--text-charcoal); }
+  .adv-cite-tab.is-active {
+    color: var(--primary-blue);
+    border-bottom-color: var(--primary-blue);
+  }
+
+  .adv-cite-body { padding: 16px; }
+  .adv-cite-pane { display: none; }
+  .adv-cite-pane.is-active { display: block; }
+
+  .adv-cite-auto-wrap { display: flex; gap: 10px; align-items: center; }
+  .adv-cite-hint { font-size: 11px; color: var(--text-slate); margin-top: 8px; }
+
+  .adv-cite-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .adv-cite-field-full { grid-column: 1 / -1; }
+  .adv-cite-label {
+    display: block; font-size: 11px; font-weight: 600;
+    color: var(--text-slate); margin-bottom: 4px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+
+  .adv-cite-footer {
+    display: flex; justify-content: flex-end; gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-soft);
+    background: var(--bg-slate-50);
+  }
+
+  .adv-modern-ref-list { display: flex; flex-direction: column; gap: 10px; }
+  .adv-modern-ref-item {
+    display: flex; gap: 14px; align-items: center;
+    padding: 14px 16px;
+    background: var(--bg-white);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .adv-modern-ref-item:hover {
+    border-color: var(--border-slate);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+  }
+  .adv-modern-ref-item:hover .adv-ref-actions { opacity: 1; }
+
+  .adv-modern-ref-num {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px; font-weight: 800;
+    color: var(--text-slate);
+    background: var(--bg-slate-100);
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .adv-modern-ref-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+  .adv-modern-ref-title {
+    font-size: 13.5px; font-weight: 600; color: var(--text-charcoal);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    line-height: 1.2;
+  }
+  .adv-modern-ref-title a { color: inherit; text-decoration: none; transition: color 0.15s; }
+  .adv-modern-ref-title a:hover { color: var(--primary-blue); }
+
+  .adv-modern-ref-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .adv-meta-chip {
+    font-size: 10.5px; font-weight: 600; color: var(--text-slate);
+    background: var(--bg-slate-50); border: 1px solid var(--border-slate);
+    padding: 2px 6px; border-radius: 4px;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .adv-meta-chip svg { color: var(--text-placeholder); }
+
+  .adv-ref-actions { opacity: 0; transition: opacity 0.2s; display: flex; gap: 4px; }
+  .adv-ref-btn {
+    background: transparent; border: none; color: var(--text-placeholder);
+    cursor: pointer; padding: 6px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .adv-ref-btn:hover { background: var(--danger-red-soft); color: var(--danger-red); }
+
+  .adv-changelog-add { display: flex; gap: 10px; align-items: flex-start; }
+  .adv-changelog-add > * { flex: 1; }
+  .adv-changelog-add .adv-narrow { flex: 0 0 140px; }
+  .adv-changelog-add .adv-btn-wrap { flex: 0 0 auto; display: flex; align-items: flex-end; }
+
+  .adv-timeline { margin-top: 20px; padding-left: 8px; }
+  .adv-timeline-item { position: relative; padding-left: 24px; padding-bottom: 16px; }
+  .adv-timeline-item:last-child { padding-bottom: 0; }
+  .adv-timeline-item::before {
+    content: ''; position: absolute; left: 4px; top: 20px; bottom: -8px;
+    width: 2px; background: var(--border-soft);
+  }
+  .adv-timeline-item:last-child::before { display: none; }
+  .adv-timeline-dot {
+    position: absolute; left: 0; top: 4px;
+    width: 10px; height: 10px;
+    border-radius: 50%; background: var(--bg-white);
+    border: 2px solid var(--primary-blue); z-index: 1;
+  }
+  .adv-timeline-content {
+    background: var(--bg-slate-50); border: 1px solid var(--border-soft);
+    border-radius: 12px; padding: 12px 14px; position: relative;
+  }
+  .adv-timeline-content:hover { border-color: var(--border-slate); }
+  .adv-timeline-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .adv-timeline-version { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 800; color: var(--text-charcoal); }
+  .adv-timeline-desc { font-size: 12.5px; color: var(--text-slate); line-height: 1.5; white-space: pre-wrap; }
+  .adv-timeline-del {
+    position: absolute; top: 8px; right: 8px;
+    opacity: 0; transition: opacity 0.2s;
+    background: transparent; border: none; color: var(--text-placeholder); cursor: pointer; padding: 4px; border-radius: 4px;
+  }
+  .adv-timeline-content:hover .adv-timeline-del { opacity: 1; }
+  .adv-timeline-del:hover { background: var(--danger-red-soft); color: var(--danger-red); }
+
+  /* =========================================
+     АДАПТИВ
+     ========================================= */
+  @media (max-width: 1200px) {
+    .editor-nav { width: 220px; }
+    .editor-side { width: 280px; }
+  }
+
+  @media (max-width: 1024px) {
+    .editor-nav { width: 180px; }
+    .editor-side { width: 260px; }
+    .editor-main-content { padding: 16px 20px 24px; }
+    .editor-body { gap: 36px; }
+  }
+
+  @media (max-width: 768px) {
+    .panel-toggle { display: none; }
+    .editor-body { flex-direction: column; padding: 12px; gap: 12px; overflow-y: auto; }
+    .editor-nav, .editor-side { width: 100%; height: auto; flex: none; display: flex !important; }
+    .editor-nav-scroll { padding: 4px 4px 16px; overflow: visible; }
+    .editor-side-scroll { padding: 16px; overflow: visible; }
+    .editor-main, .editor-nav, .editor-side { border-radius: var(--radius-card); flex: none; height: auto; }
+    .editor-main-content { padding: 14px 16px 24px; }
+
+    .editor-body.hide-left .editor-nav,
+    .editor-body.hide-right .editor-side {
+      transform: none;
+      pointer-events: auto;
+      background-color: transparent;
+      box-shadow: none;
+    }
+    .editor-body.hide-left .editor-nav .editor-nav-scroll > *,
+    .editor-body.hide-right .editor-side .editor-side-scroll > * { opacity: 1; }
+
+    .seo-page, .advanced-page { max-width: 100%; }
+    .bento-feed { grid-template-columns: 1fr; }
+    .seo-cover-field { flex-direction: column; }
+    .seo-cover-thumb { width: 100%; height: 160px; }
+    .seo-form-section, .adv-form-section { padding: 14px; }
+    .serp-card, .discord-wrap, .chat-ui-wrapper { max-width: 100%; }
+
+    .adv-cite-grid { grid-template-columns: 1fr; }
+    .adv-changelog-add { flex-direction: column; }
+    .adv-changelog-add .adv-narrow,
+    .adv-changelog-add .adv-btn-wrap,
+    .adv-changelog-add .adv-btn-wrap button { width: 100%; flex: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="editor-root">
+  <div class="editor-body" id="editorBody">
+
+    <!-- ==================== ЛЕВАЯ КОЛОНКА ==================== -->
+    <aside class="editor-nav">
+      <button class="panel-toggle toggle-left" id="toggleLeftBtn" title="Свернуть/Развернуть левую панель">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+
+      <div class="editor-nav-scroll">
+
+        <div class="checklist is-controller-active" id="article-checklist" data-controller-tab="main">
+          <div class="checklist-head">
+            <span class="checklist-title">Чек-контролер</span>
+            <span class="checklist-score" id="article-checklist-score">0%</span>
+          </div>
+
+          <div class="checklist-items">
+            <div class="check-item is-warn" data-check="article-length">
+              <span class="check-icon">!</span>
+              <div class="check-body">
+                <span class="check-label">Длина статьи</span>
+                <span class="check-value">0 / 1500 симв.</span>
+              </div>
+            </div>
+            <div class="check-item is-warn" data-check="headings">
+              <span class="check-icon">!</span>
+              <div class="check-body">
+                <span class="check-label">Заголовки H2 / H3</span>
+                <span class="check-value">H2: 0 · H3: 0</span>
+              </div>
+            </div>
+            <div class="check-item is-warn" data-check="paragraphs">
+              <span class="check-icon">!</span>
+              <div class="check-body">
+                <span class="check-label">Абзацы &lt; 1000</span>
+                <span class="check-value">нет абзацев</span>
+              </div>
+            </div>
+            <div class="check-item is-warn" data-check="image">
+              <span class="check-icon">!</span>
+              <div class="check-body">
+                <span class="check-label">Изображение</span>
+                <span class="check-value">не добавлено</span>
+              </div>
+            </div>
+            <div class="check-item is-warn" data-check="video">
+              <span class="check-icon">!</span>
+              <div class="check-body">
+                <span class="check-label">Видео</span>
+                <span class="check-value">не добавлено</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="checklist-progress">
+            <div class="checklist-progress-bar" id="article-checklist-progress"></div>
+          </div>
+        </div>
+
+        <div class="seo-checklist-block" id="seo-checklist" data-controller-tab="seo">
+          <div class="checklist-head">
+            <span class="checklist-title">SEO-готовность</span>
+            <span class="checklist-score" id="seo-checklist-score">0/4</span>
+          </div>
+
+          <div class="checklist-group-label">Обязательно</div>
+          <div class="checklist-items" id="seo-checklist-blocking">
+            <div class="check-item" data-check="cover">
+              <span class="check-icon"></span>
+              <div class="check-body">
+                <span class="check-label">Обложка</span>
+                <span class="check-value" id="seo-chk-cover">не задана</span>
+              </div>
+            </div>
+            <div class="check-item" data-check="title">
+              <span class="check-icon"></span>
+              <div class="check-body">
+                <span class="check-label">Meta Title</span>
+                <span class="check-value" id="seo-chk-title">не задан</span>
+              </div>
+            </div>
+            <div class="check-item" data-check="desc">
+              <span class="check-icon"></span>
+              <div class="check-body">
+                <span class="check-label">Meta Description</span>
+                <span class="check-value" id="seo-chk-desc">не задан</span>
+              </div>
+            </div>
+            <div class="check-item" data-check="slug">
+              <span class="check-icon"></span>
+              <div class="check-body">
+                <span class="check-label">URL (slug)</span>
+                <span class="check-value" id="seo-chk-slug">не задан</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="checklist-group-label">Рекомендуется</div>
+          <div class="checklist-items" id="seo-checklist-warning">
+            <div class="check-item" data-check="title-len">
+              <span class="check-icon"></span>
+              <div class="check-body">
+                <span class="check-label">Длина Title 50–60</span>
+                <span class="check-value" id="seo-chk-title-len">—</span>
+              </div>
+            </div>
+            <div class="check-item" data-check="desc-len">
+              <span class="check-icon"></span>
+              <div class="check-body">
+                <span class="check-label">Длина Description 150–160</span>
+                <span class="check-value" id="seo-chk-desc-len">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="checklist-progress">
+            <div class="checklist-progress-bar" id="seo-checklist-progress"></div>
+          </div>
+        </div>
+
+        <div class="sources-checklist-block" id="sources-checklist" data-controller-tab="advanced">
+          <div class="checklist-head">
+            <span class="checklist-title">Контроль</span>
+            <span class="checklist-score" id="sources-checklist-score">0/2</span>
+          </div>
+
+          <div class="checklist-group-label">Контент</div>
+          <div class="checklist-items">
+            <div class="check-item" data-check="sources">
+              <span class="check-icon">✕</span>
+              <div class="check-body">
+                <span class="check-label">Сноски</span>
+                <span class="check-value" id="src-chk-sources">0 добавлено</span>
+              </div>
+            </div>
+            <div class="check-item is-warn" data-check="changelog">
+              <span class="check-icon">!</span>
+              <div class="check-body">
+                <span class="check-label">Changelog</span>
+                <span class="check-value" id="src-chk-changelog">пусто</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="checklist-progress">
+            <div class="checklist-progress-bar" id="sources-checklist-progress"></div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- ==================== ЦЕНТР ==================== -->
+    <main class="editor-main">
+      <header class="editor-topbar">
+        <button class="icon-btn" title="Закрыть редактор">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="breadcrumbs">
+          <a href="#">TeamHub</a>
+          <span class="sep">/</span>
+          <a href="#">Гайды</a>
+          <span class="sep">/</span>
+          <span class="current">Редактирование</span>
+        </div>
+
+        <div class="topbar-spacer"></div>
+
+        <div class="topbar-actions">
+          <button class="btn btn-secondary">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <span class="label">Превью</span>
+          </button>
+
+          <button class="btn btn-primary">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+            Опубликовать
+          </button>
+        </div>
+      </header>
+
+      <div class="editor-main-content">
+        <div class="main-tabs">
+          <button class="main-tab is-active" data-tab="main">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            Основное
+          </button>
+          <button class="main-tab" data-tab="seo">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            SEO
+          </button>
+          <button class="main-tab" data-tab="advanced">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+            Расширенные
+            <span class="badge">4</span>
+          </button>
+        </div>
+
+        <!-- Страница: Основное — содержимое удалено -->
+        <div class="tab-page is-active" data-page="main">
+          <!-- ========================================== -->
+          <!-- ВСТАВЛЯТЬ КОД СТРАНИЦЫ "ОСНОВНОЕ" СЮДА     -->
+          <!-- ========================================== -->
+        </div>
+
+        <!-- Страница: SEO — содержимое удалено -->
+        <div class="tab-page" data-page="seo">
+          <!-- ========================================== -->
+          <!-- ВСТАВЛЯТЬ КОД СТРАНИЦЫ "SEO" СЮДА          -->
+          <!-- ========================================== -->
+        </div>
+
+        <!-- Страница: Расширенные — содержимое удалено -->
+        <div class="tab-page" data-page="advanced">
+          <!-- ========================================== -->
+          <!-- ВСТАВЛЯТЬ КОД СТРАНИЦЫ "РАСШИРЕННЫЕ" СЮДА  -->
+          <!-- ========================================== -->
+        </div>
+
+      </div>
+    </main>
+
+    <!-- ==================== ПРАВАЯ КОЛОНКА ==================== -->
+    <aside class="editor-side">
+      <button class="panel-toggle toggle-right" id="toggleRightBtn" title="Свернуть/Развернуть правую панель">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+
+      <div class="editor-side-scroll">
+        <section class="side-section">
+          <div class="side-title">
+            <span class="side-title-group">
+              Статус
+              <span class="status-help-trigger" tabindex="0">?</span>
+              <div class="status-popover">
+                <div class="status-popover-list">
+                  <div class="status-popover-item">
+                    <span class="status-popover-dot is-draft"></span>
+                    <div><b>Черновик</b> — новая статья</div>
+                  </div>
+                  <div class="status-popover-item">
+                    <span class="status-popover-dot is-upgrade"></span>
+                    <div><b>Апгрейд</b> — статью следует довести до актуальности</div>
+                  </div>
+                  <div class="status-popover-item">
+                    <span class="status-popover-dot is-rejected"></span>
+                    <div><b>Отказано</b> — нарушения перечня правил</div>
+                  </div>
+                </div>
+              </div>
+            </span>
+          </div>
+          <div class="status-card">
+            <div class="status-row">
+              <span class="status-dot is-draft"></span>
+              <span>Черновик</span>
+            </div>
+            <div class="status-help">Виден только вам и модераторам контекста.</div>
+          </div>
+        </section>
+
+        <section class="side-section">
+          <div class="side-title">Каналы публикации</div>
+          <div class="channel-list">
+            <label class="channel-item">
+              <input type="checkbox" onchange="toggleChannel(this)">
+              <span class="channel-check">✓</span>
+              <span class="channel-name">Публичный сайт</span>
+              <span class="channel-badge">Site</span>
+            </label>
+            <label class="channel-item">
+              <input type="checkbox" onchange="toggleChannel(this)">
+              <span class="channel-check">✓</span>
+              <span class="channel-name">GroupHub</span>
+              <span class="channel-badge">Public</span>
+            </label>
+            <label class="channel-item is-active">
+              <input type="checkbox" onchange="toggleChannel(this)" checked>
+              <span class="channel-check">✓</span>
+              <span class="channel-name">TeamHub</span>
+              <span class="channel-badge">Guild</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="side-section">
+          <div class="side-title">Параметры публикации</div>
+          <div class="pub-block">
+            <div class="pub-field">
+              <span class="pub-label">Платформы</span>
+              <div class="platform-grid">
+                <label class="platform-chip is-active">
+                  <input type="checkbox" name="platform" value="pc" checked onchange="togglePlatform(this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                  </svg>
+                  <span>PC</span>
+                </label>
+                <label class="platform-chip">
+                  <input type="checkbox" name="platform" value="mobile" onchange="togglePlatform(this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="5" y="2" width="14" height="20" rx="2"></rect>
+                    <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                  </svg>
+                  <span>Mobile</span>
+                </label>
+                <label class="platform-chip">
+                  <input type="checkbox" name="platform" value="xbox" onchange="togglePlatform(this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 8l8 8M16 8l-8 8"></path>
+                  </svg>
+                  <span>Xbox</span>
+                </label>
+                <label class="platform-chip">
+                  <input type="checkbox" name="platform" value="steamdeck" onchange="togglePlatform(this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="6" width="20" height="12" rx="6"></rect>
+                    <circle cx="6" cy="12" r="1.5"></circle>
+                    <circle cx="18" cy="12" r="1.5"></circle>
+                  </svg>
+                  <span>Steam Deck</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="pub-field">
+              <span class="pub-label">Игра</span>
+              <div class="game-dropdown" id="gameDropdown">
+                <button type="button" class="game-trigger" id="gameTrigger">
+                  <span id="gameSelectedText">Cyberpunk 2077</span>
+                  <span class="game-trigger-arrow">▾</span>
+                </button>
+                <div class="game-menu">
+                  <div class="game-search-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" class="game-search-input" id="gameSearchInput" placeholder="Поиск игры...">
+                  </div>
+                  <div class="game-options" id="gameOptions">
+                    <div class="game-option is-selected" data-value="cyberpunk-2077">Cyberpunk 2077</div>
+                    <div class="game-option" data-value="dota-2">Dota 2</div>
+                    <div class="game-option" data-value="cs-2">Counter-Strike 2</div>
+                    <div class="game-option" data-value="elden-ring">Elden Ring</div>
+                    <div class="game-option" data-value="genshin-impact">Genshin Impact</div>
+                    <div class="game-option" data-value="baldurs-gate-3">Baldur's Gate 3</div>
+                    <div class="game-option" data-value="helldivers-2">Helldivers 2</div>
+                    <div class="game-option" data-value="path-of-exile-2">Path of Exile 2</div>
+                  </div>
+                  <div class="game-empty" id="gameEmpty">Игры не найдены</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pub-field">
+              <span class="pub-label">Версия игры</span>
+              <input type="text" class="pub-input" value="2.12" placeholder="Например: 1.0.4">
+            </div>
+
+            <div class="pub-field">
+              <span class="pub-label">Категория</span>
+              <div class="select-wrapper">
+                <select class="select-input" id="post-category">
+                  <option value="tutorials" selected>Обучающие</option>
+                  <option value="database">База данных</option>
+                  <option value="updates">Обновления</option>
+                  <option value="technical">Технические</option>
+                </select>
+                <span class="select-arrow">▾</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="side-section">
+          <div class="side-title">
+            Теги
+            <span class="toggle-mini">Авто</span>
+          </div>
+          <div class="tags-wrapper" id="tagsWrapper">
+            <span class="tag-chip">#гайд <button type="button" class="tag-remove">&times;</button></span>
+            <span class="tag-chip">#сборка <button type="button" class="tag-remove">&times;</button></span>
+            <input type="text" class="tags-input" id="tagsInput" placeholder="Введите тег и нажмите Enter...">
+          </div>
+        </section>
+
+        <section class="side-section">
+          <div class="side-title">Соавторы</div>
+          <div class="coauthor-row">
+            <span class="coauthor-avatar">ВЫ</span>
+            <span class="coauthor-name">Вы</span>
+            <span class="coauthor-role">Автор</span>
+          </div>
+          <button type="button" class="add-coauthor">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Пригласить соавтора
+          </button>
+        </section>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<script>
+  /* ============================================================
+     0. ПЕРЕКЛЮЧЕНИЕ СТРАНИЦ
+     ============================================================ */
+  (function () {
+    const tabs = document.querySelectorAll('.main-tab');
+    const pages = document.querySelectorAll('.tab-page');
+    const controllers = {
+      main: document.getElementById('article-checklist'),
+      seo: document.getElementById('seo-checklist'),
+      advanced: document.getElementById('sources-checklist')
+    };
+
+    function activateTab(name) {
+      if (!controllers[name]) return;
+
+      tabs.forEach(function (t) {
+        t.classList.toggle('is-active', t.dataset.tab === name);
+      });
+      pages.forEach(function (p) {
+        p.classList.toggle('is-active', p.dataset.page === name);
+      });
+      Object.keys(controllers).forEach(function (key) {
+        if (controllers[key]) {
+          controllers[key].classList.toggle('is-controller-active', key === name);
+        }
+      });
+
+      if (name === 'seo' && typeof window.runSeoChecks === 'function') {
+        window.runSeoChecks();
+      }
+      if (name === 'advanced') {
+        if (window.ChecklistController &&
+            typeof window.ChecklistController.update === 'function') {
+          window.ChecklistController.update();
+        }
+        if (typeof window.advRenderAll === 'function') {
+          window.advRenderAll();
+        }
+      }
+    }
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        activateTab(tab.dataset.tab);
+      });
+    });
+
+    Object.keys(controllers).forEach(function (key) {
+      const el = controllers[key];
+      if (!el) return;
+      el.addEventListener('click', function () {
+        activateTab(key);
+      });
+    });
+
+    window.activateEditorTab = activateTab;
+  })();
+
+  /* ============================================================
+     1. ТЕГИ
+     ============================================================ */
+  const tagsWrapper = document.getElementById('tagsWrapper');
+  const tagsInput = document.getElementById('tagsInput');
+
+  if (tagsWrapper && tagsInput) {
+    tagsWrapper.addEventListener('click', (e) => {
+      if (e.target.classList.contains('tag-remove')) {
+        e.target.closest('.tag-chip').remove();
+      } else {
+        tagsInput.focus();
+      }
+    });
+
+    tagsInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const raw = tagsInput.value.trim().replace(/^#+/, '');
+        if (!raw) return;
+        const chip = document.createElement('span');
+        chip.className = 'tag-chip';
+        chip.innerHTML = `#${raw} <button type="button" class="tag-remove">&times;</button>`;
+        tagsWrapper.insertBefore(chip, tagsInput);
+        tagsInput.value = '';
+      }
+    });
+  }
+
+  /* ============================================================
+     2. КАНАЛЫ / ПЛАТФОРМЫ
+     ============================================================ */
+  function toggleChannel(input) {
+    const item = input.closest('.channel-item');
+    if (item) item.classList.toggle('is-active', input.checked);
+  }
+
+  function togglePlatform(input) {
+    const chip = input.closest('.platform-chip');
+    if (chip) chip.classList.toggle('is-active', input.checked);
+  }
+
+  /* ============================================================
+     3. ВЫБОР ИГРЫ
+     ============================================================ */
+  const gameDropdown = document.getElementById('gameDropdown');
+  const gameTrigger = document.getElementById('gameTrigger');
+  const gameSelectedText = document.getElementById('gameSelectedText');
+  const gameSearchInput = document.getElementById('gameSearchInput');
+  const gameOptions = Array.from(document.querySelectorAll('.game-option'));
+  const gameEmpty = document.getElementById('gameEmpty');
+
+  if (gameTrigger && gameDropdown) {
+    gameTrigger.addEventListener('click', () => {
+      const isOpen = gameDropdown.classList.toggle('is-open');
+      if (isOpen && gameSearchInput) {
+        gameSearchInput.value = '';
+        filterGames('');
+        setTimeout(() => gameSearchInput.focus(), 50);
+      }
+    });
+
+    function filterGames(query) {
+      const normalized = query.trim().toLowerCase();
+      let visibleCount = 0;
+      gameOptions.forEach(option => {
+        const match = option.textContent.toLowerCase().includes(normalized);
+        option.style.display = match ? 'flex' : 'none';
+        if (match) visibleCount++;
+      });
+      if (gameEmpty) gameEmpty.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    if (gameSearchInput) {
+      gameSearchInput.addEventListener('input', (e) => filterGames(e.target.value));
+    }
+
+    gameOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        gameOptions.forEach(opt => opt.classList.remove('is-selected'));
+        option.classList.add('is-selected');
+        if (gameSelectedText) gameSelectedText.textContent = option.textContent;
+        gameTrigger.classList.remove('is-placeholder');
+        gameDropdown.classList.remove('is-open');
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!gameDropdown.contains(e.target)) {
+        gameDropdown.classList.remove('is-open');
+      }
+    });
+  }
+
+  /* ============================================================
+     4. СВОРАЧИВАНИЕ ПАНЕЛЕЙ
+     ============================================================ */
+  const toggleLeftBtn = document.getElementById('toggleLeftBtn');
+  const toggleRightBtn = document.getElementById('toggleRightBtn');
+  const editorBody = document.getElementById('editorBody');
+
+  if (toggleLeftBtn && editorBody) {
+    toggleLeftBtn.addEventListener('click', () => {
+      editorBody.classList.toggle('hide-left');
+    });
+  }
+
+  if (toggleRightBtn && editorBody) {
+    toggleRightBtn.addEventListener('click', () => {
+      editorBody.classList.toggle('hide-right');
+    });
+  }
+
+  /* ============================================================
+     5. ЧЕК-КОНТРОЛЛЕР (Основное)
+     ============================================================ */
+  (function () {
+    const CHECKS = ['article-length', 'headings', 'paragraphs', 'image', 'video'];
+    const ALLOWED = ['ok', 'warn', 'fail'];
+    const ROOT = '#article-checklist';
+
+    const state = {};
+    CHECKS.forEach(k => state[k] = { status: 'warn', value: '—' });
+
+    function setCheck(key, status, value) {
+      if (!CHECKS.includes(key)) return;
+      const st = ALLOWED.includes(status) ? status : 'warn';
+      state[key] = { status: st, value: value != null ? value : state[key].value };
+
+      const item = document.querySelector(ROOT + ' .check-item[data-check="' + key + '"]');
+      if (!item) return;
+
+      item.classList.remove('is-ok', 'is-warn', 'is-fail');
+      item.classList.add('is-' + st);
+
+      item.querySelector('.check-icon').textContent =
+        st === 'ok' ? '✓' : (st === 'warn' ? '!' : '✕');
+
+      const valEl = item.querySelector('.check-value');
+      if (valEl && value != null) valEl.textContent = value;
+
+      updateScore();
+    }
+
+    function updateScore() {
+      let ok = 0;
+      CHECKS.forEach(k => { if (state[k].status === 'ok') ok++; });
+
+      const total = CHECKS.length;
+      const pct = Math.round((ok / total) * 100);
+
+      const scoreEl = document.getElementById('article-checklist-score');
+      if (scoreEl) {
+        scoreEl.textContent = pct + '%';
+        scoreEl.classList.remove('is-warn', 'is-fail');
+        if (pct >= 80) { /* default green */ }
+        else if (pct >= 40) scoreEl.classList.add('is-warn');
+        else scoreEl.classList.add('is-fail');
+      }
+
+      const bar = document.getElementById('article-checklist-progress');
+      if (bar) {
+        bar.style.width = pct + '%';
+        bar.style.backgroundColor =
+          pct >= 80 ? 'var(--success-green)' :
+          pct >= 40 ? 'var(--accent-yellow)' :
+                      'var(--danger-red)';
+      }
+    }
+
+    window.ArticleChecklistController = {
+      setCheck,
+      setAll(obj) {
+        if (!obj || typeof obj !== 'object') return;
+        Object.keys(obj).forEach(k => {
+          const v = obj[k];
+          if (v && typeof v === 'object') setCheck(k, v.status, v.value);
+        });
+      },
+      reset() {
+        CHECKS.forEach(k => setCheck(k, 'warn', '—'));
+      },
+      getState() { return JSON.parse(JSON.stringify(state)); }
+    };
+
+    updateScore();
+  })();
+
+  /* ============================================================
+     6. SEO-КОНТРОЛЛЕР
+     ============================================================ */
+  (function () {
+    const ROOT = '#seo-checklist';
+
+    function setCheck(key, status, value) {
+      const item = document.querySelector(ROOT + ' .check-item[data-check="' + key + '"]');
+      if (!item) return;
+
+      item.classList.remove('is-ok', 'is-warn', 'is-fail');
+      item.classList.add('is-' + status);
+
+      const icon = item.querySelector('.check-icon');
+      if (icon) icon.textContent =
+        status === 'ok' ? '✓' : (status === 'warn' ? '!' : '✕');
+
+      const val = item.querySelector('.check-value');
+      if (val && typeof value === 'string') val.textContent = value;
+    }
+
+    function runSeoChecks() {
+      const slugEl  = document.getElementById('post-slug');
+      const titleEl = document.getElementById('meta-title');
+      const descEl  = document.getElementById('meta-desc');
+      const coverEl = document.getElementById('cover-image');
+
+      const slug  = slugEl  ? slugEl.value.trim()  : '';
+      const title = titleEl ? titleEl.value.trim() : '';
+      const desc  = descEl  ? descEl.value.trim()  : '';
+      const cover = coverEl ? coverEl.value.trim() : '';
+
+      const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+      const slugOk = slugRegex.test(slug) && slug.length >= 3 && slug.length <= 80;
+
+      setCheck('slug', slugOk ? 'ok' : 'fail',
+        !slug ? 'пусто' : slugOk ? '/' + slug + '/' : 'некорректный');
+
+      setCheck('title', title.length >= 20 ? 'ok' : 'fail',
+        title.length === 0 ? 'не задан' : title.length + ' симв.');
+
+      setCheck('desc', desc.length >= 50 ? 'ok' : 'fail',
+        desc.length === 0 ? 'не задан' : desc.length + ' симв.');
+
+      setCheck('cover', cover ? 'ok' : 'fail',
+        cover ? 'задана' : 'не задана');
+
+      if (title.length >= 50 && title.length <= 60) {
+        setCheck('title-len', 'ok', title.length + ' / 50–60');
+      } else if (title.length >= 35 && title.length <= 70) {
+        setCheck('title-len', 'warn', title.length + ' / 50–60');
+      } else {
+        setCheck('title-len', 'fail', title.length + ' / 50–60');
+      }
+
+      if (desc.length >= 150 && desc.length <= 160) {
+        setCheck('desc-len', 'ok', desc.length + ' / 150–160');
+      } else if (desc.length >= 100 && desc.length <= 180) {
+        setCheck('desc-len', 'warn', desc.length + ' / 150–160');
+      } else {
+        setCheck('desc-len', 'fail', desc.length + ' / 150–160');
+      }
+
+      const blocking = document.querySelectorAll('#seo-checklist-blocking .check-item');
+      const warnings = document.querySelectorAll('#seo-checklist-warning .check-item');
+
+      let blockingOk = 0;
+      blocking.forEach(function (it) {
+        if (it.classList.contains('is-ok')) blockingOk++;
+      });
+
+      let warnOk = 0;
+      warnings.forEach(function (it) {
+        if (it.classList.contains('is-ok')) warnOk += 1;
+        else if (it.classList.contains('is-warn')) warnOk += 0.5;
+      });
+
+      const pct = Math.round(((blockingOk + warnOk * 0.5) / 6) * 100);
+      const scoreEl = document.getElementById('seo-checklist-score');
+      if (!scoreEl) return;
+
+      scoreEl.textContent = blockingOk + '/4';
+      scoreEl.classList.remove('is-warn', 'is-fail');
+      if (blockingOk >= 2 && blockingOk < 4) scoreEl.classList.add('is-warn');
+      else if (blockingOk < 2) scoreEl.classList.add('is-fail');
+
+      const bar = document.getElementById('seo-checklist-progress');
+      if (bar) {
+        bar.style.width = pct + '%';
+        bar.style.backgroundColor =
+          pct >= 80 ? 'var(--success-green)' :
+          pct >= 50 ? 'var(--accent-yellow)' :
+                      'var(--danger-red)';
+      }
+    }
+
+    function bindSeoChecklist() {
+      ['post-slug', 'meta-title', 'meta-desc', 'cover-image'].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', runSeoChecks);
+      });
+      runSeoChecks();
+    }
+
+    window.runSeoChecks = runSeoChecks;
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bindSeoChecklist);
+    } else {
+      bindSeoChecklist();
+    }
+  })();
+
+  /* ============================================================
+     7. КОНТРОЛЬ (Источники / Changelog) — левая колонка
+     ============================================================ */
+  (function () {
+    let citations = [];
+    let changelogs = [];
+
+    function updateChecklist() {
+      const chkSrc = document.querySelector('#sources-checklist .check-item[data-check="sources"]');
+      const srcVal = document.getElementById('src-chk-sources');
+      if (chkSrc) {
+        const hasSrc = citations.length > 0;
+        chkSrc.classList.remove('is-ok', 'is-warn', 'is-fail');
+        chkSrc.classList.add(hasSrc ? 'is-ok' : 'is-fail');
+        chkSrc.querySelector('.check-icon').textContent = hasSrc ? '✓' : '✕';
+        if (srcVal) srcVal.textContent = citations.length + ' добавлено';
+      }
+
+      const chkCl = document.querySelector('#sources-checklist .check-item[data-check="changelog"]');
+      const clVal = document.getElementById('src-chk-changelog');
+      if (chkCl) {
+        const hasCl = changelogs.length > 0;
+        chkCl.classList.remove('is-ok', 'is-warn', 'is-fail');
+        chkCl.classList.add(hasCl ? 'is-ok' : 'is-warn');
+        chkCl.querySelector('.check-icon').textContent = hasCl ? '✓' : '!';
+        if (clVal) clVal.textContent = hasCl ? changelogs.length + ' записей' : 'пусто';
+      }
+
+      let score = 0;
+      if (citations.length > 0) score++;
+      if (changelogs.length > 0) score++;
+
+      const scoreTxt = document.getElementById('sources-checklist-score');
+      if (scoreTxt) {
+        scoreTxt.textContent = score + '/2';
+        scoreTxt.classList.remove('is-warn', 'is-fail');
+        if (score === 1) scoreTxt.classList.add('is-warn');
+        else if (score === 0) scoreTxt.classList.add('is-fail');
+      }
+
+      const pct = (score / 2) * 100;
+      const bar = document.getElementById('sources-checklist-progress');
+      if (bar) {
+        bar.style.width = pct + '%';
+        bar.style.backgroundColor =
+          pct === 100 ? 'var(--success-green)' :
+          pct > 0     ? 'var(--accent-yellow)' :
+                        'var(--danger-red)';
+      }
+    }
+
+    window.ChecklistController = {
+      setCitations(arr) { citations = Array.isArray(arr) ? arr : []; updateChecklist(); },
+      setChangelogs(arr) { changelogs = Array.isArray(arr) ? arr : []; updateChecklist(); },
+      getCitations() { return citations; },
+      getChangelogs() { return changelogs; },
+      update: updateChecklist
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', updateChecklist);
+    } else {
+      updateChecklist();
+    }
+  })();
+
+  /* ============================================================
+     8. SEO PAGE — превью и счётчики
+     ============================================================ */
+  (function () {
+    const SITE_DOMAIN      = 'yoursite.com';
+    const SITE_NAME        = 'TeamHub';
+    const ARTICLE_CATEGORY = 'TEAMHUB';
+    const ARTICLE_TITLE    = 'Обзор ключевых механик и ротации';
+    const ARTICLE_EXCERPT  = 'В этом руководстве разобраны базовые принципы позиционирования и тайминги способностей, которые помогут стабильно проходить высокоуровневый контент без потери темпа.';
+
+    function truncate(str, n) {
+      if (str.length <= n) return str;
+      return str.slice(0, n - 1).trim() + '…';
+    }
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+    }
+
+    function onFieldChange() {
+      updateCounters();
+      updateBentoPreview();
+      updateGooglePreview();
+      updateSocialPreview();
+      updateDiscordPreview();
+      updateCoverThumb();
+    }
+
+    function onSlugInput() {
+      const input = document.getElementById('post-slug');
+      if (!input) return;
+      const clean = input.value
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      if (clean !== input.value) {
+        const pos = input.selectionStart;
+        input.value = clean;
+        input.setSelectionRange(pos, pos);
+      }
+      onFieldChange();
+    }
+
+    function updateCounters() {
+      const t = document.getElementById('meta-title');
+      const d = document.getElementById('meta-desc');
+      if (t) setCounter('counter-title', t.value.length, 50, 60);
+      if (d) setCounter('counter-desc', d.value.length, 150, 160);
+    }
+    function setCounter(id, len, min, max) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = len + '/' + max;
+      el.classList.remove('is-ok', 'is-warn', 'is-fail');
+      if (len >= min && len <= max) el.classList.add('is-ok');
+      else if (len >= min * 0.7 && len <= max * 1.2) el.classList.add('is-warn');
+      else el.classList.add('is-fail');
+    }
+
+    function updateBentoPreview() {
+      const title = (document.getElementById('meta-title')?.value || '').trim();
+      const desc  = (document.getElementById('meta-desc')?.value  || '').trim();
+      const cover = (document.getElementById('cover-image')?.value || '').trim();
+
+      const bentoImage = document.getElementById('bento-image');
+      if (bentoImage) {
+        bentoImage.style.backgroundImage = cover ? `url('${cover}')` : 'none';
+      }
+      const cat = document.getElementById('bento-category');
+      if (cat) cat.textContent = ARTICLE_CATEGORY;
+      const bt = document.getElementById('bento-title');
+      if (bt) bt.textContent = title || 'Заголовок не задан';
+      const bd = document.getElementById('bento-desc');
+      if (bd) bd.textContent = desc || 'Описание не задано.';
+    }
+
+    function updateGooglePreview() {
+      const title = (document.getElementById('meta-title')?.value || '').trim();
+      const desc  = (document.getElementById('meta-desc')?.value  || '').trim();
+      const slug  = (document.getElementById('post-slug')?.value  || '').trim();
+
+      const urlEl = document.getElementById('serp-url');
+      if (urlEl) urlEl.textContent = SITE_DOMAIN + ' › teamhub › guides › ' + (slug || '…');
+
+      const serpTitle = document.getElementById('serp-title');
+      if (serpTitle) {
+        if (title) { serpTitle.textContent = title; serpTitle.classList.remove('serp-placeholder'); }
+        else { serpTitle.textContent = 'Заголовок не задан'; serpTitle.classList.add('serp-placeholder'); }
+      }
+      const serpDesc = document.getElementById('serp-desc');
+      if (serpDesc) {
+        if (desc) { serpDesc.textContent = desc; serpDesc.classList.remove('serp-placeholder'); }
+        else { serpDesc.textContent = 'Описание не задано — Google сгенерирует из текста.'; serpDesc.classList.add('serp-placeholder'); }
+      }
+    }
+
+    function switchSocial(type) {
+      document.querySelectorAll('.social-tab').forEach(t => {
+        t.classList.toggle('is-active', t.dataset.social === type);
+      });
+      const fb = document.getElementById('social-fb');
+      const tw = document.getElementById('social-tw');
+      const dc = document.getElementById('social-dc');
+      if (fb) fb.style.display = type === 'fb' ? '' : 'none';
+      if (tw) tw.style.display = type === 'tw' ? '' : 'none';
+      if (dc) dc.style.display = type === 'dc' ? '' : 'none';
+    }
+
+    function updateSocialPreview() {
+      const title = (document.getElementById('meta-title')?.value || '').trim() || 'Заголовок не задан';
+      const desc  = (document.getElementById('meta-desc')?.value  || '').trim() || 'Описание не задано.';
+      const cover = (document.getElementById('cover-image')?.value || '').trim();
+
+      const fbT = document.getElementById('fb-title'); if (fbT) fbT.textContent = title;
+      const fbD = document.getElementById('fb-desc');  if (fbD) fbD.textContent = desc;
+      const fbDom = document.getElementById('fb-domain'); if (fbDom) fbDom.textContent = SITE_DOMAIN.toUpperCase();
+      setBgImage('fb-image', cover, 'Изображение не задано');
+
+      const twT = document.getElementById('tw-title'); if (twT) twT.textContent = title;
+      const twD = document.getElementById('tw-desc');  if (twD) twD.textContent = truncate(desc, 130);
+      const twDom = document.getElementById('tw-domain'); if (twDom) twDom.textContent = SITE_DOMAIN;
+      setBgImage('tw-image', cover, 'Изображение не задано');
+    }
+
+    function updateDiscordPreview() {
+      const title = (document.getElementById('meta-title')?.value || '').trim() || 'Заголовок не задан';
+      const desc  = (document.getElementById('meta-desc')?.value  || '').trim() || 'Описание не задано.';
+      const cover = (document.getElementById('cover-image')?.value || '').trim();
+
+      const sn = document.getElementById('dc-site-name'); if (sn) sn.textContent = SITE_NAME;
+      const dt = document.getElementById('dc-title'); if (dt) dt.textContent = title;
+      const dd = document.getElementById('dc-desc');  if (dd) dd.textContent = desc;
+
+      const img = document.getElementById('dc-image');
+      if (img) {
+        if (cover) { img.style.backgroundImage = `url('${cover}')`; img.textContent = ''; }
+        else { img.style.backgroundImage = 'none'; img.textContent = 'нет'; }
+      }
+    }
+
+    function setBgImage(id, url, emptyText) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (url) { el.style.backgroundImage = `url('${url}')`; el.textContent = ''; }
+      else { el.style.backgroundImage = 'none'; el.textContent = emptyText || ''; }
+    }
+
+    function updateCoverThumb() {
+      const url = (document.getElementById('cover-image')?.value || '').trim();
+      const thumb = document.getElementById('cover-thumb');
+      if (!thumb) return;
+      if (url) {
+        thumb.innerHTML = `<img src="${escapeHtml(url)}" alt="" onerror="this.style.display='none'">`;
+      } else {
+        thumb.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
+      }
+    }
+
+    function takeFromTitle() {
+      const el = document.getElementById('meta-title');
+      if (el) { el.value = truncate(ARTICLE_TITLE, 60); onFieldChange(); }
+    }
+    function takeFromExcerpt() {
+      const el = document.getElementById('meta-desc');
+      if (el) { el.value = truncate(ARTICLE_EXCERPT, 160); onFieldChange(); }
+    }
+    function autoSlug() {
+      const map = {
+        'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'e','ж':'zh','з':'z','и':'i','й':'y',
+        'к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f',
+        'х':'h','ц':'ts','ч':'ch','ш':'sh','щ':'sch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya'
+      };
+      const slug = ARTICLE_TITLE.toLowerCase()
+        .split('').map(c => map[c] !== undefined ? map[c] : c).join('')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 60);
+      const el = document.getElementById('post-slug');
+      if (el) { el.value = slug || 'slug-stati'; onFieldChange(); }
+    }
+    function pickCover() {
+      const el = document.getElementById('cover-image');
+      if (!el) return;
+      const url = prompt('URL обложки (1200×630):', el.value);
+      if (url !== null) { el.value = url.trim(); onFieldChange(); }
+    }
+
+    window.onFieldChange = onFieldChange;
+    window.onSlugInput = onSlugInput;
+    window.switchSocial = switchSocial;
+    window.takeFromTitle = takeFromTitle;
+    window.takeFromExcerpt = takeFromExcerpt;
+    window.autoSlug = autoSlug;
+    window.pickCover = pickCover;
+
+    function initSeoPage() {
+      if (document.getElementById('meta-title')) {
+        onFieldChange();
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSeoPage);
+    } else {
+      initSeoPage();
+    }
+  })();
+
+  /* ============================================================
+     9. ADVANCED PAGE — Источники и Changelog (UI + рендер)
+     ============================================================ */
+  (function () {
+    let advCitations = [];
+    let advChangelogs = [];
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+    }
+    function todayRu() {
+      return new Date().toLocaleDateString('ru-RU', {
+        day: 'numeric', month: 'short', year: 'numeric'
+      }).replace(' г.', '');
+    }
+
+    const accessEl = document.getElementById('adv-cite-access');
+    if (accessEl) accessEl.value = todayRu();
+
+    function syncChecklist() {
+      if (window.ChecklistController) {
+        window.ChecklistController.setCitations(advCitations.slice());
+        window.ChecklistController.setChangelogs(advChangelogs.slice());
+      }
+    }
+
+    function advToggleCiteDialog(show) {
+      const dialog = document.getElementById('adv-cite-dialog');
+      if (!dialog) return;
+      if (show) {
+        dialog.classList.add('is-open');
+        ['adv-cite-auto-url','adv-cite-author','adv-cite-title','adv-cite-website','adv-cite-url','adv-cite-date'].forEach(function (id) {
+          const el = document.getElementById(id);
+          if (el) el.value = '';
+        });
+        if (accessEl) accessEl.value = todayRu();
+        document.querySelectorAll('.adv-cite-tab').forEach(function (t) {
+          t.classList.toggle('is-active', t.dataset.citeTab === 'auto');
+        });
+        document.querySelectorAll('.adv-cite-pane').forEach(function (p) {
+          p.classList.remove('is-active');
+        });
+        const autoPane = document.getElementById('adv-pane-auto');
+        if (autoPane) autoPane.classList.add('is-active');
+      } else {
+        dialog.classList.remove('is-open');
+      }
+    }
+
+    function advSwitchCiteTab(tab, btnEl) {
+      document.querySelectorAll('.adv-cite-tab').forEach(function (t) {
+        t.classList.toggle('is-active', t === btnEl);
+      });
+      document.querySelectorAll('.adv-cite-pane').forEach(function (p) {
+        p.classList.remove('is-active');
+      });
+      const pane = document.getElementById('adv-pane-' + tab);
+      if (pane) pane.classList.add('is-active');
+    }
+
+    function advSimulateAutoGenerate() {
+      const urlInput = document.getElementById('adv-cite-auto-url');
+      if (!urlInput) return;
+      const url = urlInput.value.trim();
+      if (!url) { alert('Введите URL'); return; }
+
+      let domain = '';
+      try { domain = new URL(url).hostname.replace('www.', ''); }
+      catch (e) { domain = 'Неизвестный сайт'; }
+
+      const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+      setVal('adv-cite-url', url);
+      setVal('adv-cite-title', 'Автоматически извлеченный заголовок');
+      setVal('adv-cite-website', domain);
+      setVal('adv-cite-author', 'Редакция ' + domain);
+
+      const manualTab = document.querySelector('.adv-cite-tab[data-cite-tab="manual"]');
+      if (manualTab) advSwitchCiteTab('manual', manualTab);
+    }
+
+    function advSaveCitation() {
+      const getVal = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value.trim() : '';
+      };
+      const title = getVal('adv-cite-title');
+      const url = getVal('adv-cite-url');
+      const author = getVal('adv-cite-author');
+      const website = getVal('adv-cite-website');
+      const date = getVal('adv-cite-date');
+      const access = getVal('adv-cite-access');
+
+      if (!title) {
+        alert('Заголовок обязателен для заполнения.');
+        const manualTab = document.querySelector('.adv-cite-tab[data-cite-tab="manual"]');
+        if (manualTab) advSwitchCiteTab('manual', manualTab);
+        return;
+      }
+
+      advCitations.push({ title, url, author, website, date, access });
+      advToggleCiteDialog(false);
+      renderAdvCitations();
+      syncChecklist();
+    }
+
+    function removeAdvCitation(index) {
+      advCitations.splice(index, 1);
+      renderAdvCitations();
+      syncChecklist();
+    }
+
+    function renderAdvCitations() {
+      const list = document.getElementById('adv-references');
+      if (!list) return;
+
+      if (advCitations.length === 0) {
+        list.innerHTML = `<div class="adv-empty-state">Список примечаний пуст. Нажмите «Добавить источник».</div>`;
+        return;
+      }
+
+      list.innerHTML = advCitations.map(function (c, i) {
+        const titleHtml = c.url
+          ? `<a href="${escapeHtml(c.url)}" target="_blank">${escapeHtml(c.title)}</a>`
+          : escapeHtml(c.title);
+
+        const chips = [];
+        if (c.author) {
+          chips.push(`<span class="adv-meta-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${escapeHtml(c.author)}</span>`);
+        }
+        if (c.website) {
+          chips.push(`<span class="adv-meta-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>${escapeHtml(c.website)}</span>`);
+        }
+        if (c.date) {
+          chips.push(`<span class="adv-meta-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>${escapeHtml(c.date)}</span>`);
+        }
+
+        const metaHtml = chips.length
+          ? `<div class="adv-modern-ref-meta">${chips.join('')}</div>`
+          : '';
+
+        return `
+          <div class="adv-modern-ref-item">
+            <div class="adv-modern-ref-num">${i + 1}</div>
+            <div class="adv-modern-ref-body">
+              <div class="adv-modern-ref-title">${titleHtml}</div>
+              ${metaHtml}
+            </div>
+            <div class="adv-ref-actions">
+              <button type="button" class="adv-ref-btn" onclick="advRemoveCitation(${i})" title="Удалить">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function advAddChangelog() {
+      const verInput = document.getElementById('adv-cl-version');
+      const descInput = document.getElementById('adv-cl-desc');
+      if (!verInput || !descInput) return;
+
+      const version = verInput.value.trim();
+      const desc = descInput.value.trim();
+
+      if (!version || !desc) {
+        alert('Заполните версию/дату и описание');
+        return;
+      }
+
+      advChangelogs.unshift({ version, desc });
+      descInput.value = '';
+      renderAdvChangelogs();
+      syncChecklist();
+    }
+
+    function removeAdvChangelog(index) {
+      advChangelogs.splice(index, 1);
+      renderAdvChangelogs();
+      syncChecklist();
+    }
+
+    function renderAdvChangelogs() {
+      const list = document.getElementById('adv-changelog-list');
+      if (!list) return;
+
+      if (advChangelogs.length === 0) {
+        list.innerHTML = `<div class="adv-empty-state">История чиста. Добавьте запись, если вы обновили старую статью.</div>`;
+        return;
+      }
+
+      list.innerHTML = advChangelogs.map(function (c, i) {
+        return `
+          <div class="adv-timeline-item">
+            <div class="adv-timeline-dot"></div>
+            <div class="adv-timeline-content">
+              <div class="adv-timeline-head">
+                <span class="adv-timeline-version">${escapeHtml(c.version)}</span>
+              </div>
+              <div class="adv-timeline-desc">${escapeHtml(c.desc)}</div>
+              <button type="button" class="adv-timeline-del" onclick="advRemoveChangelog(${i})" title="Удалить">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function advRenderAll() {
+      renderAdvCitations();
+      renderAdvChangelogs();
+      syncChecklist();
+    }
+
+    window.advToggleCiteDialog = advToggleCiteDialog;
+    window.advSwitchCiteTab = advSwitchCiteTab;
+    window.advSimulateAutoGenerate = advSimulateAutoGenerate;
+    window.advSaveCitation = advSaveCitation;
+    window.advRemoveCitation = removeAdvCitation;
+    window.advAddChangelog = advAddChangelog;
+    window.advRemoveChangelog = removeAdvChangelog;
+    window.advRenderAll = advRenderAll;
+
+    function initAdvanced() {
+      if (document.getElementById('adv-references')) {
+        advRenderAll();
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAdvanced);
+    } else {
+      initAdvanced();
+    }
+  })();
+</script>
+
+</body>
+</html>
